@@ -1,0 +1,76 @@
+AUDIO LICENCES — Mission-Based Interactive Simulation (Assets/Audio)
+==============================================================================
+All four files below are EITHER Public Domain / CC0 1.0 (no attribution
+required) OR CC-BY 4.0 (attribution required, given below). NONE is
+CC-BY-NC, CC-BY-SA, or subject to any non-commercial restriction.
+
+--------------------------------------------------------------------------------
+1. Species: African lion (Panthera leo, male) — roar
+   Output file: Assets/Audio/SFX_Lion.ogg
+   Source URL (file page): https://commons.wikimedia.org/wiki/File:Lion_raring-sound1TamilNadu178.ogg
+   Direct file URL: https://upload.wikimedia.org/wikipedia/commons/7/7d/Lion_raring-sound1TamilNadu178.ogg
+   Description on source: "the roaring of a lion in captivity" (male lion)
+   Author / uploader: User:தகவலுழவன் (Info-farmer) — own work, 2010-09-04
+   Licence: Public domain — PD-self (copyright holder dedicated own work to
+   the public domain; licence tag "{{PD-self}}" on the file page).
+   Licence URL: https://commons.wikimedia.org/wiki/Template:PD-self
+   Attribution required: NO.
+
+--------------------------------------------------------------------------------
+2. Species: African elephant — trumpet/growl call
+   Output file: Assets/Audio/SFX_Elephant.ogg
+   Source URL (sound page): https://freesound.org/people/ikbenraar/sounds/819668/
+   Sound title: "Elephant sound" — "Field Recording of an Elephant in the Zoo"
+   (tags: call, elephant, field-recording, growl, trumpet; recorded Brugelette,
+   Hainaut, Belgium, 15 Aug 2025; duration 7.8 s)
+   Author / uploader: ikbenraar
+   Licence: CC0 1.0 Universal (Creative Commons Zero, Public Domain Dedication)
+   Licence URL: https://creativecommons.org/publicdomain/zero/1.0/
+   Attribution required: NO.
+   Note: downloaded via the sound's freely accessible preview file (full
+   downloads on freesound.org require a login); preview is the same CC0 audio.
+
+--------------------------------------------------------------------------------
+3. Species: African (Cape) buffalo (Syncerus caffer) — grunts
+   Output file: Assets/Audio/SFX_Buffalo.ogg
+   Source URL (sound page): https://freesound.org/people/roubignolle/sounds/35130/
+   Sound title: "Buffles-Grognement+amb oiseaux.aif" — "Some buffaloes in
+   Tanzania with birds in background recorded on DAT (Tascam DAP-1) with a
+   Sennheiser ME66 by G de Courtivron" (Tanzania = African buffalo)
+   Author / uploader: roubignolle (recordist: G de Courtivron), 21 May 2007
+   Licence: CC-BY 4.0 (Creative Commons Attribution 4.0 International)
+   Licence URL: https://creativecommons.org/licenses/by/4.0/
+   Attribution required: YES — use this line:
+   "Buffles-Grognement+amb oiseaux" by roubignolle (G de Courtivron),
+   https://freesound.org/people/roubignolle/sounds/35130/, licensed under
+   CC BY 4.0, https://creativecommons.org/licenses/by/4.0/
+   Note: downloaded via the sound's freely accessible preview file (full
+   downloads on freesound.org require a login); preview is the same CC-BY audio.
+
+--------------------------------------------------------------------------------
+4. Species: RHINOCEROS — SUBSTITUTION, see note
+   Output file: Assets/Audio/SFX_Rhino.ogg
+   Source URL (sound page): https://freesound.org/people/Breviceps/sounds/535810/
+   Sound title: "Indian rhinoceros (Rhinoceros unicornis)" — "Some sounds of an
+   Indian rhinoceros. Recorded with mobile phone." (19 Sep 2020; duration 9.2 s)
+   Author / uploader: Breviceps ("My sounds are Public Domain (CC0)")
+   Licence: CC0 1.0 Universal (Creative Commons Zero, Public Domain Dedication)
+   Licence URL: https://creativecommons.org/publicdomain/zero/1.0/
+   Attribution required: NO.
+   SUBSTITUTION NOTE: no recording specifically of a BLACK rhinoceros
+   (Diceros bicornis) could be found under CC0 or CC-BY on Wikimedia Commons,
+   freesound.org, or opengameart.org (the only genuine rhinoceros vocalisation
+   under an accepted licence is this Indian-rhinoceros recording; other hits
+   were horn-instrument fakes, bird calls, or speech). This file is an honest
+   rhinoceros grunt/huff of a closely related species, used as a stand-in.
+   Note: downloaded via the sound's freely accessible preview file (full
+   downloads on freesound.org require a login); preview is the same CC0 audio.
+
+--------------------------------------------------------------------------------
+VERIFICATION (2026-10-12): all four output files exist, are non-zero, and were
+probed as Vorbis, mono, 22050 Hz, <= 6 s. No file is CC-BY-NC or CC-BY-SA.
+Processing deviations from the brief (unavoidable, documented): (a) this
+shell's ffmpeg 8.1.3 has no `silenceremove=start_periods_noise` option, so the
+equivalent `silenceremove=start_periods=1:start_duration=0.4:start_threshold=-50dB`
+was used; all other settings (-t 6, loudnorm I=-16:TP=-1.5, -ac 1, -ar 22050,
+libvorbis) are exactly as specified.
