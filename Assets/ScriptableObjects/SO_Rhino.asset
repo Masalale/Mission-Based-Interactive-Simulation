@@ -16,7 +16,12 @@ MonoBehaviour:
   displayName: Black Rhino
   habitat: Thick scrub and bushland. See them at Ol Pejeta Conservancy.
   status: Critically Endangered (IUCN Red List)
+  fact: Kenya's black rhino population has more than doubled, from fewer than 400
+    in the 1980s to over 1,000, according to WWF. Round-the-clock protection made
+    that possible.
   jobRole: Wildlife veterinarian
+  jobDescription: Wildlife vets treat injured and sick animals and help move rhinos
+    safely to new sanctuaries.
   viewingRadius: 18
   dangerRadius: 8
   callClip: {fileID: 8300000, guid: 1772f50f4efaa734f851d0002b8554c4, type: 3}
