@@ -1,12 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// The hero script. On Interact it casts one ray from the centre of the screen
-/// and turns a hit into a stamp: the animal must be on the Animal layer, inside
-/// the ray distance, and the player must be standing in its viewing zone.
-/// This is the only place in the project that calls GameManager.AddStamp.
-/// </summary>
+// The hero script. On Interact, one ray from the screen centre turns a hit animal into a stamp.
+// This is the only place in the project that calls GameManager.AddStamp.
 [RequireComponent(typeof(PlayerInput))]
 public class AnimalScanner : MonoBehaviour
 {
@@ -26,15 +22,14 @@ public class AnimalScanner : MonoBehaviour
 
     private void Awake()
     {
-        PlayerInput playerInput = GetComponent<PlayerInput>();
-        if (playerInput != null && playerInput.actions != null)
-            interactAction = playerInput.actions.FindAction("Player/Interact", throwIfNotFound: false);
-
         if (scanCamera == null)
             scanCamera = GetComponentInChildren<Camera>();
 
-        // Nothing on the mask means every ray silently misses, which looks like
-        // a broken scanner rather than a missing reference.
+        PlayerInput playerInput = GetComponent<PlayerInput>();
+        if (playerInput.actions != null)
+            interactAction = playerInput.actions.FindAction("Player/Interact", throwIfNotFound: false);
+
+        // Without a mask every ray misses, which looks like a broken scanner rather than a missing reference.
         if (animalMask.value == 0)
             Debug.LogWarning($"{nameof(AnimalScanner)}: LayerMask unassigned: no scan can ever hit.", this);
     }
@@ -53,12 +48,12 @@ public class AnimalScanner : MonoBehaviour
 
     private void OnInteract(InputAction.CallbackContext context)
     {
-        if (GameManager.Instance == null || !GameManager.Instance.IsPlaying || scanCamera == null)
+        if (GameManager.Instance == null || !GameManager.Instance.IsPlaying)
             return;
 
         Ray ray = scanCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
-        // Ignore so the ViewingZone and DangerZone triggers cannot block the shot.
+        // Ignore the triggers, so the ViewingZone and DangerZone cannot block the shot.
         if (!Physics.Raycast(ray, out RaycastHit hit, maxDistance, animalMask, QueryTriggerInteraction.Ignore))
         {
             if (UIManager.Instance != null)
@@ -87,8 +82,7 @@ public class AnimalScanner : MonoBehaviour
                 callSource.PlayOneShot(animal.Data.CallClip);
         }
 
-        // A repeat scan costs nothing and only reopens the card, so the player
-        // can re-read the fact without another job point.
+        // A repeat scan costs nothing and only reopens the card, so the fact can be read again.
         if (UIManager.Instance != null)
             UIManager.Instance.ShowFactCard(animal.Data, firstScan);
     }

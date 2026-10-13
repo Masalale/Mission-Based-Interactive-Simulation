@@ -2,13 +2,8 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// First-person movement and look for the reserve walker.
-/// Built on the New Input System only: every action is read through PlayerInput,
-/// never through the legacy Input class.
-/// Runs before UIManager so its Start still locks the control scheme before the
-/// start screen disables this component.
-/// </summary>
+// First-person walking and looking, read only through the New Input System (PlayerInput).
+// Runs before UIManager, so its Start locks the control scheme before the start screen disables it.
 [DefaultExecutionOrder(-50)]
 [RequireComponent(typeof(CharacterController))]
 [RequireComponent(typeof(PlayerInput))]
@@ -21,7 +16,7 @@ public class PlayerController : MonoBehaviour
     [Header("Look")]
     [Tooltip("Degrees per second for the arrow keys and both on-screen sticks.")]
     [SerializeField] private float lookSpeed = 120f;
-    [Tooltip("Degrees per pixel for the mouse. Mouse delta is per frame already, so it is never scaled by deltaTime.")]
+    [Tooltip("Degrees per pixel for the mouse. Mouse delta is already per frame, so it is not multiplied by deltaTime.")]
     [SerializeField] private float mouseSensitivity = 0.1f;
     [SerializeField] private float minPitch = -80f;
     [SerializeField] private float maxPitch = 80f;
@@ -49,31 +44,28 @@ public class PlayerController : MonoBehaviour
     private Quaternion spawnRotation;
     private Quaternion spawnCameraRotation;
 
-    /// <summary>Raised when the player walks into a solid body. UIManager shows the bump toast.</summary>
+    // Raised when the player walks into a solid body. UIManager shows the bump toast.
     public event Action<Collider> Bumped;
 
     private void Awake()
     {
         controller = GetComponent<CharacterController>();
+        playerInput = GetComponent<PlayerInput>();
 
         if (playerCamera == null)
             playerCamera = GetComponentInChildren<Camera>();
 
-        playerInput = GetComponent<PlayerInput>();
-        if (playerInput == null || playerInput.actions == null)
+        if (playerInput.actions == null)
         {
             Debug.LogError($"{nameof(PlayerController)} needs a PlayerInput with actions assigned.", this);
             enabled = false;
             return;
         }
 
-        // Replay puts the player back here, so remember the gate position, the
-        // body rotation and the camera's starting look before anything moves.
+        // Replay puts the player back here, so remember the start position, the body rotation and the camera's look.
         spawnPosition = transform.position;
         spawnRotation = transform.rotation;
-        spawnCameraRotation = playerCamera != null
-            ? playerCamera.transform.localRotation
-            : Quaternion.identity;
+        spawnCameraRotation = playerCamera.transform.localRotation;
 
         moveAction = playerInput.actions.FindAction("Player/Move", throwIfNotFound: false);
         lookAction = playerInput.actions.FindAction("Player/Look", throwIfNotFound: false);
@@ -89,15 +81,12 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        if (playerInput == null || playerInput.actions == null)
+        if (playerInput.actions == null)
             return;
 
-        // PlayerInput is enabled by now, so the scheme can be locked.
-        // The on-screen sticks add a virtual gamepad while the mouse is still
-        // in use. Auto-switching would mask the bindings that do not match the
-        // active device and the sticks would drop out. Locking the scheme and
-        // clearing the binding mask and the device list lets keyboard, mouse and
-        // the on-screen gamepad drive the one action map together.
+        // The on-screen sticks add a virtual gamepad while the mouse is still in use. Auto-switching would hide
+        // the bindings that do not match the active device, and the sticks would drop out. Locking the scheme and
+        // clearing the binding mask and the device list lets keyboard, mouse and the on-screen gamepad work together.
         playerInput.neverAutoSwitchControlSchemes = true;
         playerInput.actions.bindingMask = null;
         playerInput.actions.devices = null;
@@ -112,60 +101,48 @@ public class PlayerController : MonoBehaviour
         Move();
     }
 
-    /// <summary>
-    /// Puts the player back at the gate with a level camera and no leftover
-    /// fall speed. UIManager calls this when Replay is pressed.
-    /// </summary>
+    // Puts the player back at the start with a level camera and no leftover fall speed. UIManager calls this on Replay.
     public void ResetToSpawn()
     {
-        if (controller == null)
-            return;
-
-        // The CharacterController overwrites the transform from its own internal
-        // position, so it has to be off while the spawn transform is written back.
+        // The CharacterController overwrites the transform from its own internal position,
+        // so it must be off while the spawn position is written back.
         bool wasEnabled = controller.enabled;
         controller.enabled = false;
 
         transform.SetPositionAndRotation(spawnPosition, spawnRotation);
         pitch = 0f;
         velocity = Vector3.zero;
-
-        if (playerCamera != null)
-            playerCamera.transform.localRotation = spawnCameraRotation;
+        playerCamera.transform.localRotation = spawnCameraRotation;
 
         controller.enabled = wasEnabled;
     }
 
     private void Look()
     {
-        // Sticks and arrow keys report a rate, so scale by lookSpeed and deltaTime.
+        // The sticks and arrow keys give a rate, so scale them by lookSpeed and deltaTime.
         Vector2 look = lookAction.ReadValue<Vector2>() * (lookSpeed * Time.deltaTime);
 
-        // The mouse already reports a per-frame delta. Scaling it by deltaTime
-        // would make sensitivity depend on frame rate, so do not.
+        // The mouse is only used while the look button is held. Its delta is not multiplied by deltaTime.
         if (lookHoldAction != null && lookHoldAction.IsPressed() && mouseLookAction != null)
-        {
             look += mouseLookAction.ReadValue<Vector2>() * mouseSensitivity;
-        }
 
-        // Yaw turns the body, pitch turns the camera only.
+        // Yaw turns the body. Pitch turns only the camera.
         transform.Rotate(0f, look.x, 0f);
-
         pitch = Mathf.Clamp(pitch - look.y, minPitch, maxPitch);
-        if (playerCamera != null)
-            playerCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        playerCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
     }
 
     private void Move()
     {
-        Vector2 move = moveAction.ReadValue<Vector2>();
-        Vector3 direction = (transform.right * move.x + transform.forward * move.y);
+        Vector2 input = moveAction.ReadValue<Vector2>();
+        Vector3 direction = transform.right * input.x + transform.forward * input.y;
 
-        // Keep the horizontal component at a fixed speed regardless of stick tilt.
+        // Clamp to length 1, so diagonal walking is not faster and the speed is the same whatever the stick tilt.
         direction = Vector3.ClampMagnitude(direction, 1f) * moveSpeed;
 
+        // A small downward speed keeps the controller on the ground when walking down slopes.
         if (controller.isGrounded && velocity.y < 0f)
-            velocity.y = -2f; // small stick to the ground so slopes stay grounded
+            velocity.y = -2f;
         velocity.y += gravity * Time.deltaTime;
 
         controller.Move((direction + Vector3.up * velocity.y) * Time.deltaTime);
@@ -173,13 +150,11 @@ public class PlayerController : MonoBehaviour
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        // The ground reports a hit every single frame the player is walking, so
-        // a surface we can stand on is never a bump.
+        // Standing on the ground reports a hit every frame, so a surface we can stand on is never a bump.
         if (hit.normal.y > 0.5f)
             return;
 
-        // One bump per cooldown keeps the sound and the toast from spamming
-        // while the player is grinding along an animal or a rock.
+        // One bump per cooldown, so the sound and toast do not spam while the player slides along a rock.
         if (Time.time < nextBumpTime)
             return;
 

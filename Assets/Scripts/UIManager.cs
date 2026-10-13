@@ -1,15 +1,10 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-/// <summary>
-/// Every screen in the safari: start screen, HUD counters, the five passport
-/// stamps, hint, warning, toast and the fact card. It only listens to
-/// GameManager, so the gameplay scripts never touch a UI reference directly.
-/// </summary>
+// Every screen of the safari: start, HUD, passport, hint, warning, toast, fact card and end screen.
+// It only listens to GameManager, so the gameplay scripts never touch a UI reference directly.
 public class UIManager : MonoBehaviour
 {
-    /// <summary>Singleton access for the gameplay scripts.</summary>
     public static UIManager Instance { get; private set; }
 
     [Header("Panels")]
@@ -26,7 +21,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button factCardCloseButton;
 
     [Header("Passport")]
-    [Tooltip("Animals in stamp slot order, index 0 is the first slot.")]
+    [Tooltip("Animals in stamp slot order. Index 0 is the first slot.")]
     [SerializeField] private AnimalData[] passportOrder;
     [SerializeField] private Image[] stampIcons;
     [SerializeField] private Text[] stampLabels;
@@ -66,7 +61,7 @@ public class UIManager : MonoBehaviour
 
     private void Awake()
     {
-        // Two managers would both answer ShowToast and fight over the panels.
+        // A second UIManager would fight over the panels, so the copy destroys itself.
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -90,8 +85,7 @@ public class UIManager : MonoBehaviour
             GameManager.Instance.OnWin += ShowEnd;
         }
 
-        if (player != null)
-            player.Bumped += HandleBump;
+        player.Bumped += HandleBump;
 
         if (continueButton != null)
             continueButton.onClick.AddListener(OnContinue);
@@ -106,18 +100,17 @@ public class UIManager : MonoBehaviour
             factCardCloseButton.onClick.AddListener(HideFactCard);
     }
 
+    // Every subscription is undone here. Otherwise Replay would leave the old listeners behind,
+    // and Refresh would run twice for every change.
     private void OnDisable()
     {
-        // Every subscription is undone here, otherwise pressing Replay would
-        // leave the old listeners behind and Refresh would run twice per change.
         if (GameManager.Instance != null)
         {
             GameManager.Instance.OnStateChanged -= Refresh;
             GameManager.Instance.OnWin -= ShowEnd;
         }
 
-        if (player != null)
-            player.Bumped -= HandleBump;
+        player.Bumped -= HandleBump;
 
         if (continueButton != null)
             continueButton.onClick.RemoveListener(OnContinue);
@@ -138,119 +131,89 @@ public class UIManager : MonoBehaviour
         Show(hudPanel, false);
         Show(endPanel, false);
         Show(factCard, false);
-        Show(hintRoot, false);
-        Show(warningRoot, false);
-        HideToast();
+        HideMessages();
 
         if (continueButton != null)
             continueButton.interactable = SaveSystem.HasSave;
 
-        // Sticks are for phones and tablets only. A Touchscreen device is not a
-        // reliable sign: desktop browsers and touch laptops report one too, so
-        // the platform decides. isMobilePlatform is also true in a phone browser.
+        // The sticks are for phones and tablets only. A touchscreen flag is not enough,
+        // because desktop browsers and touch laptops report one too.
         Show(mobileControls, Application.isMobilePlatform);
 
-        // Freeze the player until a run starts, so the start screen cannot be
-        // walked around before Continue or New Safari is pressed.
-        if (player != null)
-            player.enabled = false;
+        // Freeze the player until a run starts, so the start screen cannot be walked around.
+        player.enabled = false;
 
         Refresh();
     }
 
     private void Update()
     {
-        // A timestamp instead of a coroutine: no allocation, and it cannot be
-        // left running if the panel is hidden early.
+        // A timestamp instead of a coroutine: nothing is left running if the toast is hidden early.
         if (toastRoot != null && toastRoot.activeSelf && Time.time >= toastHideTime)
-            HideToast();
+            Show(toastRoot, false);
     }
 
-    /// <summary>Shows the hint line, e.g. the viewing zone prompt.</summary>
     public void ShowHint(string message)
     {
-        if (hintText != null)
-            hintText.text = message;
-
+        SetText(hintText, message);
         Show(hintRoot, true);
     }
 
-    /// <summary>Hides the hint line.</summary>
     public void HideHint()
     {
         Show(hintRoot, false);
     }
 
-    /// <summary>Shows the danger zone warning.</summary>
     public void ShowWarning(string message)
     {
-        if (warningText != null)
-            warningText.text = message;
-
+        SetText(warningText, message);
         Show(warningRoot, true);
     }
 
-    /// <summary>Hides the danger zone warning.</summary>
     public void HideWarning()
     {
         Show(warningRoot, false);
     }
 
-    /// <summary>Shows a short message that hides itself after toastSeconds.</summary>
     public void ShowToast(string message)
     {
-        if (toastText != null)
-            toastText.text = message;
-
+        SetText(toastText, message);
         Show(toastRoot, true);
         toastHideTime = Time.time + toastSeconds;
     }
 
-    /// <summary>
-    /// Opens the fact card for one animal. firstScan decides whether the card
-    /// celebrates a new stamp or says the animal is already in the passport.
-    /// </summary>
+    // firstScan decides whether the card celebrates a new stamp or says the animal is already in the passport.
     public void ShowFactCard(AnimalData data, bool firstScan)
     {
         if (data == null)
             return;
 
-        if (factTitleText != null)
-            factTitleText.text = data.DisplayName;
+        SetText(factTitleText, data.DisplayName);
+        SetText(factHabitatText, "Habitat: " + data.Habitat);
+        SetText(factStatusText, "Status: " + data.Status);
+        SetText(factBodyText, data.Fact);
+        SetText(factJobText, "Job supported: " + data.JobRole + "\n" + data.JobDescription);
 
-        if (factHabitatText != null)
-            factHabitatText.text = "Habitat: " + data.Habitat;
-
-        if (factStatusText != null)
-            factStatusText.text = "Status: " + data.Status;
-
-        if (factBodyText != null)
-            factBodyText.text = data.Fact;
-
-        if (factJobText != null)
-            factJobText.text = "Job supported: " + data.JobRole + "\n" + data.JobDescription;
-
-        if (factStampText != null)
-            factStampText.text = firstScan
-                ? "New stamp collected! Jobs Supported +1"
-                : "Already in your passport";
+        string stampLine = "Already in your passport";
+        if (firstScan)
+            stampLine = "New stamp collected! Jobs Supported +1";
+        SetText(factStampText, stampLine);
 
         Show(factCard, true);
         HideHint();
 
-        // The fifth scan wins the run before this card opens. Keep the end
-        // screen back until the player has read the last fact.
-        if (GameManager.Instance != null && GameManager.Instance.HasWon)
+        // The fifth scan wins the run before this card opens. Keep the end screen back
+        // until the player has read the last fact.
+        if (RunIsWon())
             Show(endPanel, false);
     }
 
-    /// <summary>Closes the fact card, for the close button.</summary>
     public void HideFactCard()
     {
         Show(factCard, false);
 
         // Closing the last fact card of a finished run brings up the end screen.
-        if (GameManager.Instance != null && GameManager.Instance.HasWon)
+        if (RunIsWon())
             ShowEnd();
     }
 
@@ -274,10 +237,9 @@ public class UIManager : MonoBehaviour
 
     private void OnReplay()
     {
-        // Replay starts the player back at the gate before the state is reset,
+        // Move the player back to the gate before the state is reset,
         // so the guide line draws from the spawn point.
-        if (player != null)
-            player.ResetToSpawn();
+        player.ResetToSpawn();
 
         if (GameManager.Instance != null)
             GameManager.Instance.ResetRun();
@@ -291,18 +253,13 @@ public class UIManager : MonoBehaviour
         Show(endPanel, false);
         Show(factCard, false);
         Show(hudPanel, true);
-
-        if (player != null)
-            player.enabled = true;
-
-        HideHint();
-        HideWarning();
-        HideToast();
+        player.enabled = true;
+        HideMessages();
 
         Refresh();
 
         // A save restored at 5 of 5 is a finished safari, so go straight to the end screen.
-        if (GameManager.Instance != null && GameManager.Instance.HasWon)
+        if (RunIsWon())
             ShowEnd();
     }
 
@@ -314,49 +271,39 @@ public class UIManager : MonoBehaviour
         int stamps = game != null ? game.Stamps : 0;
         int total = game != null ? game.TotalAnimals : 0;
 
-        if (jobsText != null)
-            jobsText.text = "Jobs Supported: " + jobs;
-
-        if (scoreText != null)
-            scoreText.text = "Score: " + score;
-
-        if (stampsText != null)
-            stampsText.text = "Stamps: " + stamps + " / " + total;
+        SetText(jobsText, "Jobs Supported: " + jobs);
+        SetText(scoreText, "Score: " + score);
+        SetText(stampsText, "Stamps: " + stamps + " / " + total);
 
         RefreshPassport();
     }
 
     private void RefreshPassport()
     {
-        if (passportOrder == null)
-            return;
-
         for (int i = 0; i < passportOrder.Length; i++)
         {
             AnimalData slot = passportOrder[i];
-
             if (slot == null)
                 continue;
 
             bool stamped = IsScanned(slot);
 
-            // Every array is bounds checked: the editor may wire fewer icons
-            // than passport slots and that must not break the HUD.
+            // The editor may wire fewer icons or labels than there are passport slots,
+            // so each array is bounds checked.
             if (stampIcons != null && i < stampIcons.Length && stampIcons[i] != null)
                 stampIcons[i].color = stamped ? stampedColor : emptyColor;
 
-            if (stampLabels != null && i < stampLabels.Length && stampLabels[i] != null)
-                stampLabels[i].text = slot.DisplayName;
+            if (stampLabels != null && i < stampLabels.Length)
+                SetText(stampLabels[i], slot.DisplayName);
         }
     }
 
+    // True when an animal of this species has been stamped in the current run.
     private static bool IsScanned(AnimalData data)
     {
-        for (int i = 0; i < Animal.All.Count; i++)
+        foreach (Animal animal in Animal.All)
         {
-            Animal animal = Animal.All[i];
-
-            if (animal != null && animal.Data == data && animal.Scanned)
+            if (animal.Data == data && animal.Scanned)
                 return true;
         }
 
@@ -369,9 +316,7 @@ public class UIManager : MonoBehaviour
         Show(factCard, false);
         HideHint();
         HideWarning();
-
-        if (player != null)
-            player.enabled = false;
+        player.enabled = false;
 
         GameManager game = GameManager.Instance;
         int stamps = game != null ? game.Stamps : 0;
@@ -379,12 +324,9 @@ public class UIManager : MonoBehaviour
         int breaches = game != null ? game.Breaches : 0;
         int jobs = game != null ? game.Jobs : 0;
 
-        // The reserve holds five animals; the fallback keeps the line readable
-        // if the end screen somehow opens before they spawned.
+        // The reserve holds five animals. The fallback keeps the line readable if the end screen
+        // opens before they have spawned.
         int total = game != null && game.TotalAnimals > 0 ? game.TotalAnimals : 5;
-
-        if (endSummaryText == null)
-            return;
 
         // 100 is startingScore, so it is also the top score a run can reach.
         string summary = "Safari complete: " + stamps + " of " + total + " stamps\n";
@@ -394,14 +336,11 @@ public class UIManager : MonoBehaviour
         if (breaches == 0)
             summary += "\nPerfect run. Zero breaches.";
 
-        endSummaryText.text = summary;
+        SetText(endSummaryText, summary);
     }
 
     private void HandleBump(Collider hit)
     {
-        if (hit == null)
-            return;
-
         Animal animal = hit.GetComponentInParent<Animal>();
 
         if (animal != null && animal.Data != null)
@@ -410,15 +349,31 @@ public class UIManager : MonoBehaviour
             ShowToast("Blocked by a rock or tree");
     }
 
-    private void HideToast()
+    // Hides the hint, warning and toast together.
+    private void HideMessages()
     {
+        Show(hintRoot, false);
+        Show(warningRoot, false);
         Show(toastRoot, false);
     }
 
-    // One null-guarded SetActive helper: an unwired panel must never throw.
+    // True once the run is won. This is when the end screen takes over.
+    private static bool RunIsWon()
+    {
+        return GameManager.Instance != null && GameManager.Instance.HasWon;
+    }
+
+    // An unwired panel is skipped, so it never throws.
     private static void Show(GameObject panel, bool visible)
     {
         if (panel != null)
             panel.SetActive(visible);
+    }
+
+    // An unwired label is skipped, so it never throws.
+    private static void SetText(Text label, string value)
+    {
+        if (label != null)
+            label.text = value;
     }
 }

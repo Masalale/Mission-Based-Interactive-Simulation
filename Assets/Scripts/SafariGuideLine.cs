@@ -1,10 +1,7 @@
 using UnityEngine;
 
-/// <summary>
-/// The guide line drawn from the player to the nearest animal that still needs
-/// a stamp. It retargets whenever a stamp is collected or the state changes, and
-/// hides itself when the passport is full, so the hunt is never aimless.
-/// </summary>
+// The guide line from the player to the nearest animal that still needs a stamp.
+// It hides itself when the passport is full, so the hunt is never aimless.
 [RequireComponent(typeof(LineRenderer))]
 public class SafariGuideLine : MonoBehaviour
 {
@@ -21,10 +18,7 @@ public class SafariGuideLine : MonoBehaviour
     {
         line = GetComponent<LineRenderer>();
 
-        if (line == null)
-            return;
-
-        // Two points only: the player's feet and the target's base.
+        // Two points only: the start (the player) and the end (the target).
         line.positionCount = 2;
         line.useWorldSpace = true;
     }
@@ -42,24 +36,25 @@ public class SafariGuideLine : MonoBehaviour
             GameManager.Instance.OnStateChanged += Retarget;
         }
 
-        // A line that is re-enabled mid run must find its target again.
+        // A line that is re-enabled in the middle of a run must find its target again.
         Retarget();
     }
 
     private void OnDisable()
     {
-        if (GameManager.Instance == null)
-            return;
-
-        GameManager.Instance.OnStampAdded -= HandleStampAdded;
-        GameManager.Instance.OnStateChanged -= Retarget;
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnStampAdded -= HandleStampAdded;
+            GameManager.Instance.OnStateChanged -= Retarget;
+        }
     }
 
     private void LateUpdate()
     {
-        if (line == null || target == null)
+        if (target == null)
             return;
 
+        // Updated every frame, so the line follows the player while they walk.
         Vector3 from = player != null ? player.position : transform.position;
         line.SetPosition(0, from + Vector3.up * heightOffset);
         line.SetPosition(1, target.GuidePosition + Vector3.up * heightOffset);
@@ -67,16 +62,15 @@ public class SafariGuideLine : MonoBehaviour
 
     private void HandleStampAdded(Animal animal)
     {
-        // The animal that was just stamped is the one we no longer follow.
+        // The animal that was just stamped is no longer the target.
         Retarget();
     }
 
-    /// <summary>Picks the nearest unscanned animal and shows or hides the line.</summary>
+    // Picks the nearest unscanned animal and shows the line only when there is one.
     private void Retarget()
     {
         target = FindNearestUnscanned();
-        if (line != null)
-            line.enabled = target != null;
+        line.enabled = target != null;
     }
 
     private Animal FindNearestUnscanned()
@@ -88,20 +82,18 @@ public class SafariGuideLine : MonoBehaviour
         Animal nearest = null;
         float nearestSqr = float.MaxValue;
 
-        for (int i = 0; i < Animal.All.Count; i++)
+        foreach (Animal candidate in Animal.All)
         {
-            Animal candidate = Animal.All[i];
-
-            if (candidate == null || candidate.Scanned)
+            if (candidate.Scanned)
                 continue;
 
-            // Squared distance avoids a square root per animal per retarget.
+            // Squared distance is enough to compare, and skips a square root per animal.
             float sqr = (candidate.GuidePosition - from).sqrMagnitude;
-            if (sqr >= nearestSqr)
-                continue;
-
-            nearestSqr = sqr;
-            nearest = candidate;
+            if (sqr < nearestSqr)
+            {
+                nearestSqr = sqr;
+                nearest = candidate;
+            }
         }
 
         return nearest;

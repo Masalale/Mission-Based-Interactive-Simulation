@@ -2,12 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-/// <summary>
-/// The saved safari: which animals are stamped, the score and the breach count.
-/// Plain fields and List&lt;string&gt; because JsonUtility cannot serialise
-/// dictionaries or anything else clever.
-/// </summary>
-[System.Serializable]
+// The saved run. Plain fields and a List, because JsonUtility cannot read dictionaries.
+[Serializable]
 public class SaveData
 {
     public List<string> scannedIds = new List<string>();
@@ -15,47 +11,32 @@ public class SaveData
     public int breaches;
 }
 
-/// <summary>
-/// Save and load through PlayerPrefs and JsonUtility. PlayerPrefs works on
-/// every target including WebGL, which has no writable filesystem. Static
-/// because only one save exists and no scene object needs to own it.
-/// </summary>
+// Saves the run as JSON in PlayerPrefs. PlayerPrefs works on WebGL, which has no file system.
 public static class SaveSystem
 {
     private const string Key = "SafariSave";
 
-    /// <summary>True when a previous safari was saved and Continue can be pressed.</summary>
     public static bool HasSave => PlayerPrefs.HasKey(Key);
 
-    /// <summary>Writes the given state to PlayerPrefs and flushes it to disk.</summary>
     public static void Save(SaveData data)
     {
-        if (data == null)
-            return;
-
         PlayerPrefs.SetString(Key, JsonUtility.ToJson(data));
-        // WebGL keeps PlayerPrefs in memory until this flush, so a tab close
-        // without it would lose the run.
+
+        // WebGL keeps PlayerPrefs in memory until Save() flushes it, so a closed tab would lose the run.
         PlayerPrefs.Save();
     }
 
-    /// <summary>
-    /// Reads the save. Returns false when there is no key, the string is empty,
-    /// or the JSON cannot be parsed, so callers can fall back to a new run.
-    /// </summary>
+    // Returns false when there is no save, or when it cannot be read, so the caller starts a new run.
     public static bool TryLoad(out SaveData data)
     {
         data = null;
 
-        if (!PlayerPrefs.HasKey(Key))
-            return false;
-
+        // A missing key gives an empty string, so this one check covers both cases.
         string json = PlayerPrefs.GetString(Key, string.Empty);
         if (string.IsNullOrEmpty(json))
             return false;
 
-        // A corrupted PlayerPrefs entry can come from an older build, so parsing
-        // is guarded instead of throwing out of a load.
+        // An old or damaged save must not throw, so parsing is guarded.
         try
         {
             data = JsonUtility.FromJson<SaveData>(json);
@@ -63,13 +44,11 @@ public static class SaveSystem
         catch (Exception error)
         {
             Debug.LogWarning($"{nameof(SaveSystem)} could not read the save: {error.Message}");
-            data = null;
         }
 
         return data != null;
     }
 
-    /// <summary>Deletes the save. Used by ResetRun so a new safari starts clean.</summary>
     public static void Clear()
     {
         PlayerPrefs.DeleteKey(Key);
