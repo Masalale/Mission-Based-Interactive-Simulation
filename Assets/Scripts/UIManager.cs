@@ -145,9 +145,10 @@ public class UIManager : MonoBehaviour
         if (continueButton != null)
             continueButton.interactable = SaveSystem.HasSave;
 
-        // New Input System check: the on-screen sticks only make sense where a
-        // touchscreen exists. On desktop the mouse and keyboard stay in charge.
-        Show(mobileControls, Touchscreen.current != null);
+        // Sticks are for phones and tablets only. A Touchscreen device is not a
+        // reliable sign: desktop browsers and touch laptops report one too, so
+        // the platform decides. isMobilePlatform is also true in a phone browser.
+        Show(mobileControls, Application.isMobilePlatform);
 
         // Freeze the player until a run starts, so the start screen cannot be
         // walked around before Continue or New Safari is pressed.
