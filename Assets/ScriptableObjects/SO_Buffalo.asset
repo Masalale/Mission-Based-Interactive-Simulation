@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcea0647197196b43b49d330c03e984b, type: 3}
+  m_Name: SO_Buffalo
+  m_EditorClassIdentifier: Assembly-CSharp::AnimalData
+  id: buffalo
+  displayName: Buffalo
+  habitat: Woodland and grassland near water. See them at Lake Nakuru National Park.
+  status: Near Threatened (IUCN Red List)
+  jobRole: Beadwork artisan
+  viewingRadius: 15
+  dangerRadius: 6
+  callClip: {fileID: 8300000, guid: 1bdf789edebb0b34d84bb1bab7a7c2ff, type: 3}

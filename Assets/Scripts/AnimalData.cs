@@ -13,11 +13,11 @@ public class AnimalData : ScriptableObject
     [SerializeField] private string displayName;
     [SerializeField] private string habitat;
     [SerializeField] private string status;
-    [TextArea] private string fact;
+    [SerializeField, TextArea(3, 8)] private string fact;
 
     [Header("Job supported")]
     [SerializeField] private string jobRole;
-    [TextArea] private string jobDescription;
+    [SerializeField, TextArea(3, 8)] private string jobDescription;
 
     [Header("Zones")]
     [Tooltip("Radius in metres of the ViewingZone trigger.")]
