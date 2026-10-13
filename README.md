@@ -192,24 +192,31 @@ The project never uses file IO, because WebGL has no writable filesystem.
 ```
 Assets/
   Audio/              AMB_Savanna.ogg, SFX_Buffalo.ogg, SFX_Bump.ogg, SFX_Elephant.ogg, SFX_Lion.ogg, SFX_Rhino.ogg
-  Editor/             12 editor scripts (table below)
+  Editor/             13 editor scripts (table below)
   Images/             background_removed.png (title logo)
   Input/              InputSystem_Actions.inputactions
   Materials/          M_Buffalo, M_Elephant, M_Ground, M_GuideLine, M_LeopardJaguar, M_Lion, M_Particle, M_Rhino, M_Track
+    Fonts/            Tribeca.ttf, the UI font, and its TextMesh Pro asset
   Models/
     Animals/          SM_Buffalo.fbx, SM_Elephant.fbx, SM_Leopard_Jaguar.fbx, SM_Lion.fbx, SM_Rhino.fbx
       Textures/       T_Buffalo_Palette.png, T_Elephant_Palette.png, T_Leopard_Jaguar.png, T_Lion_Palette.png, T_Rhino_Palette.png
     Scenery/          Kenney Nature Kit pieces, in sub-folders Ground, Materials, Rocks, Scatter and Trees
+    Generated/        Merged ground and landform meshes, made by the editor tooling (SafariScenery.cs)
   Prefabs/            PF_Animal, PF_Animal_Lion, PF_Animal_Leopard, PF_Animal_Elephant, PF_Animal_Rhino, PF_Animal_Buffalo
   Scenes/             Safari_Main.unity
   ScriptableObjects/  SO_Lion, SO_Leopard, SO_Elephant, SO_Rhino, SO_Buffalo
   Scripts/            ten gameplay scripts (table below)
   Settings/           URP render pipeline assets and volume profiles
+  TextMesh Pro/       TextMesh Pro essentials, imported for the UI text
   ThirdParty/         licence files for Grab3D, Kenney, the jaguar and the audio clips
   UI/                 empty folder
 ```
 
-**Scenery.** Only part of the Kenney Nature Kit is placed in the scene. The rest of the pack stays in the project for further scene work. Scene totals: TODO_SCENE_STATS.
+**Scene.** The reserve is a 250 m square savanna. Open grassland fills the middle. Woodland clumps are placed around it, and a dense bush belt runs along the edge. Each animal has a habitat behind it: a rock outcrop for the lion, a large acacia with boulders and a log for the leopard, a waterhole for the elephant, scrub and stumps for the rhino, and tall grass and a mud pool for the buffalo. A dirt track runs from the spawn to each animal. Distant hills and one mountain landmark are in the view, and the mountain is to the north. A warm procedural sky and fog complete the view.
+
+**Scenery.** All scenery pieces come from the Kenney Nature Kit. Only part of the pack is placed in the scene, and the rest stays in the project for further scene work. The pieces are recoloured to a dry savanna palette. The colours are set on the pack's shared materials, so the scenery uses no textures.
+
+**Scene totals:** 2,614 GameObjects, 1,265 renderers and 126,075 triangles.
 
 ### Script table
 
@@ -217,18 +224,18 @@ Line counts are from `wc -l` on 13 Oct 2026.
 
 | File | Purpose | Lines |
 | --- | --- | --- |
-| `PlayerController.cs` | First-person move and look, gravity, bump feedback, spawn reset | 192 |
-| `AnimalScanner.cs` | Interact: centre-screen raycast, stamps, call sound, fact card | 104 |
-| `Animal.cs` | Per-animal runtime state, zone radii, static list of all animals | 96 |
-| `AnimalData.cs` | ScriptableObject: fact, job, radii, call clip | 59 |
-| `ViewingZone.cs` | Trigger that allows scanning and shows the hint | 54 |
-| `DangerZone.cs` | Trigger that shows the warning and books breaches, with a cooldown | 53 |
-| `SafariGuideLine.cs` | LineRenderer guide to the nearest unscanned animal | 108 |
-| `GameManager.cs` | Run state (stamps, score, breaches, jobs), events, win, save and restore | 213 |
-| `UIManager.cs` | Every screen, the HUD, the fact card; listens to GameManager | 423 |
-| `SaveSystem.cs` | PlayerPrefs and JsonUtility save, load and clear | 77 |
+| `PlayerController.cs` | First-person move and look, gravity, bump feedback, spawn reset | 168 |
+| `AnimalScanner.cs` | Interact: centre-screen raycast, stamps, call sound, fact card | 99 |
+| `Animal.cs` | Per-animal runtime state, zone radii, static list of all animals | 73 |
+| `AnimalData.cs` | ScriptableObject: fact, job, radii, call clip | 33 |
+| `ViewingZone.cs` | Trigger that allows scanning and shows the hint | 44 |
+| `DangerZone.cs` | Trigger that shows the warning and books breaches, with a cooldown | 45 |
+| `SafariGuideLine.cs` | LineRenderer guide to the nearest unscanned animal | 101 |
+| `GameManager.cs` | Run state (stamps, score, breaches, jobs), events, win, save and restore | 163 |
+| `UIManager.cs` | Every screen, the HUD, the fact card; listens to GameManager | 379 |
+| `SaveSystem.cs` | PlayerPrefs and JsonUtility save, load and clear | 57 |
 
-Total: 1,379 lines.
+Total: 1,162 lines.
 
 ### Editor scripts
 
@@ -237,17 +244,20 @@ The Editor folder holds the build tools, the verification tools and two import p
 | File | Purpose | Lines |
 | --- | --- | --- |
 | `AnimalImportSettings.cs` | Import settings for the animal models under `Assets/Models/Animals` (an `AssetPostprocessor`) | 44 |
-| `SafariAssetBuilder.cs` | Shared materials, the five `AnimalData` assets, `PF_Animal` and its five variants | 931 |
+| `SafariAssetBuilder.cs` | Shared materials, the five `AnimalData` assets, `PF_Animal` and its five variants | 1,055 |
 | `SafariBuild.cs` | WebGL and Android player builds, run by hand | 127 |
-| `SafariBuilder.cs` | `BuildAll` and the read-only `Validate` audit | 962 |
+| `SafariBuilder.cs` | `BuildAll` and the read-only `Validate` audit | 1,322 |
 | `SafariLog.cs` | Log lines with the `[Safari]` prefix, and a failure count for the exit code | 202 |
 | `SafariModelOrient.cs` | Works out how to turn each animal model to face the approach, by rotating its Model child | 257 |
 | `SafariProjectSetup.cs` | Layers, player settings, import settings and URP assets, and `SafariPaths` | 565 |
-| `SafariSceneBuilder.cs` | Rebuilds `Safari_Main` with a fixed random seed | 1,089 |
-| `SafariShots.cs` | Renders review screenshots | 731 |
+| `SafariSceneBuilder.cs` | Rebuilds `Safari_Main` with a fixed random seed | 763 |
+| `SafariScenery.cs` | Scenery layout: zones, habitats, track and ground, hills and the mountain, and the merged meshes in `Assets/Models/Generated` | 1,609 |
+| `SafariShots.cs` | Renders review screenshots | 836 |
 | `SafariSmokeTest.cs` | Play-mode smoke test | 806 |
-| `SafariUIBuilder.cs` | Canvas, HUD, start screen, fact card and end screen | 696 |
+| `SafariUIBuilder.cs` | Canvas, HUD, start screen, fact card and end screen | 700 |
 | `SceneryImportSettings.cs` | Import settings for the Kenney scenery (an `AssetPostprocessor`) | 116 |
+
+Total: 8,402 lines.
 
 ### Prefabs
 
@@ -267,12 +277,14 @@ The scene, prefabs and data assets are generated by editor scripts in `Assets/Ed
 - `Safari > 2 Build Assets` (`SafariAssetBuilder`): shared materials, the five `AnimalData` assets, `PF_Animal` and its five variants.
 - `Safari > 3 Build Scene` (`SafariSceneBuilder`): rebuilds `Safari_Main` with a fixed random seed, so two runs give the same scatter.
 - `Safari > 0 Build All` (`SafariBuilder.BuildAll`): runs the three steps above in order and saves.
-- `Safari > 8 Screenshots` (`SafariShots`): renders review screenshots of the built reserve to `Logs/shots`. It needs a graphics device, so it runs without `-nographics`.
+- `Safari > 4 Screenshots` (`SafariShots`): renders review screenshots of the built reserve to `Logs/shots`. It needs a graphics device, so it runs without `-nographics`.
 - `Safari > 9 Validate` (`SafariBuilder.Validate`): audits the saved scene and prefabs, and prints one PASS or FAIL line per check.
 
 `BuildAll` and `Validate` both end by calling `EditorApplication.Exit`, so they close the Editor when they finish. Run them from the command line, or save your work first.
 
-`SafariBuilder.Validate` is a read-only check of the generated scene and prefabs, and the last run reported TODO_TEST_COUNTS. `SafariSmokeTest` is an Editor-driven Play-mode run that walks, scans, breaches, wins, saves and replays through the real Input System, and it logs one PASS or FAIL line per check. The smoke test has no menu item. It is started from the command line with `-executeMethod`. Its last run reported TODO_TEST_COUNTS.
+The scene is now edited by hand in the Editor. Some UI text uses the Tribeca font, which was set by hand. `SafariBuilder.BuildAll` regenerates the scene and would discard these hand edits, so do not run it without care.
+
+`SafariBuilder.Validate` is a read-only check of the generated scene and prefabs, and the last run reported Validate 87 checks passing, Play-mode smoke test 74 checks passing (13 October 2026). `SafariSmokeTest` is an Editor-driven Play-mode run that walks, scans, breaches, wins, saves and replays through the real Input System, and it logs one PASS or FAIL line per check. The smoke test has no menu item. It is started from the command line with `-executeMethod`. Its last run reported Validate 87 checks passing, Play-mode smoke test 74 checks passing (13 October 2026).
 
 ## 7. Build Information
 
@@ -289,13 +301,16 @@ The scene, prefabs and data assets are generated by editor scripts in `Assets/Ed
 **Build settings in the project.**
 
 - WebGL: compression format is Disabled and decompression fallback is off. GitHub Pages cannot send the `Content-Encoding` header that compressed builds need. `SafariBuild.BuildWebGL` sets the canvas to 1280 x 720. Output folder: `Builds/WebGL`.
-- Android: IL2CPP scripting backend, ARM64 only, landscape orientation (auto-rotate left and right, portrait off), built as an APK rather than an AAB. Output: `Builds/Android/BigFiveHeritageSafari.apk`.
+- Android: IL2CPP scripting backend, ARM64 only, landscape orientation (auto-rotate left and right, portrait off), built as an APK rather than an AAB. The APK goes to the project's Builds folder, at the path set in `SafariBuild.cs`. No APK has been built yet.
 - Build Settings contains one scene: `Assets/Scenes/Safari_Main.unity`.
 
 **Build status.**
 
 - WebGL: built and run locally in a desktop browser, where the start screen, walking, scanning and the fact card were checked. Sound in the browser has not been checked by ear.
+- WebGL size and speed: the build is 62 MB at 1280 x 720. It ran at about 128 frames per second in a desktop browser on the author's PC. This was not a phone test.
 - Android: not built yet. The phone path is untested.
+
+**Mobile note.** The animals use blob shadows, not real-time shadows. Real-time shadows are off on the low quality level used by WebGL and Android.
 
 **Run the project in the Editor.**
 
@@ -339,6 +354,8 @@ Use `BuildAndroid` in place of `BuildWebGL` for the APK. The same methods are av
 - Animals faced away from the player, because the review cameras were on the far side of each animal (entry 17).
 - Some fact card sentences went beyond their cited sources and were rewritten (entry 18).
 - Known issue, not fixed: the WebGL console logs a "sound which is not loaded yet" warning. It does not come from project code (entry 19).
+- Track and ground patches were invisible after merging, and the hills and mountain rendered inside-out, because the generated meshes had reversed triangle winding (entry 20).
+- Scenery never matched the savanna palette, because the embedded Kenney materials were not matched by name to the project's shared materials (entry 21).
 
 **Hardest feature (draft for the author to confirm).** For me the hardest part was the editor build pipeline. Many of the bugs in `BUGS.md` came from the scene, asset and import code, not from gameplay (entries 4 to 7, 9 to 11, 14, 15 and 17). The fixes taught me to give each setting one owner, to read values back from an asset after writing it, and to walk the real property paths when validating.
 
@@ -361,6 +378,7 @@ Use `BuildAndroid` in place of `BuildWebGL` for the APK. The same methods are av
 | Lion, elephant, rhino and buffalo meshes (`SM_Lion`, `SM_Elephant`, `SM_Rhino`, `SM_Buffalo`) | Grab3D (grab3d.com) | CC0 1.0 | The buffalo is Grab3D's Low Poly Bull, standing in for a Cape buffalo. The palette textures (`T_Lion_Palette.png`, `T_Elephant_Palette.png`, `T_Rhino_Palette.png`, `T_Buffalo_Palette.png`) are Grab3D's own, extracted from its GLB downloads, and are used through `M_Lion`, `M_Elephant`, `M_Rhino` and `M_Buffalo`. |
 | Leopard, as a jaguar model (`SM_Leopard_Jaguar.fbx`, `T_Leopard_Jaguar.png`, `M_LeopardJaguar`). Source: "Jaguar" by Poly by Google, https://poly.pizza/m/4fb-oMr2uUF | Poly by Google, via poly.pizza | CC BY 3.0 | This is a jaguar, not a leopard. It stands in for the leopard. Changes: converted from GLB to FBX in Blender 5.2, scaled, placed so the feet rest on the ground at the origin, base colour texture downscaled from 2048 to 1024 pixels, material renamed. Licence file: `Assets/ThirdParty/POLY-JAGUAR-LICENSE.txt`. |
 | Scenery: trees, rocks and ground cover | Kenney Nature Kit 2.1 (kenney.nl) | CC0 1.0 | Credit to Kenney is appreciated but not required. |
+| Font: Tribeca (`Assets/Materials/Fonts/Tribeca.ttf`) | Not recorded in the project | TODO_FONT_CREDIT | Set by hand on several UI texts in the Editor. The TextMesh Pro essentials are in `Assets/TextMesh Pro`. |
 | Title logo (`Assets/Images/background_removed.png`) | TODO_LOGO_CREDIT | Not yet recorded | |
 
 **Required attribution (CC BY 3.0), for the jaguar model:**
