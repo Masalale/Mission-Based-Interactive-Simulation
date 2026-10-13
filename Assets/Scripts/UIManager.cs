@@ -236,12 +236,21 @@ public class UIManager : MonoBehaviour
 
         Show(factCard, true);
         HideHint();
+
+        // The fifth scan wins the run before this card opens. Keep the end
+        // screen back until the player has read the last fact.
+        if (GameManager.Instance != null && GameManager.Instance.HasWon)
+            Show(endPanel, false);
     }
 
     /// <summary>Closes the fact card, for the close button.</summary>
     public void HideFactCard()
     {
         Show(factCard, false);
+
+        // Closing the last fact card of a finished run brings up the end screen.
+        if (GameManager.Instance != null && GameManager.Instance.HasWon)
+            ShowEnd();
     }
 
     private void OnContinue()

@@ -16,8 +16,8 @@ MonoBehaviour:
   displayName: Buffalo
   habitat: Woodland and grassland near water. See them at Lake Nakuru National Park.
   status: Near Threatened (IUCN Red List)
-  fact: 'Buffalo herds are led by their females: the core of a herd is adult cows
-    and their young. A herd will turn together to face a threat.'
+  fact: 'Buffalo herds are largely matriarchal: the core of a herd is adult females
+    and their young. In open country, a large herd offers protection from lions.'
   jobRole: Beadwork artisan
   jobDescription: Women's craft groups near the reserves make beadwork that safari
     guests buy, turning tourism into household income.

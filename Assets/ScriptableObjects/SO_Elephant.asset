@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AnimalData
   id: elephant
   displayName: Elephant
-  habitat: Grasslands and woodlands. See them in Amboseli National Park.
-  status: Endangered (IUCN Red List)
+  habitat: Open country and grasslands. See them in Amboseli National Park.
+  status: Endangered (IUCN Red List, savanna elephant)
   fact: African savanna elephant numbers fell by at least 60% over the last 50 years,
     according to the IUCN. Poaching and habitat loss are the main threats.
   jobRole: Anti-poaching ranger

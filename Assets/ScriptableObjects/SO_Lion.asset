@@ -16,10 +16,11 @@ MonoBehaviour:
   displayName: Lion
   habitat: Grassy plains and open savanna. See them in the Maasai Mara.
   status: Vulnerable (IUCN Red List)
-  fact: The Kenya Wildlife Service counted 2,589 lions in Kenya in 2021, up from
-    about 2,000 in 2010. Careful, well-managed tourism helps pay for their protection.
+  fact: Kenya Wildlife Service figures show Kenya's lions rose from 2,000 in 2010
+    to 2,589 in 2021. Community-led conservancies return tourism revenue to local
+    people and give lions a safe haven.
   jobRole: Safari driver-guide
-  jobDescription: Guides lead game drives, find the animals, and keep every vehicle
+  jobDescription: Guides lead game drives, find the animals, and help keep vehicles
     at a safe, respectful distance.
   viewingRadius: 15
   dangerRadius: 6

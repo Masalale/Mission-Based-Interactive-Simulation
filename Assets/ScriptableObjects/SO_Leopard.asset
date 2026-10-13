@@ -16,8 +16,8 @@ MonoBehaviour:
   displayName: Leopard
   habitat: Savanna, woodland and riverine forest. See them in the Maasai Mara.
   status: Vulnerable (IUCN Red List)
-  fact: Leopards hunt mostly at night and hide their kills, often up in trees, away
-    from lions and hyenas. Spotting one takes patience and a skilled tracker.
+  fact: Leopards hunt mainly at night. They cache their kills in trees, bushes or
+    caves, out of reach of rivals such as hyenas.
   jobRole: Community conservancy scout
   jobDescription: Scouts from local communities patrol conservancy land, monitor
     wildlife, and report by radio to the authorities.
