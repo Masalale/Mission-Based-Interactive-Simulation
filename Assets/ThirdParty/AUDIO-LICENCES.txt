@@ -1,6 +1,6 @@
 AUDIO LICENCES — Mission-Based Interactive Simulation (Assets/Audio)
 ==============================================================================
-All four files below are EITHER Public Domain / CC0 1.0 (no attribution
+All six files below are EITHER Public Domain / CC0 1.0 (no attribution
 required) OR CC-BY 4.0 (attribution required, given below). NONE is
 CC-BY-NC, CC-BY-SA, or subject to any non-commercial restriction.
 
@@ -67,6 +67,51 @@ CC-BY-NC, CC-BY-SA, or subject to any non-commercial restriction.
    downloads on freesound.org require a login); preview is the same CC0 audio.
 
 --------------------------------------------------------------------------------
+5. Environment: African savanna (Kenya, near Voi) — daytime birds and wind ambience
+   Output file: Assets/Audio/AMB_Savanna.ogg
+   Source URL (sound page): https://freesound.org/people/dkaufman/sounds/743640/
+   Direct file URL: https://cdn.freesound.org/previews/743/743640_21914-hq.mp3
+   Sound title: "Birds and wind at Ngutuni Lodge"
+   Description on source: "The sounds of the Ngutuni Lodge gardens near Voi, Kenya.
+   Recorded with Sony PCM-A10 in wide mode." (location: Kaloleni, Taita–Taveta,
+   Kenya; tags: birdsong, field-recording, nature; duration 0:22.165, 48 kHz stereo WAV)
+   Author / uploader: dkaufman, 26 June 2024
+   Licence: CC0 1.0 Universal (Creative Commons Zero, Public Domain Dedication),
+   shown on the sound page as "Creative Commons 0"
+   Licence URL: https://creativecommons.org/publicdomain/zero/1.0/
+   Attribution required: NO.
+   Note: downloaded via the sound's freely accessible preview file (full
+   downloads on freesound.org require a login); preview is the same CC0 audio.
+   The page tags list birds and wind only (no insect tag); content was checked
+   from the page description and tags, not by ear.
+   Processing: ffmpeg -n -i <preview.mp3> -t 30 -af "loudnorm=I=-23:TP=-2,
+   afade=t=in:st=0:d=1.5,afade=t=out:st=20.665:d=1.5" -ac 1 -ar 22050
+   -c:a libvorbis -q:a 3 Assets/Audio/AMB_Savanna.ogg
+   (source is 22.165 s, so -t 30 did not bite; fade-out starts at 22.165 − 1.5.)
+
+--------------------------------------------------------------------------------
+6. Effect: soft body thud / bump (suitable for "player walked into a rock")
+   Output file: Assets/Audio/SFX_Bump.ogg
+   Source URL (sound page): https://freesound.org/people/JonasTisell/sounds/496187/
+   Direct file URL: https://cdn.freesound.org/previews/496/496187_3910073-hq.mp3
+   Sound title: "Light Body thud (on clothing)"
+   Description on source: "A light body thud used in a project of mine. feel free to
+   use for anything" (tags: body, impact, thud; duration 0:00.325, 44.1 kHz stereo MP3)
+   Author / uploader: JonasTisell, 7 December 2019
+   Licence: CC0 1.0 Universal (Creative Commons Zero, Public Domain Dedication),
+   shown on the sound page as "Creative Commons 0"
+   Licence URL: https://creativecommons.org/publicdomain/zero/1.0/
+   Attribution required: NO.
+   Note: downloaded via the sound's freely accessible preview file (full
+   downloads on freesound.org require a login); preview is the same CC0 audio.
+   Processing: ffmpeg -n -i <preview.mp3> -af "silenceremove=start_periods=1:
+   start_duration=0.02:start_threshold=-45dB,loudnorm=I=-16:TP=-1.5,areverse,
+   afade=t=in:st=0:d=0.03,areverse" -t 0.6 -ac 1 -ar 22050 -c:a libvorbis -q:a 4
+   Assets/Audio/SFX_Bump.ogg
+   (30 ms fade-out implemented as areverse + fade-in + areverse, so it lands on
+   the true end of the clip whatever its length.)
+
+--------------------------------------------------------------------------------
 VERIFICATION (2026-10-12): all four output files exist, are non-zero, and were
 probed as Vorbis, mono, 22050 Hz, <= 6 s. No file is CC-BY-NC or CC-BY-SA.
 Processing deviations from the brief (unavoidable, documented): (a) this
@@ -74,3 +119,13 @@ shell's ffmpeg 8.1.3 has no `silenceremove=start_periods_noise` option, so the
 equivalent `silenceremove=start_periods=1:start_duration=0.4:start_threshold=-50dB`
 was used; all other settings (-t 6, loudnorm I=-16:TP=-1.5, -ac 1, -ar 22050,
 libvorbis) are exactly as specified.
+
+--------------------------------------------------------------------------------
+VERIFICATION (2026-10-13): AMB_Savanna.ogg and SFX_Bump.ogg exist and are non-zero
+(116,194 bytes and 4,967 bytes). Both probed as Vorbis, mono, 22050 Hz: AMB_Savanna
+22.20 s; SFX_Bump 0.25 s (under the 0.6 s limit). Both sources were confirmed CC0 on
+their freesound.org sound pages on 2026-10-13. Neither file is CC-BY-NC or CC-BY-SA.
+Processing notes: entry 5 uses the brief's settings unchanged (the source is shorter
+than 30 s, so the output is the full 22.2 s). Entry 6 uses the brief's settings with
+the silence trim as stated above; loudnorm cannot reach I=-16 on a 0.25 s clip, and
+Vorbis encoding lifted the decoded true peak to about +1.6 dBTP (sample peak 0.0 dBFS).
