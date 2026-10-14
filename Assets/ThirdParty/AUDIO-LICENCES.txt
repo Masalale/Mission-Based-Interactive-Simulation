@@ -72,8 +72,7 @@ owner should listen to all seven files before release.
    Title as shown: "Elephant voice - trumpeting.ogg"
    Description on source: "Elephant_voice_-_trumpeting. Tamil caption: யானையின் பிளிறல்
    (elephant's trumpeting/roar)". Date 1 February 2011. Source: "Own work".
-   Author / uploader: தகவலுழவன் (Info-farmer), the same uploader as the lion
-   recording above (Tamil Nadu, India).
+   Author / uploader: தகவலுழவன் (Info-farmer) (Tamil Nadu, India).
    Licence: CC0 1.0 Universal Public Domain Dedication, as stated on the file page:
    "This file is made available under the Creative Commons CC0 1.0 Universal
    Public Domain Dedication."
