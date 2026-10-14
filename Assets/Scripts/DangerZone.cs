@@ -30,6 +30,9 @@ public class DangerZone : MonoBehaviour
         if (GameManager.Instance == null || Time.time < nextBreachTime)
             return;
 
+        if (animal == null)
+            return;
+
         nextBreachTime = Time.time + breachCooldown;
         GameManager.Instance.RegisterBreach(animal);
     }

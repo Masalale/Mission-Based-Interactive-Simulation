@@ -17,6 +17,9 @@ public class ViewingZone : MonoBehaviour
         if (!other.CompareTag("Player"))
             return;
 
+        if (animal == null)
+            return;
+
         animal.InViewing = true;
 
         // A stamped animal has nothing left to teach, so stay quiet.
@@ -34,6 +37,9 @@ public class ViewingZone : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         if (!other.CompareTag("Player"))
+            return;
+
+        if (animal == null)
             return;
 
         animal.InViewing = false;

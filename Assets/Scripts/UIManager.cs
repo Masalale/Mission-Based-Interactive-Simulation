@@ -85,7 +85,8 @@ public class UIManager : MonoBehaviour
             GameManager.Instance.OnWin += ShowEnd;
         }
 
-        player.Bumped += HandleBump;
+        if (player != null)
+            player.Bumped += HandleBump;
 
         if (continueButton != null)
             continueButton.onClick.AddListener(OnContinue);
@@ -110,7 +111,8 @@ public class UIManager : MonoBehaviour
             GameManager.Instance.OnWin -= ShowEnd;
         }
 
-        player.Bumped -= HandleBump;
+        if (player != null)
+            player.Bumped -= HandleBump;
 
         if (continueButton != null)
             continueButton.onClick.RemoveListener(OnContinue);
@@ -141,7 +143,8 @@ public class UIManager : MonoBehaviour
         Show(mobileControls, Application.isMobilePlatform);
 
         // Freeze the player until a run starts, so the start screen cannot be walked around.
-        player.enabled = false;
+        if (player != null)
+            player.enabled = false;
 
         Refresh();
     }
@@ -239,7 +242,8 @@ public class UIManager : MonoBehaviour
     {
         // Move the player back to the gate before the state is reset,
         // so the guide line draws from the spawn point.
-        player.ResetToSpawn();
+        if (player != null)
+            player.ResetToSpawn();
 
         if (GameManager.Instance != null)
             GameManager.Instance.ResetRun();
@@ -253,7 +257,8 @@ public class UIManager : MonoBehaviour
         Show(endPanel, false);
         Show(factCard, false);
         Show(hudPanel, true);
-        player.enabled = true;
+        if (player != null)
+            player.enabled = true;
         HideMessages();
 
         Refresh();
@@ -316,7 +321,8 @@ public class UIManager : MonoBehaviour
         Show(factCard, false);
         HideHint();
         HideWarning();
-        player.enabled = false;
+        if (player != null)
+            player.enabled = false;
 
         GameManager game = GameManager.Instance;
         int stamps = game != null ? game.Stamps : 0;

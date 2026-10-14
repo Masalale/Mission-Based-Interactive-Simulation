@@ -40,8 +40,11 @@ public class Animal : MonoBehaviour
         }
 
         // Copy the radii from the asset. The asset itself is never written to at runtime.
-        viewingCollider.radius = data.ViewingRadius;
-        dangerCollider.radius = data.DangerRadius;
+        if (viewingCollider != null)
+            viewingCollider.radius = data.ViewingRadius;
+
+        if (dangerCollider != null)
+            dangerCollider.radius = data.DangerRadius;
     }
 
     private void OnEnable()
