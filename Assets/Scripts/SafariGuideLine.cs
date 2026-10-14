@@ -1,7 +1,8 @@
 using UnityEngine;
 
-// The guide line from the player to the nearest animal that still needs a stamp.
-// It hides itself when the passport is full, so the hunt is never aimless.
+// This draws the guide line from the player to the nearest animal that still needs a stamp.
+// I wanted a new player to know which way to walk first, so the line points at that animal.
+// The line hides itself when the passport is full, so it is never pointing at nothing.
 [RequireComponent(typeof(LineRenderer))]
 public class SafariGuideLine : MonoBehaviour
 {
@@ -18,7 +19,7 @@ public class SafariGuideLine : MonoBehaviour
     {
         line = GetComponent<LineRenderer>();
 
-        // Two points only: the start (the player) and the end (the target).
+        // The line only needs two points: the player and the target.
         line.positionCount = 2;
         line.useWorldSpace = true;
     }
@@ -35,7 +36,7 @@ public class SafariGuideLine : MonoBehaviour
             GameManager.Instance.OnStateChanged += Retarget;
         }
 
-        // A line that is re-enabled in the middle of a run must find its target again.
+        // The HUD switches the line on and off, so it has to find its target again every time.
         Retarget();
     }
 
@@ -52,13 +53,14 @@ public class SafariGuideLine : MonoBehaviour
         if (target == null)
             return;
 
-        // Updated every frame, so the line follows the player while they walk.
+        // I do this in LateUpdate, after the player has moved, so the line starts at the player
+        // and not at where the player was earlier in the frame.
         Vector3 from = player != null ? player.position : transform.position;
         line.SetPosition(0, from + Vector3.up * heightOffset);
         line.SetPosition(1, target.GuidePosition + Vector3.up * heightOffset);
     }
 
-    // Picks the nearest unscanned animal and shows the line only when there is one.
+    // Find the nearest animal that still needs a stamp, and show the line only if there is one.
     private void Retarget()
     {
         target = FindNearestUnscanned();
@@ -67,6 +69,7 @@ public class SafariGuideLine : MonoBehaviour
 
     private Animal FindNearestUnscanned()
     {
+        // The line only points anywhere while a safari is actually going.
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying)
             return null;
 
@@ -79,7 +82,7 @@ public class SafariGuideLine : MonoBehaviour
             if (candidate.Scanned)
                 continue;
 
-            // Squared distance is enough to compare, and skips a square root per animal.
+            // I compare squared distances, because that is enough to find the closest one.
             float sqr = (candidate.GuidePosition - from).sqrMagnitude;
             if (sqr < nearestSqr)
             {

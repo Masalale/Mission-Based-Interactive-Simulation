@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-// The hero script. On Interact, one ray from the screen centre turns a hit animal into a stamp.
-// This is the only place in the project that calls GameManager.AddStamp.
+// This is the script that does the scanning.
+// I shoot one ray from the middle of the screen when the player presses Interact.
+// A hit animal inside its viewing zone gives a stamp.
+// AnimalScanner is the only caller of GameManager.AddStamp, so the stamp is only ever earned here.
 [RequireComponent(typeof(PlayerInput))]
 public class AnimalScanner : MonoBehaviour
 {
@@ -22,6 +24,7 @@ public class AnimalScanner : MonoBehaviour
 
     private void Awake()
     {
+        // Use the camera under the player if I did not set one by hand.
         if (scanCamera == null)
             scanCamera = GetComponentInChildren<Camera>();
 
@@ -29,7 +32,7 @@ public class AnimalScanner : MonoBehaviour
         if (playerInput.actions != null)
             interactAction = playerInput.actions.FindAction("Player/Interact", throwIfNotFound: false);
 
-        // Without a mask every ray misses, which looks like a broken scanner rather than a missing reference.
+        // Without a layer mask every ray misses, and that looks like a broken scanner rather than a missing reference.
         if (animalMask.value == 0)
             Debug.LogWarning($"{nameof(AnimalScanner)}: LayerMask unassigned: no scan can ever hit.", this);
     }
@@ -54,9 +57,10 @@ public class AnimalScanner : MonoBehaviour
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying)
             return;
 
+        // The middle of the camera view is where the player is looking, the same point as the crosshair.
         Ray ray = scanCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f));
 
-        // Ignore the triggers, so the ViewingZone and DangerZone cannot block the shot.
+        // I ignore the triggers, so the viewing and danger zones cannot block the shot.
         if (!Physics.Raycast(ray, out RaycastHit hit, maxDistance, animalMask, QueryTriggerInteraction.Ignore))
         {
             if (UIManager.Instance != null)
@@ -77,14 +81,15 @@ public class AnimalScanner : MonoBehaviour
 
         bool firstScan = !animal.Scanned;
 
+        // Only the first scan of an animal earns a stamp.
         if (firstScan)
             GameManager.Instance.AddStamp(animal);
 
-        // The animal answers every scan with its call, not only the first one.
+        // I play the call every time, so the animal answers a repeat scan as well.
         if (callSource != null && animal.Data.CallClip != null)
             callSource.PlayOneShot(animal.Data.CallClip);
 
-        // A repeat scan costs nothing and only reopens the card, so the fact can be read again.
+        // A repeat scan costs nothing. It only reopens the card so the fact can be read again.
         if (UIManager.Instance != null)
             UIManager.Instance.ShowFactCard(animal.Data, firstScan);
     }
@@ -94,6 +99,7 @@ public class AnimalScanner : MonoBehaviour
         if (scanCamera == null)
             return;
 
+        // A yellow line in the Scene view, so I can see how far the scan reaches.
         Gizmos.color = Color.yellow;
         Vector3 from = scanCamera.transform.position;
         Gizmos.DrawLine(from, from + scanCamera.transform.forward * maxDistance);

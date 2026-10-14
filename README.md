@@ -2,424 +2,230 @@
 
 [WebGL build](TODO_WEBGL_URL) | [Android APK](TODO_APK_URL) | [Demo video](TODO_VIDEO_URL)
 
-A first-person safari through a Kenyan savanna reserve, built in Unity for the Introduction to Unity module (Course 3152).
+I built this for the Introduction to Unity module (Course 3152). It is a first-person safari through a Kenyan savanna reserve. I made the player walk around, find the Big Five, and scan each animal from a safe distance. Every scan gives one fact and one job, so the game teaches both wildlife viewing and the careers that come with it.
 
 - Author: Masalale
 - Repository: https://github.com/Masalale/Mission-Based-Interactive-Simulation
-- Unity 6000.3.23f1, Universal Render Pipeline (URP) 17.3.0, Input System 1.20.1
+- Unity 6000.3.23f1, Universal Render Pipeline 17.3.0, Input System 1.20.1
 
-The WebGL build has been run locally in a desktop browser, but its public link is still a placeholder. No Android build has been made yet, so the APK link is a placeholder too.
+I have the WebGL build ready and I checked it in a desktop browser. I also built the Android APK, but I have not run it on a phone yet. Both links above are still placeholders until I publish them.
 
 ## 1. GCGO Statement
 
-- **Grand Challenge:** Tourism
-- **Global Opportunity:** Job creation
-
-**Mission statement:** Wildlife tourism promotes conservation and creates ranger, guide, lodge, and craft jobs. This simulation teaches safe viewing while showing the careers each animal supports.
+- Grand Challenge: Tourism
+- Global Opportunity: Job creation
+- Mission statement: Wildlife tourism promotes conservation and creates ranger, guide, lodge, and craft jobs. This simulation teaches safe viewing while showing the careers each animal supports.
 
 ## 2. Problem Context
 
-**The problem.** Wildlife tourism only lasts if visitors keep a safe distance from animals and if the communities around the reserves share in the income. When visitors crowd or chase animals, the animals are harmed and the sightings get worse. Visible jobs such as trackers, guides, rangers and drivers keep conservancies funded.
+**The problem.** Wildlife tourism only works if visitors stay a safe distance from the animals and if the people around the reserves earn from it. When visitors crowd or chase animals, the animals get hurt and the sightings get worse. Jobs like tracker, guide, ranger and driver are what keep a conservancy funded.
 
-**Why it matters.** The World Travel & Tourism Council (WTTC) reports that travel and tourism "supported 1.8 million jobs, equivalent to 8.3% of total employment" in Kenya in 2025, and contributed 9.3% of national GDP. [1]
+**Why it matters.** The World Travel & Tourism Council (WTTC) reports that travel and tourism "supported 1.8 million jobs, equivalent to 8.3% of total employment" in Kenya in 2025, and gave 9.3% of national GDP. [1]
 
-Safe distance matters for the same reason. The Kenya Wildlife Service visitor guide, as quoted by The Standard on 24 December 2025, tells visitors to keep a minimum distance of 20 metres when viewing wildlife. [2]
+Distance matters for the same reason. The Kenya Wildlife Service visitor guide, as quoted by The Standard on 24 December 2025, tells visitors to keep at least 20 metres when they view wildlife. [2]
 
-The simulation does not use that rule. Its viewing zone is 15 to 18 m and its danger zone is 6 to 8 m. These radii are scaled down for a small play area. They teach the idea of a safe distance and a too-close warning. They are not the real Kenya Wildlife Service distance.
+My viewing zone is 15 to 18 m and my danger zone is 6 to 8 m. I scaled them down because the reserve is small enough to walk in one run. They teach the idea of a safe distance and a too-close warning. They are not the real Kenya Wildlife Service distance.
 
-**How it connects to the GCGO.** The Tourism challenge is about wildlife viewing that protects the animals it depends on. The Job creation opportunity is about the careers that come from that viewing. Each fact card names a job the animal supports, and the Jobs Supported counter goes up as the player collects stamps. The danger zone shows the other half of the idea: keeping your distance keeps the product alive.
+**How it connects to the GCGO.** The Tourism challenge is about wildlife viewing that protects the animals it depends on. The Job creation opportunity is about the careers that viewing pays for. Every fact card names one job the animal supports, and the Jobs Supported counter goes up by one for each stamp. The danger zone is the other half of the lesson. Keep your distance and the product stays alive.
 
-Sources for this section are listed in section 10.
+The two sources for this section are listed in section 9.
 
 ## 3. Simulation Overview
 
-**What it does.** The player walks a savanna reserve in first person and looks for the Big Five: lion, leopard, elephant, rhino and buffalo. Each animal has a viewing zone. Stand inside the zone, aim at the animal and press Scan. The fact card shows one fact and one job the animal supports. The first scan of each animal gives a passport stamp and +1 Jobs Supported. Entering an animal's danger zone shows a warning and costs 10 points.
+**What it does.** The player walks the reserve in first person and looks for the lion, leopard, elephant, rhino and buffalo. Each animal has a viewing zone. Stand inside the zone, aim at the animal and press Scan. A fact card shows one fact and the job the animal supports. The first scan of each animal gives a passport stamp and one more job. Walking into the danger zone shows a warning and costs 10 points.
 
 **Target users.** Students learning about wildlife tourism, young job seekers who want to know which conservation careers exist, and would-be tourists who want to know how to watch wildlife safely.
 
 **Key interactions.**
 
-- Walk and look around the reserve.
-- Follow the guide line to the nearest animal that has no stamp yet.
-- Enter a viewing zone, aim at the animal and press Scan.
-- Read the fact card and the job it supports.
+- Walk around and look.
+- Follow the guide line to the nearest animal that still needs a stamp.
+- Stand in the viewing zone, aim, and scan.
+- Read the fact and the job behind it.
 - Keep out of the danger zone.
 
 **Controls.**
 
-| Action | Type | Desktop | Mobile (touch) |
-| --- | --- | --- | --- |
-| Move | Vector2 | WASD | Left on-screen stick |
-| Look | Vector2 | Arrow keys | Right on-screen stick |
-| MouseLook | Vector2 | Mouse movement, only while LookHold is held | None |
-| LookHold | Button | Right mouse button | None |
-| Interact | Button | E key | On-screen Scan button |
+| Action | Desktop | Phone |
+| --- | --- | --- |
+| Move | WASD | Left on-screen stick |
+| Look | Arrow keys, or hold the right mouse button and move the mouse | Right on-screen stick |
+| Scan | E, or the gamepad south button | Scan button on the HUD |
 
-A gamepad uses the left stick for Move, the right stick for Look and the south button for Interact.
+The sticks show only on phones and tablets. A gamepad uses the left stick to move, the right stick to look, and the south button to scan.
 
-The on-screen sticks appear only on mobile platforms. The Scan button is on the HUD on every platform. Press E, or the gamepad south button. The on-screen Scan button sends the same input; clicking it with a mouse has not been tested.
+**How to win.** Stamp all five animals. An animal counts when the player scans it from inside its viewing zone. There is no lose state. When the player closes the last fact card, the end screen shows the stamps, the score, the breaches and the jobs, and offers Replay.
 
-**How to win.** Stamp all five animals (5 of 5 stamps). Each animal is stamped when the player scans it from inside its viewing zone. There is no fail state. The end screen opens after the player closes the last fact card. It shows the stamps, score, breaches and jobs, and it offers Replay.
-
-**How the score works.** The score starts at 100 and never drops below 0. Each breach of a danger zone costs 10 points. An animal can book a breach at most once every 3 seconds. Each first scan adds 1 to Jobs Supported. A repeat scan only reopens the fact card. The top score is 100, so a perfect run has zero breaches.
+**How the score works.** The score starts at 100 and never goes below 0. Each danger zone breach costs 10 points, and one animal can book a breach only once every 3 seconds. Each first scan adds one job. Scanning the same animal again only reopens the fact card. The top score is 100, so a clean run has zero breaches.
 
 ## 4. Unity Mechanics Implemented
 
-Each mechanic names its scripts, what it does in this game, and what breaks if it is removed. That consequence is the deletion test from the build spec.
+### UI
 
-### 4.1 UI
+`Assets/Scripts/UIManager.cs` runs every screen: the start screen with Continue and New Safari, the HUD with the crosshair, the passport, the score and the message lines, the fact card, and the end screen with Replay. The Canvas and the panels are laid out in `Assets/Scenes/Safari_Main.unity`. The HUD is built switched off and turned on when a run starts, because the on-screen controls were throwing an error while they were active at load time.
 
-**Scripts:** `UIManager.cs`. The Canvas and its panels are in `Safari_Main.unity`. They were first laid out by editor tooling that is no longer in the project (see section 6).
+`UIManager` never polls for game state. It listens to the two events on `GameManager` and refreshes when they fire. Without it there is no objective, no feedback after a scan, no start screen and no win.
 
-**What it does:**
+### Scripting and the New Input System
 
-- A start screen with Continue and New Safari buttons. Continue is only enabled when a save exists.
-- A HUD with a crosshair, a five-slot passport, a Jobs Supported counter, a score, a stamps counter, a hint line, a warning line, and short toast messages. The HUD is built inactive and is shown when a run starts.
-- A fact card with the animal name, habitat, status, the fact, the job role and the job description, and a close button.
-- An end screen with a summary and a Replay button. It opens when the player closes the last fact card of a won run.
+Input goes only through the New Input System. No script uses the old `Input` class. I used one input asset, `Assets/Input/InputSystem_Actions.inputactions`, and one gameplay action map on it.
 
-`UIManager` does not poll for game state. It subscribes to `GameManager.OnStateChanged` and `GameManager.OnWin` in `OnEnable`, and it unsubscribes in `OnDisable`. Every runtime change to the screen text and panels goes through `UIManager`.
+| Action | Type | Desktop binding | Gamepad binding |
+| --- | --- | --- | --- |
+| Move | Value | WASD, 2D Vector | Left stick |
+| Look | Value | Arrow keys, 2D Vector | Right stick |
+| MouseLook | Value | Mouse delta | none |
+| LookHold | Button | Right mouse button | none |
+| Interact | Button | E | South button |
 
-**Delete it:** no objective, no feedback after a scan, no start or end screen, no win.
+The Player object has a `PlayerInput` component with that asset and `Player` as the default map. `AnimalScanner` subscribes to `Player/Interact` in code. The EventSystem uses `InputSystemUIInputModule`, and Active Input Handling in the Player settings is set to the Input System package only.
 
-### 4.2 Scripting and the New Input System
+Sticks and arrow keys give a rate, so `PlayerController` multiplies them by the look speed and by `deltaTime`. The mouse already gives a per-frame delta, so it is multiplied by the sensitivity only.
 
-**Scripts:** all ten scripts in `Assets/Scripts`. Input is read only through the New Input System (`UnityEngine.InputSystem`). No script in the project calls the legacy `Input` class.
+The on-screen controls are two sticks and the Scan button. The sticks add a virtual gamepad while the mouse is still in use, and `PlayerInput` was switching control schemes on its own and hiding the other bindings, so the sticks dropped out. `PlayerController.Start` turns that switching off and clears the binding mask. Keyboard, mouse and the on-screen gamepad then drive the same action map together.
 
-**Input setup.**
+Without this there is no movement, no scanning and no run state at all.
 
-- One input asset: `Assets/Input/InputSystem_Actions.inputactions`.
-- One gameplay action map, `Player`, with five actions. The same asset also holds Unity's default `UI` map, which the EventSystem uses. The five actions are: `Move` (Value), `Look` (Value), `MouseLook` (Value), `LookHold` (Button) and `Interact` (Button).
-- The bindings are:
+### Collision
 
-| Action | Bindings |
-| --- | --- |
-| Move | WASD (2D Vector composite), `<Gamepad>/leftStick` |
-| Look | Arrow keys (2D Vector composite), `<Gamepad>/rightStick` |
-| MouseLook | `<Mouse>/delta` |
-| LookHold | `<Mouse>/rightButton` |
-| Interact | `<Keyboard>/e`, `<Gamepad>/buttonSouth` |
+`Assets/Scripts/PlayerController.cs` moves the player with a `CharacterController`, so walking is collision based and the player cannot leave the ground. `Assets/Scripts/Animal.cs`, `Assets/Scripts/ViewingZone.cs` and `Assets/Scripts/DangerZone.cs` handle the animals.
 
-- The `Player` object has a `PlayerInput` component. Its Actions field is the asset above and its Default Action Map is `Player`. Notifications are sent as C# events. `AnimalScanner` subscribes to `Interact.performed` in code.
-- The `EventSystem` uses `InputSystemUIInputModule`. No `StandaloneInputModule` is in the scene.
-- Project setting: Active Input Handling is set to the Input System Package only (`activeInputHandler: 1`).
-- On-screen controls: an `OnScreenStick` bound to `<Gamepad>/leftStick` (Move), an `OnScreenStick` bound to `<Gamepad>/rightStick` (Look), and an `OnScreenButton` bound to `<Gamepad>/buttonSouth` (Interact). The two sticks sit in their own `MobileControls` panel. `UIManager` shows that panel only when `Application.isMobilePlatform` is true, so a desktop browser does not show the sticks. The Scan button stays on the HUD on desktop and mobile.
+Each animal has a solid `BoxCollider` on the Animal layer, which blocks the player, and two sphere triggers, one for the viewing zone and one for the danger zone. `Animal` copies the two radii out of its data asset at load, so they are 15 m and 6 m for the lion, leopard and buffalo, and 18 m and 8 m for the elephant and rhino.
 
-**Look and move rules.** `PlayerController.Look` multiplies stick and arrow look by `lookSpeed` (120 degrees per second) and by `Time.deltaTime`. Mouse delta is multiplied by `mouseSensitivity` (0.1) and not by `deltaTime`. Yaw turns the player body. Pitch is clamped to -80 to 80 degrees and turns only the camera. No script locks the cursor.
+A trigger does not block anybody, it only sends events. Entering the viewing zone sets `InViewing` and shows the hint. Entering the danger zone shows the warning and books a breach, at most one every 3 seconds per animal. Walking into a solid body plays the bump sound and shows a toast that names what blocked the player. Hits on the floor are ignored, otherwise the ground would bump the player every frame.
 
-**The control-scheme fix.** `PlayerInput` switches control schemes automatically. The on-screen sticks add a virtual gamepad while the mouse is also in use. The automatic switch can then mask the bindings of the other device, and the sticks drop out. `PlayerController.Start` turns automatic switching off (`neverAutoSwitchControlSchemes = true`) and clears `bindingMask` and `devices` on the action asset. Keyboard, mouse and the on-screen gamepad then drive the one action map together. `PlayerController` has `[DefaultExecutionOrder(-50)]`, so its `Start` runs before `UIManager.Start`, which disables the player until a run begins. I found this in code review before any device testing.
+Without collision the player walks through the animals, there are no zone events, no breaches and no scan window.
 
-**Delete it:** no movement, no scanning, no state.
+### Raycasting
 
-### 4.3 Collision
+`Assets/Scripts/AnimalScanner.cs` does the scanning. On Interact it builds a ray from the middle of the screen and casts it 20 m, on the Animal layer only, and with triggers ignored so the zone spheres cannot block the shot.
 
-**Scripts:** `PlayerController.cs`, `Animal.cs`, `ViewingZone.cs`, `DangerZone.cs`.
+A miss shows "Nothing in your sights. Aim at an animal." A hit on an animal outside its viewing zone shows "Move into the viewing zone first." A hit on an animal inside its zone is the only way to earn a stamp, and the call only reaches `GameManager.AddStamp`. Scanning again awards nothing, it just plays the call and reopens the card.
 
-- **Player body.** The player has a `CharacterController` (height 1.8 m, radius 0.4 m, centre at 0.9 m). It has no Rigidbody.
-- **Solid animal bodies.** Each animal's body has a `BoxCollider` on the Animal layer (layer 6). Each Body collider is a BoxCollider sized per animal in its prefab variant. A solid collider blocks the `CharacterController`.
-- **Bump feedback.** `PlayerController.OnControllerColliderHit` ignores hits on the ground (`hit.normal.y > 0.5f`). For any other solid hit it plays the bump sound and raises `Bumped`. `UIManager` then shows a toast: "Blocked by the <species>" for an animal, or "Blocked by a rock or tree" for anything else. `PlayerController` allows one bump per second (`bumpCooldown`).
-- **Trigger zones.** Each `PF_Animal` has two `SphereCollider` triggers, one for `ViewingZone` and one for `DangerZone`. `Animal.Awake` copies their radii from `AnimalData`.
-  - `ViewingZone` sets `Animal.InViewing` on enter and exit, for objects tagged `Player`. It shows the hint "Aim at the <species> and press Scan".
-  - `DangerZone` shows the warning "Too close, back away" on enter. It books a breach through `GameManager.RegisterBreach`, with a 3 second cooldown (`breachCooldown`) per animal. It hides the warning on exit.
+Without it there are no scans, no stamps and no way to win.
 
-A trigger does not block movement. It only fires events. The solid body blocks the player, and the trigger zones decide whether scanning is allowed and whether a breach counts.
+### Line Renderer
 
-**Delete it:** the player walks through animals, and there are no zone events, no breaches and no scan window.
+`Assets/Scripts/SafariGuideLine.cs` draws the guide line on a `LineRenderer` in the scene. It has two points: the player, lifted a little off the ground, and the nearest animal that still needs a stamp. It updates in `LateUpdate` so it follows the player, and it picks a new target every time the game state changes. When the passport is full, or on the start screen, it hides itself. The lion stands 50 m from the spawn so the line runs straight ahead at the start of a run.
 
-### 4.4 Raycasting
-
-**Script:** `AnimalScanner.cs`.
-
-- On Interact, `OnInteract` builds a ray from the centre of the screen with `scanCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f))`.
-- It calls `Physics.Raycast(ray, out hit, maxDistance, animalMask, QueryTriggerInteraction.Ignore)`. `maxDistance` is 20 m. `animalMask` is set to the Animal layer (layer 6, value 64) in the scene. `QueryTriggerInteraction.Ignore` means the zone triggers never block the ray.
-- A miss shows "Nothing in your sights. Aim at an animal." A hit on an animal that is not in its viewing zone shows "Move into the viewing zone first."
-- A hit on an animal in its viewing zone is the only way to earn a stamp. On the first scan, `AnimalScanner` calls `GameManager.Instance.AddStamp(animal)`. That is the only call site in the project. Every valid scan then plays the animal's call clip.
-- A repeat scan does not award anything. It plays the call again and reopens the fact card, which says "Already in your passport".
-
-**Delete it:** no scans, no stamps, and the game cannot be won.
-
-### 4.5 Line Renderer
-
-**Script:** `SafariGuideLine.cs`, on an object with a `LineRenderer` (two world-space points, material `M_GuideLine`, URP Unlit).
-
-- The start point is the player position plus 0.3 m up. The end point is the `GuidePosition` of the nearest unscanned animal, which is the base of its model, plus 0.3 m up.
-- At the start of a run the line points toward the lion, which is the nearest animal at spawn.
-- The line is updated in `LateUpdate`, so it follows the player every frame.
-- It retargets whenever the game state changes (`GameManager.OnStateChanged`, which fires on every stamp and every reset). When every animal has a stamp, there is no target and the line is hidden. It is also hidden on the start screen.
-
-**Delete it:** no guidance, so the hunt has no direction.
+Without it the player has no idea where to look first.
 
 ## 5. Additional Features
 
-Three features beyond the module, all in the scene and the scripts.
+### Audio
 
-### 5.1 Audio
+There are seven clips in `Assets/Audio`. A savanna ambience loops on the Ambience object. `PlayerController` plays a short bump sound when the player walks into something solid. `AnimalScanner` plays the animal call on every valid scan, not only the first one, so the animal answers each time.
 
-There are seven clips in `Assets/Audio`: a savanna ambience, a bump sound, and five animal calls (lion, leopard, elephant, rhino and buffalo).
+### Particles
 
-- **Savanna ambience.** An `AudioSource` on the `Ambience` object (under `Systems`) plays `AMB_Savanna.ogg`. Loop is on, Play On Awake is on, and the volume is 0.35.
-- **Animal call on every scan.** `AnimalScanner` calls `callSource.PlayOneShot(animal.Data.CallClip)` on every valid scan, first or repeat. The clip comes from the `callClip` field of each `SO_*` asset. The leopard plays a jaguar "saw" call, `SFX_Leopard.ogg`, because no leopard call under an accepted licence was found.
-- **Bump sound.** `PlayerController` calls `bumpSource.PlayOneShot(bumpClip)` with `SFX_Bump.ogg`, once per bump cooldown.
-- **Import settings.** The call and bump clips (`SFX_*`) use Decompress On Load and are preloaded. The ambience (`AMB_*`) is compressed in memory and is also preloaded. It is not streamed, because streaming is unreliable on WebGL.
+Two `ParticleSystem` objects, one for dust at the player's feet and one for fireflies over the reserve. No script drives them, all the settings are in the scene. Both are kept small, under 100 particles, so a phone can handle them.
 
-Every clip is credited in section 10. The licence file (`Assets/ThirdParty/AUDIO-LICENCES.txt`) records that the sounds were checked by measurement and spectrogram, not by ear. Sound in the WebGL build has not been checked by ear (see `BUGS.md`, entry 19).
+### Saving
 
-### 5.2 Particle systems
-
-Two `ParticleSystem` objects, both using the `M_Particle` material. No script drives them. Their behaviour comes entirely from the settings stored in the scene.
-
-- **Dust.** A child of the Player. A circle-shaped emitter, lifetime 3 to 5 s, maximum 60 particles.
-- **Fireflies.** A child of `Systems`. A box-shaped emitter, lifetime 6 to 9 s, maximum 80 particles.
-
-Each system is capped well under 100 particles, which keeps the cost low on phones.
-
-### 5.3 Data persistence
-
-**Scripts:** `SaveSystem.cs` (static, plus the `SaveData` class) and `GameManager.cs`.
-
-- `SaveData` holds a list of scanned animal ids (`scannedIds`), the `score` and the `breaches`. `SaveSystem` writes it with `JsonUtility.ToJson` as a single string under the PlayerPrefs key `SafariSave`.
-- `GameManager.AddStamp` and `GameManager.RegisterBreach` call `Save()` after every change. `SaveSystem.Save` then calls `PlayerPrefs.Save()`, so WebGL flushes the data.
-- **Continue** calls `GameManager.Restore()`. It reads the save, marks the matching animals as scanned and sets the stamps, jobs, score and breaches directly. It does not call `AddStamp`, so no stamp is awarded twice. Jobs are not stored: they are set to the number of restored stamps. If the save shows 5 of 5, the end screen opens.
-- **New Safari** and **Replay** call `GameManager.ResetRun()`, which clears the save.
-- The Continue button is only interactable when `SaveSystem.HasSave` is true.
-
-The project never uses file IO, because WebGL has no writable filesystem.
+`Assets/Scripts/SaveSystem.cs` writes the run as JSON in `PlayerPrefs` using `JsonUtility`. WebGL has no file system, and `PlayerPrefs` works there. `GameManager` saves after every stamp and every breach. Continue reads the save back and puts the run in the same state. New Safari and Replay clear it. I use `PlayerPrefs` and `JsonUtility` because they are the simplest saving that works on both of my platforms.
 
 ## 6. Project Structure
 
-### Folder tree
-
-Two levels under `Assets/`, from the project on 14 October 2026:
-
 ```
 Assets/
-  Audio/              AMB_Savanna.ogg, SFX_Buffalo.ogg, SFX_Bump.ogg, SFX_Elephant.ogg, SFX_Leopard.ogg, SFX_Lion.ogg, SFX_Rhino.ogg
-  Editor/             AnimalImportSettings.cs, BuildScript.cs, SceneryImportSettings.cs
-  Images/             background_removed.png (title logo)
-  Input/              InputSystem_Actions.inputactions
-  Materials/          26 materials (M_Ground, M_GuideLine, M_Lion, M_Track and others)
-    Fonts/            Tribeca.ttf, the UI font, and its TextMesh Pro asset
+  Audio/            seven clips: one ambience, five calls, one bump
+  Editor/           import settings and the build script
+  Images/           the title image
+  Input/            InputSystem_Actions.inputactions
+  Materials/        the ground, the animal, the guide line and the scenery materials
   Models/
-    Animals/          SM_Buffalo.fbx, SM_Elephant.fbx, SM_Leopard_Jaguar.fbx, SM_Lion.fbx, SM_Rhino.fbx
-      Textures/       T_Buffalo_Palette.png, T_Elephant_Palette.png, T_Leopard_Jaguar.png, T_Lion_Palette.png, T_Rhino_Palette.png
-    Generated/        17 merged ground, landform and mountain meshes, used by the scene
-    Scenery/          Kenney Nature Kit pieces, in sub-folders Ground, Materials (14 shared materials), Rocks, Scatter and Trees
-  Prefabs/            PF_Animal, PF_Animal_Lion, PF_Animal_Leopard, PF_Animal_Elephant, PF_Animal_Rhino, PF_Animal_Buffalo
-  Scenes/             Safari_Main.unity
-  ScriptableObjects/  SO_Lion, SO_Leopard, SO_Elephant, SO_Rhino, SO_Buffalo
-  Scripts/            ten gameplay scripts (table below)
-  Settings/           URP render pipeline assets and volume profiles
-  TextMesh Pro/       TextMesh Pro essentials, imported for the UI text
-  ThirdParty/         licence files for Grab3D, Kenney, the jaguar and the audio clips
-  UI/                 empty folder
+    Animals/        the five animal models and their textures
+    Generated/      the merged ground, hills and track meshes
+    Scenery/        the Kenney trees, rocks and ground cover
+  Prefabs/          PF_Animal and one variant per species
+  Scenes/           Safari_Main.unity
+  ScriptableObjects/ one asset per animal, holding its fact, job and radii
+  Scripts/          the ten gameplay scripts below
+  ThirdParty/       the licence files for the models, the scenery and the audio
 ```
 
-**Scene.** The reserve is a 250 m square savanna. Open grassland fills the middle. Woodland clumps are placed around it, and a dense bush belt runs along the edge. Each animal has a habitat behind it: a rock outcrop for the lion, a large acacia with boulders and a log for the leopard, a waterhole beside the elephant, scrub and stumps for the rhino, and tall grass and a mud pool beside the buffalo. A dirt track runs from the spawn to each animal. Distant hills and one mountain landmark are in the view, and the mountain is beyond the lion. A warm procedural sky and fog complete the view.
+`PF_Animal` is the base prefab. Its children are Body, which holds the model and the solid collider, and the two zone triggers. Each species has a variant that overrides the model, the scale and the data asset.
 
-**Scenery.** All scenery pieces come from the Kenney Nature Kit. Only part of the pack is placed in the scene, and the rest stays in the project for further scene work. The pieces are recoloured to a dry savanna palette. The colours are set on the pack's shared materials, so the scenery uses no textures.
-
-**Scene totals** (scale does not change triangle counts): 126,075 triangles and 1,265 renderers.
-
-### Script table
-
-Line counts are from `wc -l` on 14 Oct 2026.
-
-| File | Purpose | Lines |
+| Script | What it does | Lines |
 | --- | --- | --- |
-| `PlayerController.cs` | First-person move and look, gravity, bump feedback, spawn reset | 171 |
-| `AnimalScanner.cs` | Interact: centre-screen raycast, stamps, call sound, fact card | 101 |
-| `Animal.cs` | Per-animal runtime state, zone radii, static list of all animals | 70 |
-| `AnimalData.cs` | ScriptableObject: fact, job, radii, call clip | 33 |
-| `ViewingZone.cs` | Trigger that allows scanning and shows the hint | 50 |
-| `DangerZone.cs` | Trigger that shows the warning and books breaches, with a cooldown | 48 |
-| `SafariGuideLine.cs` | LineRenderer guide to the nearest unscanned animal | 93 |
-| `GameManager.cs` | Run state (stamps, score, breaches, jobs), events, win, save and restore | 157 |
-| `UIManager.cs` | Every screen, the HUD, the fact card; listens to GameManager | 388 |
-| `SaveSystem.cs` | PlayerPrefs and JsonUtility save, load and clear | 57 |
+| `Assets/Scripts/PlayerController.cs` | Walking, looking, gravity, bump feedback, spawn reset | 176 |
+| `Assets/Scripts/AnimalScanner.cs` | The scan ray, the stamp, the call and the fact card | 107 |
+| `Assets/Scripts/Animal.cs` | Per-animal state, zone radii, list of every animal | 73 |
+| `Assets/Scripts/AnimalData.cs` | The data asset: fact, job, radii, call clip | 35 |
+| `Assets/Scripts/ViewingZone.cs` | The trigger that allows a scan and shows the hint | 55 |
+| `Assets/Scripts/DangerZone.cs` | The trigger that warns and books breaches | 51 |
+| `Assets/Scripts/SafariGuideLine.cs` | The guide line to the nearest unscanned animal | 96 |
+| `Assets/Scripts/GameManager.cs` | Stamps, score, breaches, jobs, win, save and restore | 167 |
+| `Assets/Scripts/UIManager.cs` | Every screen, the HUD and the fact card | 392 |
+| `Assets/Scripts/SaveSystem.cs` | Saving, loading and clearing the run | 61 |
 
-Total: 1,168 lines.
+That is 1,213 lines in total. `Assets/Editor` holds three more: the two import scripts for the models and the scenery, and `Assets/Editor/BuildScript.cs` for the two builds. I used editor scripts to lay out the scene and the prefabs while I built them, and I finished the scene by hand in the Editor afterwards.
 
-### Editor scripts
+## 7. Build Information
 
-The Editor folder has three scripts. Line counts are from `wc -l` on 14 Oct 2026.
+**WebGL.** About 61 MB, 1280 x 720, in `Builds/WebGL`. Compression is switched off, because GitHub Pages will not send the header a compressed build needs. To run it, open the link at the top of this file, then press New Safari.
 
-| File | Purpose | Lines |
-| --- | --- | --- |
-| `AnimalImportSettings.cs` | Import settings for the animal models under `Assets/Models/Animals` (an `AssetPostprocessor`) | 44 |
-| `BuildScript.cs` | WebGL and Android builds, from the Build menu or the command line | 65 |
-| `SceneryImportSettings.cs` | Import settings for the Kenney scenery, and a swap of each embedded material for the shared material of the same name in `Assets/Models/Scenery/Materials` (an AssetPostprocessor) | 109 |
+**Android.** An APK, not an app bundle, built with IL2CPP for ARM64, landscape only, about 36 MB, in `Builds/Android/BigFiveHeritageSafari.apk`. I built it but I have not tested it on a phone yet. To run it, copy the APK to the phone, allow installs from that file, and open it. It uses the two sticks and the Scan button.
 
-Total: 218 lines.
+Both builds use the Mobile quality level, which turns off real-time shadows. The animals use blob shadows instead. Both builds use the one scene, `Assets/Scenes/Safari_Main.unity`.
 
-### Editor tooling
+**Run it in the Editor.** Install Unity 6000.3.23f1 from Unity Hub, add this folder, open `Assets/Scenes/Safari_Main.unity` and press Play. For an APK you also need Android Build Support with the SDK, NDK and OpenJDK.
 
-The scene, prefabs and data assets were laid out during development with editor scripts: a scene generator, a static validator, a Play-mode smoke test and a screenshot tool. They are not part of the submitted project. The submitted `Assets/Editor` folder has three small scripts, listed above: `AnimalImportSettings.cs` and `SceneryImportSettings.cs` (import settings for the models) and `BuildScript.cs` (WebGL and Android builds). The scene is now edited by hand in the Editor, like any Unity scene. Verification on 14 October 2026 used these final scripts. Static validation passed 87 checks. The Play-mode test passed 74 checks. The final WebGL build was 65,826,742 bytes with 0 errors.
-
-### Prefabs
-
-- **`PF_Animal`** (base). The root has `Animal.cs` and the `AnimalData` slot. Its children are `Body` (the model and a solid body collider on the Animal layer), `ViewingZone` (a `SphereCollider` trigger with `ViewingZone.cs`) and `DangerZone` (a `SphereCollider` trigger with `DangerZone.cs`). Its zone radii are the base values, 15 and 6 m.
-- **Five variants:** `PF_Animal_Lion`, `PF_Animal_Leopard`, `PF_Animal_Elephant`, `PF_Animal_Rhino` and `PF_Animal_Buffalo`. Each one overrides the model, the scale and the `AnimalData`.
-- The leopard variant uses the jaguar model (`SM_Leopard_Jaguar.fbx`) at leopard scale, with the `M_LeopardJaguar` material. See section 10.
-
-### ScriptableObjects
-
-`SO_Lion`, `SO_Leopard`, `SO_Elephant`, `SO_Rhino` and `SO_Buffalo` are `AnimalData` assets. Each holds the species name, habitat, status, fact, job role, job description, the two zone radii and the call clip. The viewing and danger radii are 15 m and 6 m for lion, leopard and buffalo, and 18 m and 8 m for elephant and rhino.
-
-### Animal models
-
-| Animal | Model file | Triangles |
-| --- | --- | --- |
-| Lion | `SM_Lion.fbx` | 2,998 |
-| Leopard | `SM_Leopard_Jaguar.fbx` (a jaguar) | 1,020 |
-| Elephant | `SM_Elephant.fbx` | 3,000 |
-| Rhino | `SM_Rhino.fbx` | 2,998 |
-| Buffalo | `SM_Buffalo.fbx` | 2,999 |
-
-Scale does not change triangle counts.
-
-## 7. Deviations from the plan
-
-The plan is `misc/BUILD-SPEC.md`. This table lists what differs from it, and why.
-
-| Area | What differs from the plan | Why |
-| --- | --- | --- |
-| Leopard model and call | A jaguar model (`SM_Leopard_Jaguar.fbx`) and a jaguar "saw" call stand in for the leopard | No leopard model or call under CC0 or CC BY could be downloaded without an account. |
-| Buffalo model | Grab3D's bull model (Low Poly Bull) stands in for the buffalo | The plan allowed a bull used as the buffalo. It is not a Cape buffalo model. |
-| Animal size and angle | The Body of each animal prefab variant is scaled up (lion, rhino and buffalo 1.3, leopard 1.35, elephant 1.12) and turned to a three-quarter view | So the animals read at scanning distance. Viewing and danger radii keep the plan's values. |
-| Rhino call | The rhino call is a white rhino recording, used for the black rhino model | No black rhino call under an accepted licence was found. |
-| Elephant call | The elephant call's species is not confirmed and is probably an Asian elephant | No African elephant call under an accepted licence was found. The uploader's other recording is from Tamil Nadu, India. |
-| Buffalo call | The buffalo call is a filtered section of a Tanzanian recording that still has some birdsong | No buffalo recording without birds was found under an accepted licence. A low-pass filter reduces the birds but does not remove them. |
-| Animal layer | The `Animal` layer is also set on the model child under Body. It has no collider, so the raycast is unaffected | Only the Body collider blocks the ray. The extra layer setting changes nothing. |
-| Bake Axis Conversion | Off for the animal FBX files | The Blender exports already carry the axis conversion, and baking it again turns the animals to face -Z. |
-| Lion position | The lion stands 50 m from the spawn; the others are about 60 m | So the guide line leads straight ahead at the start. |
-| On-screen sticks | Sticks show only when `Application.isMobilePlatform` is true; the Scan button is always visible | A touchscreen flag also reports true in desktop browsers (BUGS 16). |
-| Animal call | The call plays on every valid scan, not only the first | The animal answers each scan with its call, so the player gets feedback every time. |
-| Zone radii | The prefab's serialized zone radii are the base values (15 and 6); `Animal.Awake` sets each animal's real radii from its AnimalData (elephant and rhino 18 and 8) | Each animal's radii come from its own data asset. |
-| Reset method | `Animal.ResetState` instead of `Reset` | Unity treats `Reset()` as an Editor message (BUGS 8). |
-| Script size | 1,168 lines, against the plan's estimate of about 550 | Mostly Inspector fields, headers and the null guards the plan asks for (`scanCamera`, `playerCamera`, `passportOrder`). |
-| UI font | Tribeca has no separate lower-case letters, so all UI text shows in capitals. | One font for the whole UI (commit dbaa191). |
-| Audio clips | Seven clips: four CC0 and three CC BY 4.0 (lion, leopard, buffalo), credited in section 10 | CC BY 4.0 needs only a credit, and section 10 gives it. |
-| Android | Not built yet | No APK has been built, so the phone path is untested. |
-
-## 8. Build Information
-
-**Links**
-
-| Build | Link |
-| --- | --- |
-| WebGL (desktop browser) | TODO_WEBGL_URL |
-| Android APK | TODO_APK_URL |
-| Demo video | TODO_VIDEO_URL |
-
-**Versions.** Unity 6000.3.23f1, URP 17.3.0, Input System 1.20.1.
-
-**Build settings in the project.**
-
-- WebGL: compression format is Disabled and decompression fallback is off. GitHub Pages cannot send the `Content-Encoding` header that compressed builds need. `BuildScript.BuildWebGL` sets the canvas to 1280 x 720 and writes the build to `Builds/WebGL`.
-- Android: IL2CPP scripting backend, ARM64 only, landscape orientation (auto-rotate left and right, portrait off). `BuildScript.BuildAndroid` builds an APK, not an Android App Bundle. The file is named `BigFiveHeritageSafari.apk` and goes in an `Android` sub-folder of the project's `Builds` folder. No APK has been built yet.
-- Quality: WebGL and Android both use the "Mobile" quality level. It has real-time shadows disabled and MSAA off. The animals use blob shadows instead.
-- Build Settings contains one scene: `Assets/Scenes/Safari_Main.unity`.
-
-**Build status.**
-
-- WebGL: built and run locally in a desktop browser. The start screen, walking, scanning and the fact card were checked in a desktop browser during development on an earlier build of the same scene. The final build was not re-tested in a browser. Sound in the browser has not been checked by ear.
-- WebGL build (14 Oct 2026, `BuildScript.BuildWebGL`): result Succeeded, 0 errors, 65,826,742 bytes (65.8 MB, or 62.8 MiB). Canvas 1280 x 720, compression disabled.
-- WebGL speed: the heavier scene measured about 128 frames per second in a desktop browser on the author's PC (measured once during development with a browser frame counter; not recorded in the repository). This was not a phone test.
-- Android: not built yet. The phone path is untested.
-
-**Mobile note.** The animals use blob shadows, not real-time shadows. Real-time shadows are off on the Mobile quality level used by WebGL and Android.
-
-**Run the project in the Editor.**
-
-1. Install Unity 6000.3.23f1 with Unity Hub. For an APK build, also install Android Build Support (SDK, NDK and OpenJDK).
-2. Add the project folder in Unity Hub and open it.
-3. Open `Assets/Scenes/Safari_Main.unity` and press Play.
-4. On the start screen, press New Safari. Press Continue if you have a saved run.
-
-**Run on a desktop browser.** Open the WebGL link (TODO_WEBGL_URL). Move with WASD, hold the right mouse button to look, press E, or the gamepad south button. The on-screen Scan button sends the same input; clicking it with a mouse has not been tested. The on-screen sticks do not appear on desktop.
-
-**Run on an Android phone.** There is no Android build yet, so there is no APK to install. The APK link above (TODO_APK_URL) is a placeholder. When an APK exists, it is built for landscape and uses the two on-screen sticks and the Scan button. A phone browser can also open the WebGL link (TODO_WEBGL_URL). Neither phone path has been tested.
-
-**Build from the command line.** Close the Editor first, because Unity locks the project while it is open:
+**Build it again.** Close the Editor first, because Unity locks the project while it is open. From the Editor menu use Build > Build WebGL or Build > Build Android APK. From a command prompt:
 
 ```
 Unity.exe -batchmode -quit -nographics -projectPath <project path> -executeMethod BuildScript.BuildWebGL -logFile <log path>
 ```
 
-Use `BuildScript.BuildAndroid` in place of `BuildWebGL` for the APK. The same methods are in the Editor menu as Build > Build WebGL and Build > Build Android APK. Each build prints one line that starts with `[Build]`, with the result, the size in bytes and the error count.
+Swap `BuildScript.BuildWebGL` for `BuildScript.BuildAndroid` for the APK. Each build prints one line that starts with `[Build]` with the result, the size and the error count.
 
-## 9. Reflection
+## 8. Reflection
 
-**Real bugs.** The full entries, with date, symptom, cause and fix, are in `BUGS.md`. In short:
+**Problems I hit and fixed.** The full list is in my bug notes, `misc/BUGS.md`. The ones I remember best:
 
-- The fact card showed no fact and no job description, because the two fields had no `[SerializeField]` (entry 1).
-- The bump sound fired every frame, because the ground counts as a hit (entry 2).
-- The on-screen sticks could drop out, because automatic control-scheme switching hid the other device's bindings. I found this in code review before device testing (entry 3).
-- An Editor build crashed while saving prefab variants, because a material was created while a prefab was open (entry 4).
-- All scenery was reported missing, because the folder name was joined twice in the path (entry 5).
-- Two tools owned the animal Bake Axis Conversion flag and fought over it (entry 6).
-- Validation skipped array fields, because it looked properties up by name instead of `propertyPath` (entry 7).
-- A design note: a method named `Reset` would have been run by Unity as an editor message, so it was renamed `ResetState` (entry 8).
-- The guide line never followed the player, because it was wired to an empty Player group at the origin instead of the object with the `CharacterController` (entry 9).
-- The four Grab3D animals rendered white, because their palette PNG was never added to the project (entry 10).
-- Most of the scenery was placed off the map, because the placement helper mixed local and world space (entry 11).
-- The scene failed to load with `InvalidOperationException: Invalid user`, because the on-screen controls were active before `PlayerInput` had a user (entry 12).
-- The win screen was hidden under the fifth fact card (entry 13).
-- A particle system logged an error every frame, found in the browser console (entry 14).
-- The guide line led out of view at the start, because the lion was 60.0 m ahead while the elephant and rhino were 59.8 m behind (entry 15).
-- On-screen sticks appeared in a desktop browser, because `Touchscreen.current` is not null there (entry 16).
-- Animals faced away from the player, because the review cameras were on the far side of each animal (entry 17).
-- Some fact card sentences went beyond their cited sources and were rewritten (entry 18).
-- Known issue, not fixed: the WebGL console logs a "sound which is not loaded yet" warning. It does not come from project code (entry 19).
-- Track and ground patches were invisible after merging, and the hills and mountain rendered inside-out, because the generated meshes had reversed triangle winding (entry 20).
-- Scenery never matched the savanna palette, because the embedded Kenney materials were not matched by name to the project's shared materials (entry 21).
-- The fact card was hard to read, and its Continue button hung below the card (entry 22).
-- The "walk into the elephant" test failed after the animals were enlarged, because the test started the player a fixed 3 m from the elephant, which left 0.56 m of walking room. The collider itself was working (entry 23).
+- The fact card came up empty. My `fact` and `jobDescription` fields had `[TextArea]` but no `[SerializeField]`, so Unity never saved them into the assets and the card had nothing to show.
+- The animals all faced away from me. I had looked at them through cameras that were on the far side, so I turned every model to point at the approach instead.
+- Most of the trees and rocks were placed off the map, because my placement helper mixed local and world space.
+- The end screen opened behind the fifth fact card. Now the card shows first and the end screen comes up when I close it.
+- The on-screen sticks kept disappearing. PlayerInput was switching control schemes on its own and hiding the other device's bindings.
 
-**Hardest feature (draft for the author to confirm).** For me the hardest part was the editor build pipeline. Many of the bugs in `BUGS.md` came from the scene, asset and import code, not from gameplay (entries 4 to 7, 9 to 11, 14, 15 and 17). The fixes taught me to give each setting one owner, to read values back from an asset after writing it, and to walk the real property paths when validating.
+**WebGL and Android.** GitHub Pages will not serve a compressed build, so I turned compression off. A particle system logged an error every frame and filled the browser console with it, because only the y velocity curve was set. The sticks showed up in desktop browsers as well, because a desktop browser reports a touchscreen, so now they only show on a real mobile platform. On the Android side the build settings are all set, but the APK has still never run on a phone, and that is the first thing I should do next.
 
-**WebGL and Android challenges.** WebGL: compression is disabled so GitHub Pages can serve the files. A particle error was logged every frame and flooded the browser console (BUGS 14). On-screen sticks appeared in a desktop browser (BUGS 16), so they now show only on mobile platforms. The browser console also logs a message about sound length before audio is loaded. It does not come from project code and it is still open (BUGS 19). The heavier scene measured about 128 frames per second in a desktop browser on the author's PC (measured once during development with a browser frame counter; not recorded in the repository). Android: the settings are in place (IL2CPP, ARM64, landscape, APK), but no APK has been built or run on a phone yet.
+**The hardest part.** The input setup. Keyboard, mouse, gamepad and the on-screen sticks all have to drive one action map, and PlayerInput fights that by switching schemes. Working out that I had to stop it switching, and clear the binding mask, was the part that took me longest.
 
-**Next steps.**
+**Next steps.** A real leopard model instead of the jaguar. Walking animals, since the models are static meshes now. The real 20 metre distance from the Kenya Wildlife Service instead of my scaled-down zones. Swahili names and text. And a full run on a phone.
 
-- Animated, rigged animals with walk cycles. The current models are static meshes with no rigs.
-- A real leopard model, to replace the jaguar stand-in.
-- Check the sound in the WebGL build by ear, and find a leopard call under an acceptable licence (the leopard now plays a jaguar call).
-- Build the Android APK and play a full run on a phone.
-- More species, with Swahili names and text.
-- Real distances that follow the Kenya Wildlife Service guidance, in place of the scaled-down radii.
+## 9. Credits and Licences
 
-## 10. Credits and Licences
+**Models and scenery.**
 
-### Third-party assets
+| Asset | Licence |
+| --- | --- |
+| Lion, elephant, rhino and buffalo, from Grab3D (grab3d.com) | CC0 1.0. The buffalo is Grab3D's bull model standing in for a Cape buffalo. Licence: `Assets/ThirdParty/Grab3D-LICENSE.txt` |
+| Leopard, which is the jaguar model "Jaguar" by Poly by Google, https://poly.pizza/m/4fb-oMr2uUF | CC BY 3.0. Licence: `Assets/ThirdParty/POLY-JAGUAR-LICENSE.txt` |
+| Trees, rocks and ground cover, from the Kenney Nature Kit (kenney.nl) | CC0 1.0. Licence: `Assets/ThirdParty/KENNEY-NATURE-KIT-LICENSE.txt` |
 
-| Asset | Source | Licence | Notes |
-| --- | --- | --- | --- |
-| Lion, elephant, rhino and buffalo meshes (`SM_Lion`, `SM_Elephant`, `SM_Rhino`, `SM_Buffalo`) | Grab3D (grab3d.com) | CC0 1.0 | The buffalo is Grab3D's Low Poly Bull, standing in for a Cape buffalo. The palette textures (`T_Lion_Palette.png`, `T_Elephant_Palette.png`, `T_Rhino_Palette.png`, `T_Buffalo_Palette.png`) are Grab3D's own, extracted from its GLB downloads, and are used through `M_Lion`, `M_Elephant`, `M_Rhino` and `M_Buffalo`. Licence file: `Assets/ThirdParty/Grab3D-LICENSE.txt`. |
-| Leopard, as a jaguar model (`SM_Leopard_Jaguar.fbx`, `T_Leopard_Jaguar.png`, `M_LeopardJaguar`). Source: "Jaguar" by Poly by Google, https://poly.pizza/m/4fb-oMr2uUF | Poly by Google, via poly.pizza | CC BY 3.0 | This is a jaguar, not a leopard. It stands in for the leopard. Changes: converted from GLB to FBX in Blender 5.2, scaled, placed so the feet rest on the ground at the origin, base colour texture downscaled from 2048 to 1024 pixels, material renamed. Licence file: `Assets/ThirdParty/POLY-JAGUAR-LICENSE.txt`. |
-| Scenery: trees, rocks and ground cover | Kenney Nature Kit 2.1 (kenney.nl) | CC0 1.0 | Credit to Kenney is appreciated but not required. Licence file: `Assets/ThirdParty/KENNEY-NATURE-KIT-LICENSE.txt`. |
-| Font: Tribeca (`Assets/Materials/Fonts/Tribeca.ttf`) | Not recorded in the project | TODO_FONT_CREDIT | Used for all UI text. Tribeca has no separate lower-case letters, so all UI text shows in capitals. The TextMesh Pro essentials are in `Assets/TextMesh Pro`. |
-| Title logo (`Assets/Images/background_removed.png`) | TODO_LOGO_CREDIT | Not yet recorded | |
-
-**Required attribution (CC BY 3.0), for the jaguar model:**
+Attribution for the jaguar model:
 
 > "Jaguar" by Poly by Google, licensed under CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/), via poly.pizza.
 
-### Audio
+I converted the jaguar from GLB to FBX, scaled it and renamed its material. It is not a leopard model. No leopard model under CC0 or CC BY was free to download without an account, so the jaguar stands in, and its rosettes are close enough to read as a leopard in the game.
 
-The seven clips and their licences are recorded in `Assets/ThirdParty/AUDIO-LICENCES.txt`. That file is the source for this table. Four clips are CC0 1.0 and need no credit. Three clips are CC BY 4.0 and must be credited.
+Tribeca font and title image (`Assets/Images/background_removed.png`). The font has no separate lower-case letters, so all the text in the game shows in capitals.
 
-| File | Sound (title on the source) | Author | Licence | Source | Notes |
-| --- | --- | --- | --- | --- | --- |
-| `SFX_Lion.ogg` | "Lion roars 1.wav" (male lions roaring, recorded at Ukutula Game Reserve, South Africa) | eardeer | CC BY 4.0 | https://freesound.org/people/eardeer/sounds/458903/ | A 4.5 s excerpt, mono and loudness-normalised. A steady tone near 4.8 kHz (recording noise) is in the source; it is low in the excerpt. |
-| `SFX_Leopard.ogg` | "Jaguar saw" (a jaguar, not a leopard) | About Zoos | CC BY 4.0 | https://commons.wikimedia.org/wiki/File:Jaguar_saw.flac | Substitution: no leopard call under an accepted licence was found. A 1.39 s call, raised 9 dB and peak-limited. |
-| `SFX_Elephant.ogg` | "Elephant voice - trumpeting" | தகவலுழவன் (Info-farmer), Wikimedia Commons | CC0 1.0 | https://commons.wikimedia.org/wiki/File:Elephant_voice_-_trumpeting.ogg | The page does not name the species. The uploader's other recording is from Tamil Nadu, India, so this is probably an Asian elephant, not an African elephant. A 1.44 s clip. |
-| `SFX_Rhino.ogg` | "white Rhino   fighting" (a white rhinoceros, Umfolozi game reserve) | geoffvt | CC0 1.0 | https://freesound.org/people/geoffvt/sounds/792852/ | Substitution: this is a white rhinoceros, used for the black rhino model. The page says "fighting", so some sounds may be contact sounds. A 3.5 s excerpt, lowered 2 dB. |
-| `SFX_Buffalo.ogg` | "Buffles-Grognement+amb oiseaux" (African buffalo grunts, Tanzania) | roubignolle (G de Courtivron) | CC BY 4.0 | https://freesound.org/people/roubignolle/sounds/35130/ | Birds are in the source. A 2.5 kHz low-pass reduces them but does not remove them. A 3.5 s excerpt. |
-| `AMB_Savanna.ogg` | "Birds and wind at Ngutuni Lodge" (near Voi, Kenya) | dkaufman | CC0 1.0 | https://freesound.org/people/dkaufman/sounds/743640/ | Loudness-normalised and faded in and out. A 22.2 s clip. |
-| `SFX_Bump.ogg` | "Light Body thud (on clothing)" | JonasTisell | CC0 1.0 | https://freesound.org/people/JonasTisell/sounds/496187/ | Silence trimmed and re-encoded. A 0.25 s clip. |
+**Audio.** All seven clips are listed with their sources and processing in `Assets/ThirdParty/AUDIO-LICENCES.txt`.
 
-**Required attribution (CC BY 4.0), for the three clips that need it:**
+| File | Sound | Author | Licence |
+| --- | --- | --- | --- |
+| `Assets/Audio/SFX_Lion.ogg` | Lion roars 1.wav | eardeer | CC BY 4.0 |
+| `Assets/Audio/SFX_Leopard.ogg` | Jaguar saw | About Zoos | CC BY 4.0 |
+| `Assets/Audio/SFX_Elephant.ogg` | Elephant voice, trumpeting | தகவலுழவன் (Info-farmer) | CC0 1.0 |
+| `Assets/Audio/SFX_Rhino.ogg` | white Rhino fighting | geoffvt | CC0 1.0 |
+| `Assets/Audio/SFX_Buffalo.ogg` | Buffles-Grognement+amb oiseaux | roubignolle (G de Courtivron) | CC BY 4.0 |
+| `Assets/Audio/AMB_Savanna.ogg` | Birds and wind at Ngutuni Lodge | dkaufman | CC0 1.0 |
+| `Assets/Audio/SFX_Bump.ogg` | Light Body thud (on clothing) | JonasTisell | CC0 1.0 |
+
+Attribution for the three clips that need it:
 
 > "Lion roars 1.wav" by eardeer, https://freesound.org/people/eardeer/sounds/458903/, licensed under CC BY 4.0, https://creativecommons.org/licenses/by/4.0/
 
@@ -427,7 +233,12 @@ The seven clips and their licences are recorded in `Assets/ThirdParty/AUDIO-LICE
 
 > "Buffles-Grognement+amb oiseaux" by roubignolle (G de Courtivron), https://freesound.org/people/roubignolle/sounds/35130/, licensed under CC BY 4.0, https://creativecommons.org/licenses/by/4.0/
 
-**Substitution note (rhino).** The rhino model is a black rhinoceros. The sound is a white rhinoceros recording, used as a stand-in for the black rhino.
+Three of the calls are substitutions. The leopard plays the jaguar call, because no leopard call under CC0 or CC BY was found. The elephant call does not name its species and is probably an Asian elephant. The rhino call is a white rhinoceros, used for my black rhino model. The buffalo call still has some birdsong in it, which the filter only reduces.
 
-**Substitution note (leopard).** No leopard call under CC0 or CC BY was found. The leopard plays a jaguar "saw" call, and its model is a jaguar too.
+**Fact card sources.** Elephant status and decline, IUCN press release, 25 March 2021. Black rhino figures, Kenya Wildlife Service figures as reported by WWF-UK, 26 February 2024. Lion figures, Kenya Wildlife Service figures as reported by Anadolu Agency, 16 January 2024. Leopard and buffalo facts, the Wikipedia articles "Leopard" and "African buffalo". The job descriptions are my own general descriptions of typical roles.
+
+**Sources.**
+
+1. World Travel & Tourism Council (WTTC), news release "Kenya Boosts Africa's Tourism Growth, Emerging as a Leading Sustainable Tourism Powerhouse", 15 June 2026, https://wttc.org/news/kenya-boosts-africas-tourism-growth-emerging-as-a-leading-sustainable-tourism-powerhouse
+2. Kenya Wildlife Service visitor guide, as quoted by The Standard, 24 December 2025, https://thestandard.ke/business/amp/national/article/2001537234/planning-a-safari-here-is-the-official-kws-guide-for-park-visitors
 

@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// The saved run. Plain fields and a List, because JsonUtility cannot read dictionaries.
+// This is the saved run.
+// JsonUtility only reads plain fields and a List, so I keep it simple and use no dictionary.
 [Serializable]
 public class SaveData
 {
@@ -11,9 +12,11 @@ public class SaveData
     public int breaches;
 }
 
-// Saves the run as JSON in PlayerPrefs. PlayerPrefs works on WebGL, which has no file system.
+// I save the run as JSON in PlayerPrefs.
+// I use PlayerPrefs because WebGL has no writable folder, and this works on every platform.
 public static class SaveSystem
 {
+    // One key holds the whole run. If I add a second key I have to keep the two in step.
     private const string Key = "SafariSave";
 
     public static bool HasSave => PlayerPrefs.HasKey(Key);
@@ -22,21 +25,22 @@ public static class SaveSystem
     {
         PlayerPrefs.SetString(Key, JsonUtility.ToJson(data));
 
-        // WebGL keeps PlayerPrefs in memory until Save() flushes it, so a closed tab would lose the run.
+        // WebGL only keeps the save in memory until I call Save, so without this a closed tab loses the run.
         PlayerPrefs.Save();
     }
 
-    // Returns false when there is no save, or when it cannot be read, so the caller starts a new run.
+    // I return false when there is no save or when I cannot read it, so the caller can start a new safari.
     public static bool TryLoad(out SaveData data)
     {
         data = null;
 
-        // A missing key gives an empty string, so this one check covers both cases.
+        // A missing key gives back an empty string, so one check covers both cases.
         string json = PlayerPrefs.GetString(Key, string.Empty);
         if (string.IsNullOrEmpty(json))
             return false;
 
-        // An old or damaged save must not throw, so parsing is guarded.
+        // A save from an older version may not read, and a throw here would kill the game,
+        // so I catch it and let the caller start a new safari.
         try
         {
             data = JsonUtility.FromJson<SaveData>(json);

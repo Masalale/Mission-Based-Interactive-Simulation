@@ -1,7 +1,9 @@
 using UnityEngine;
 
-// The too-close trigger on the DangerZone child of an animal prefab.
-// It warns at once, but books a breach at most once per cooldown per animal.
+// This is the trigger on the DangerZone child of an animal prefab.
+// Walking into it means the player is too close.
+// I warn straight away, but I only count one breach per animal every few seconds,
+// so leaning against the zone does not drain the score.
 public class DangerZone : MonoBehaviour
 {
     [Tooltip("The animal this zone belongs to. Found on the parent when left empty.")]
@@ -23,7 +25,8 @@ public class DangerZone : MonoBehaviour
         if (!other.CompareTag("Player"))
             return;
 
-        // The warning shows every time, even during the cooldown, because the player still needs to know.
+        // The warning shows every time I walk in, even during the cooldown,
+        // because the player still has to be told they are too close.
         if (UIManager.Instance != null)
             UIManager.Instance.ShowWarning("Too close, back away");
 

@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// One Big Five animal. Holds its AnimalData and the state of the current run.
+// One animal of the Big Five.
+// It keeps a link to its AnimalData asset and to the state of the run in progress.
 public class Animal : MonoBehaviour
 {
-    // Every enabled animal adds itself here, so the guide line and the save can find them.
+    // Every animal that is switched on puts itself in this list, so the guide line and the save
+    // can go through all of them without finding them in the scene by hand.
     private static readonly List<Animal> all = new List<Animal>();
 
     public static IReadOnlyList<Animal> All => all;
@@ -24,7 +26,7 @@ public class Animal : MonoBehaviour
     public AnimalData Data => data;
     public bool Scanned { get; private set; }
 
-    // Set by the ViewingZone trigger, not by this script.
+    // The ViewingZone trigger sets this, not this script.
     public bool InViewing { get; set; }
 
     public Vector3 GuidePosition => guidePoint != null ? guidePoint.position : transform.position;
@@ -37,7 +39,8 @@ public class Animal : MonoBehaviour
             return;
         }
 
-        // Copy the radii from the asset. The asset itself is never written to at runtime.
+        // I take the two radii from the asset and set them on the colliders here.
+        // The asset itself is never written to while the game is running.
         if (viewingCollider != null)
             viewingCollider.radius = data.ViewingRadius;
 
@@ -60,11 +63,11 @@ public class Animal : MonoBehaviour
         Scanned = true;
     }
 
-    // Not named Reset: Unity calls Reset() only in the Editor, never in Play mode.
+    // I did not call this Reset, because Unity would run Reset() as an editor message, not from my code.
     public void ResetState()
     {
         Scanned = false;
 
-        // InViewing is left alone here: the ViewingZone trigger owns that flag.
+        // I leave InViewing alone, because the ViewingZone trigger owns that flag.
     }
 }

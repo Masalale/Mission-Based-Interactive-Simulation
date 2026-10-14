@@ -1,8 +1,9 @@
 using System;
 using UnityEngine;
 
-// The one source of truth for a safari: stamps, score, breaches and jobs.
-// It holds state only, no UI and no input. It tells the other scripts about changes through events.
+// This keeps the score of the safari: the stamps, the score, the breaches and the jobs.
+// It holds the numbers only. There is no UI and no input in here.
+// When something changes I raise an event and the other scripts decide what to do.
 [DefaultExecutionOrder(-100)]
 public class GameManager : MonoBehaviour
 {
@@ -22,12 +23,15 @@ public class GameManager : MonoBehaviour
     public bool HasWon { get; private set; }
     public int TotalAnimals => Animal.All.Count;
 
+    // OnStateChanged goes off whenever a number changes, so the UI can refresh.
     public event Action OnStateChanged;
+
+    // OnWin goes off once, on the last stamp of the safari.
     public event Action OnWin;
 
     private void Awake()
     {
-        // A second GameManager would fight over the singleton, so the copy destroys itself.
+        // There should only be one of me in the scene. If there are two, I remove the extra one.
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -39,7 +43,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // Runs before UIManager.Start, so the first refresh shows the starting score.
+        // I run before UIManager, so the score is set before the first refresh of the UI.
         Score = startingScore;
         OnStateChanged?.Invoke();
     }
@@ -50,7 +54,8 @@ public class GameManager : MonoBehaviour
             Instance = null;
     }
 
-    // Collects a stamp. AnimalScanner is the only caller, after a raycast hit inside a viewing zone.
+    // Give an animal a stamp. Only AnimalScanner calls this, and only after it hits an animal
+    // with the scan ray while the player is inside the viewing zone.
     public void AddStamp(Animal animal)
     {
         if (animal == null || animal.Scanned || !IsPlaying)
@@ -63,6 +68,7 @@ public class GameManager : MonoBehaviour
 
         OnStateChanged?.Invoke();
 
+        // A full passport wins the safari, so I tell the UI once.
         if (TotalAnimals > 0 && Stamps >= TotalAnimals)
         {
             HasWon = true;
@@ -77,17 +83,19 @@ public class GameManager : MonoBehaviour
 
         Breaches++;
 
+        // The score stops at 0 and never turns negative.
         Score = Mathf.Max(0, Score - breachPenalty);
         Save();
 
         OnStateChanged?.Invoke();
     }
 
-    // Starts a brand new safari: clears the animals, the save and the score.
+    // Throw the old safari away and start a fresh one.
     public void ResetRun()
     {
         SaveSystem.Clear();
 
+        // Every animal goes back to unscanned, then I zero the counters by hand.
         foreach (Animal animal in Animal.All)
             animal.ResetState();
 
@@ -101,8 +109,9 @@ public class GameManager : MonoBehaviour
         OnStateChanged?.Invoke();
     }
 
-    // Rebuilds the run from the save. The state is set directly, not through AddStamp,
-    // so loading never awards a stamp twice.
+    // Put the safari back the way the save says it was.
+    // I set the numbers straight into the fields instead of going through AddStamp,
+    // because that would hand out the same stamp a second time.
     public bool Restore()
     {
         if (!SaveSystem.TryLoad(out SaveData data))
@@ -115,6 +124,7 @@ public class GameManager : MonoBehaviour
 
         foreach (Animal animal in Animal.All)
         {
+            // Clear this animal first, so an id that is not in the save is not left stamped.
             animal.ResetState();
 
             if (animal.Data != null && data.scannedIds.Contains(animal.Data.Id))
@@ -139,7 +149,7 @@ public class GameManager : MonoBehaviour
         return true;
     }
 
-    // Builds the save from the animals themselves, then writes it to PlayerPrefs.
+    // Build the save from the animals that are stamped at the moment, then write it to PlayerPrefs.
     private void Save()
     {
         SaveData data = new SaveData();
