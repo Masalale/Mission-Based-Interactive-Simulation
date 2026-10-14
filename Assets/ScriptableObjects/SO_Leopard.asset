@@ -18,9 +18,9 @@ MonoBehaviour:
   status: Vulnerable (IUCN Red List)
   fact: Leopards hunt mainly at night. They cache their kills in trees, bushes or
     caves, out of reach of rivals such as hyenas.
-  jobRole: Community conservancy scout
-  jobDescription: Scouts from local communities patrol conservancy land, monitor
-    wildlife, and report by radio to the authorities.
+  viewingTip: Keep your voice low and never crowd a leopard, especially one up a
+    tree. If too many vehicles gather, it may leave its kill and the sighting ends.
+  warningLine: The leopard is crouching. Give it space.
   viewingRadius: 15
   dangerRadius: 6
   callClip: {fileID: 8300000, guid: bef4df6d5cfc7fc49bc811b85bb1a7ef, type: 3}

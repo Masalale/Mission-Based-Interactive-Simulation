@@ -35,7 +35,8 @@ public class ViewingZone : MonoBehaviour
         if (string.IsNullOrEmpty(displayName))
             displayName = gameObject.name;
 
-        UIManager.Instance.ShowHint("Aim at the " + displayName + " and press Scan");
+        // Ranger Amani tells the visitor when the distance is good for a photo.
+        UIManager.Instance.ShowHint("Ranger Amani: Good distance. Aim at the " + displayName + " and take your photo.");
     }
 
     private void OnTriggerExit(Collider other)

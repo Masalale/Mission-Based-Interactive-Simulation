@@ -33,18 +33,18 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "LookHold",
+                    "name": "Interact",
                     "type": "Button",
-                    "id": "4dfa4c93-be61-4225-9ffd-88d5cae8c15f",
+                    "id": "852140f2-7766-474d-8707-702459ba45f3",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Interact",
+                    "name": "Pause",
                     "type": "Button",
-                    "id": "852140f2-7766-474d-8707-702459ba45f3",
+                    "id": "b0f4c2a7-51d8-4c63-9a17-2e6d0f8c5b41",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -197,19 +197,19 @@
                 },
                 {
                     "name": "",
-                    "id": "1120878b-0275-47ea-ab47-91b5e9b15bde",
-                    "path": "<Mouse>/rightButton",
+                    "id": "e8947924-b398-4764-8a64-cad0a6d00f45",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
-                    "action": "LookHold",
+                    "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "e8947924-b398-4764-8a64-cad0a6d00f45",
-                    "path": "<Keyboard>/e",
+                    "id": "7d3ab0c2-9e15-4f28-b6d1-4a0c8e2f7b39",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
@@ -225,6 +225,39 @@
                     "processors": "",
                     "groups": ";Gamepad",
                     "action": "Interact",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c81e4a95-2b73-4d60-9f8c-51a7d3b60e14",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f2b7d419-8c60-4a35-8e17-90d4c6a1b752",
+                    "path": "<Keyboard>/p",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "5a63c0e8-1d47-49b2-96c8-7e0a3f5d4b16",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

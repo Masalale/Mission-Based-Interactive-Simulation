@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,6 +11,9 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerInput))]
 public class PlayerController : MonoBehaviour
 {
+    // The pause menu slider and this script share this one PlayerPrefs key.
+    public const string SensitivityKey = "MouseSensitivity";
+
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 4f;
     [SerializeField] private float gravity = -19.62f;
@@ -37,16 +41,24 @@ public class PlayerController : MonoBehaviour
     private InputAction moveAction;
     private InputAction lookAction;
     private InputAction mouseLookAction;
-    private InputAction lookHoldAction;
     private float pitch;
     private Vector3 velocity;
     private float nextBumpTime;
     private Vector3 spawnPosition;
     private Quaternion spawnRotation;
     private Quaternion spawnCameraRotation;
+    private Vector3 cameraRestPosition;
+    private bool moved;
+    private bool cursorWasLocked;
+    private int lockedFrames;
+    private int unlockedFrames;
+    private Coroutine shakeRoutine;
 
     // I raise this when the player walks into something solid, and UIManager shows the toast.
     public event Action<Collider> Bumped;
+
+    // I raise this the first time the player takes a step, so the controls tip can go away.
+    public event Action Moved;
 
     private void Awake()
     {
@@ -68,19 +80,28 @@ public class PlayerController : MonoBehaviour
         spawnPosition = transform.position;
         spawnRotation = transform.rotation;
         if (playerCamera != null)
+        {
             spawnCameraRotation = playerCamera.transform.localRotation;
 
-        // I look the four actions up by name instead of holding references, so the script is easy to reuse.
+            // The shake adds a small offset to the camera, so I keep where it really sits.
+            cameraRestPosition = playerCamera.transform.localPosition;
+        }
+
+        // I look the three actions up by name instead of holding references, so the script is easy to reuse.
         moveAction = playerInput.actions.FindAction("Player/Move", throwIfNotFound: false);
         lookAction = playerInput.actions.FindAction("Player/Look", throwIfNotFound: false);
         mouseLookAction = playerInput.actions.FindAction("Player/MouseLook", throwIfNotFound: false);
-        lookHoldAction = playerInput.actions.FindAction("Player/LookHold", throwIfNotFound: false);
 
         if (moveAction == null || lookAction == null)
         {
             Debug.LogError($"{nameof(PlayerController)} could not find Player/Move or Player/Look.", this);
             enabled = false;
+            return;
         }
+
+        // The pause slider saves my sensitivity, so I start with whatever was chosen last time.
+        if (PlayerPrefs.HasKey(SensitivityKey))
+            mouseSensitivity = PlayerPrefs.GetFloat(SensitivityKey, mouseSensitivity);
     }
 
     private void Start()
@@ -102,6 +123,12 @@ public class PlayerController : MonoBehaviour
         if (moveAction == null || lookAction == null)
             return;
 
+        UpdateCursor();
+
+        // While the pause menu is open or a fact card is on screen, the player does not move or look.
+        if (Paused() || (UIManager.Instance != null && UIManager.Instance.IsFactCardOpen))
+            return;
+
         Look();
         Move();
     }
@@ -117,10 +144,97 @@ public class PlayerController : MonoBehaviour
         transform.SetPositionAndRotation(spawnPosition, spawnRotation);
         pitch = 0f;
         velocity = Vector3.zero;
+        moved = false;
         if (playerCamera != null)
+        {
             playerCamera.transform.localRotation = spawnCameraRotation;
+            playerCamera.transform.localPosition = cameraRestPosition;
+        }
 
         controller.enabled = wasEnabled;
+    }
+
+    // The pause slider changes it while the game is stopped, so I take the new value straight away.
+    public void SetMouseSensitivity(float value)
+    {
+        mouseSensitivity = value;
+    }
+
+    // A disturbance shakes the camera a little, so the player feels it and not only reads it.
+    public void Shake(float seconds)
+    {
+        if (playerCamera == null || shakeRoutine != null)
+            return;
+
+        shakeRoutine = StartCoroutine(ShakeRoutine(seconds));
+    }
+
+    private IEnumerator ShakeRoutine(float seconds)
+    {
+        Transform cameraTransform = playerCamera.transform;
+
+        while (seconds > 0f)
+        {
+            cameraTransform.localPosition = cameraRestPosition + new Vector3(UnityEngine.Random.Range(-0.06f, 0.06f), UnityEngine.Random.Range(-0.06f, 0.06f), 0f);
+            seconds -= Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        cameraTransform.localPosition = cameraRestPosition;
+        shakeRoutine = null;
+    }
+
+    // On a phone there is no mouse to lock, so all of this only runs on a desktop.
+    private void UpdateCursor()
+    {
+        if (Application.isMobilePlatform)
+            return;
+
+        GameManager game = GameManager.Instance;
+        bool playing = game != null && game.IsPlaying;
+        bool paused = game != null && game.IsPaused;
+
+        // The browser takes the pointer lock back on Esc, so an unlocked mouse while the safari runs
+        // means the player wants to pause. I wait a moment first, so the Esc key can do it properly.
+        if (playing && !paused && Cursor.lockState == CursorLockMode.Locked)
+            lockedFrames++;
+        else
+            lockedFrames = 0;
+
+        if (cursorWasLocked && lockedFrames > 5 && Cursor.lockState != CursorLockMode.Locked)
+            unlockedFrames++;
+        else
+            unlockedFrames = 0;
+
+        if (unlockedFrames > 2)
+        {
+            unlockedFrames = 0;
+
+            // Only a live safari pauses, never the fact card or the end screen.
+            if (UIManager.Instance == null || (!UIManager.Instance.IsFactCardOpen && !UIManager.Instance.IsEndScreenOpen))
+                PauseMenu.Instance?.Pause();
+        }
+
+        cursorWasLocked = Cursor.lockState == CursorLockMode.Locked;
+
+        // While the safari runs I hide the mouse and let it look all the time, with no button held.
+        if (playing && !paused)
+        {
+            if (Cursor.lockState != CursorLockMode.Locked)
+                Cursor.lockState = CursorLockMode.Locked;
+
+            Cursor.visible = false;
+        }
+        else if (paused)
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
+
+    private bool Paused()
+    {
+        return GameManager.Instance != null && GameManager.Instance.IsPaused;
     }
 
     private void Look()
@@ -128,9 +242,9 @@ public class PlayerController : MonoBehaviour
         // The sticks and the arrow keys give a speed, so I scale them by the frame time.
         Vector2 look = lookAction.ReadValue<Vector2>() * (lookSpeed * Time.deltaTime);
 
-        // The mouse is only read while the look button is held, and its delta is already
-        // for this frame, so I do not scale it by deltaTime again.
-        if (lookHoldAction != null && lookHoldAction.IsPressed() && mouseLookAction != null)
+        // The mouse is always read while the safari runs. Its delta is already for this frame,
+        // so I do not scale it by deltaTime again.
+        if (mouseLookAction != null)
             look += mouseLookAction.ReadValue<Vector2>() * mouseSensitivity;
 
         // Yaw turns the whole body. Pitch turns only the camera, so looking up does not walk backwards.
@@ -154,6 +268,13 @@ public class PlayerController : MonoBehaviour
         velocity.y += gravity * Time.deltaTime;
 
         controller.Move((direction + Vector3.up * velocity.y) * Time.deltaTime);
+
+        // The controls tip goes as soon as the player takes a step.
+        if (!moved && direction.sqrMagnitude > 0.01f)
+        {
+            moved = true;
+            Moved?.Invoke();
+        }
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)

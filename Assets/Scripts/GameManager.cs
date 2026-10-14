@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-// This keeps the score of the safari: the stamps, the score, the breaches and the jobs.
+// This keeps the score of the safari: the stamps, the Respect score and the disturbances.
 // It holds the numbers only. There is no UI and no input in here.
 // When something changes I raise an event and the other scripts decide what to do.
 [DefaultExecutionOrder(-100)]
@@ -10,18 +10,20 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     [Header("Scoring")]
-    [Tooltip("Score a fresh safari starts with, and the top score.")]
+    [Tooltip("Respect a fresh safari starts with, and the top Respect score.")]
     [SerializeField] private int startingScore = 100;
-    [Tooltip("Points taken per danger zone breach.")]
+    [Tooltip("Respect taken per disturbance, so the player has to be taught the lesson.")]
     [SerializeField] private int breachPenalty = 10;
 
     public int Stamps { get; private set; }
     public int Score { get; private set; }
     public int Breaches { get; private set; }
-    public int Jobs { get; private set; }
     public bool IsPlaying { get; private set; }
     public bool HasWon { get; private set; }
     public int TotalAnimals => Animal.All.Count;
+
+    // The pause menu sets this, so PlayerController and AnimalScanner can stop listening to the player.
+    public bool IsPaused { get; private set; }
 
     // OnStateChanged goes off whenever a number changes, so the UI can refresh.
     public event Action OnStateChanged;
@@ -63,7 +65,6 @@ public class GameManager : MonoBehaviour
 
         animal.MarkScanned();
         Stamps++;
-        Jobs++;
         Save();
 
         OnStateChanged?.Invoke();
@@ -76,6 +77,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    // A disturbance is a breach of the red danger zone. It costs the visitor Respect.
     public void RegisterBreach(Animal animal)
     {
         if (!IsPlaying)
@@ -100,11 +102,13 @@ public class GameManager : MonoBehaviour
             animal.ResetState();
 
         Stamps = 0;
-        Jobs = 0;
         Breaches = 0;
         Score = startingScore;
         HasWon = false;
         IsPlaying = true;
+
+        // A fresh safari is never paused.
+        SetPaused(false);
 
         OnStateChanged?.Invoke();
     }
@@ -135,11 +139,12 @@ public class GameManager : MonoBehaviour
         }
 
         Stamps = restored;
-        Jobs = restored;
         Score = data.score;
         Breaches = data.breaches;
         IsPlaying = true;
         HasWon = TotalAnimals > 0 && Stamps >= TotalAnimals;
+
+        SetPaused(false);
 
         OnStateChanged?.Invoke();
 
@@ -147,6 +152,23 @@ public class GameManager : MonoBehaviour
             OnWin?.Invoke();
 
         return true;
+    }
+
+    // Pause the whole safari without losing it. The pause menu shows the panel,
+    // I stop the clock and the sound, so nothing moves while the player reads.
+    public void SetPaused(bool paused)
+    {
+        IsPaused = paused;
+        Time.timeScale = paused ? 0f : 1f;
+        AudioListener.pause = paused;
+    }
+
+    // Main Menu keeps the save, so Continue Safari is still on the start panel afterwards.
+    public void LeaveRun()
+    {
+        IsPlaying = false;
+        SetPaused(false);
+        OnStateChanged?.Invoke();
     }
 
     // Build the save from the animals that are stamped at the moment, then write it to PlayerPrefs.

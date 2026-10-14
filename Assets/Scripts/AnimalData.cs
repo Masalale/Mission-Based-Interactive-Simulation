@@ -12,9 +12,9 @@ public class AnimalData : ScriptableObject
     [SerializeField] private string status;
     [SerializeField, TextArea(3, 8)] private string fact;
 
-    [Header("Job supported")]
-    [SerializeField] private string jobRole;
-    [SerializeField, TextArea(3, 8)] private string jobDescription;
+    [Header("Safe viewing")]
+    [SerializeField, TextArea(2, 6)] private string viewingTip;
+    [SerializeField] private string warningLine;
 
     [Header("Zones and audio")]
     [SerializeField] private float viewingRadius = 15f;
@@ -27,8 +27,8 @@ public class AnimalData : ScriptableObject
     public string Habitat => habitat;
     public string Status => status;
     public string Fact => fact;
-    public string JobRole => jobRole;
-    public string JobDescription => jobDescription;
+    public string ViewingTip => viewingTip;
+    public string WarningLine => warningLine;
     public float ViewingRadius => viewingRadius;
     public float DangerRadius => dangerRadius;
     public AudioClip CallClip => callClip;

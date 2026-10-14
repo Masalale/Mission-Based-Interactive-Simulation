@@ -19,9 +19,9 @@ MonoBehaviour:
   fact: Kenya Wildlife Service figures show Kenya's lions rose from 2,000 in 2010
     to 2,589 in 2021. Community-led conservancies return tourism revenue to local
     people and give lions a safe haven.
-  jobRole: Safari driver-guide
-  jobDescription: Guides lead game drives, find the animals, and help keep vehicles
-    at a safe, respectful distance.
+  viewingTip: On a game drive you stay inside the vehicle. A lion often ignores a
+    car, but it treats a person on foot very differently, so never walk up to one.
+  warningLine: The lion is growling. Back away slowly, never run.
   viewingRadius: 15
   dangerRadius: 6
   callClip: {fileID: 8300000, guid: 0bc9ac6043b32ef49986c15621ac5fe2, type: 3}

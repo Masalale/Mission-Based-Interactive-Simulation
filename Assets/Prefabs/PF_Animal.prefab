@@ -166,6 +166,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DangerZone
   animal: {fileID: 3741495765095583167}
   breachCooldown: 3
+  shakeSeconds: 0.3
 --- !u!1 &5520069415624848370
 GameObject:
   m_ObjectHideFlags: 0
@@ -176,6 +177,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1295862874466224020}
   - component: {fileID: 3741495765095583167}
+  - component: {fileID: 6658494852814996098}
   m_Layer: 0
   m_Name: PF_Animal
   m_TagString: Untagged
@@ -218,6 +220,27 @@ MonoBehaviour:
   viewingCollider: {fileID: 5267041921917699390}
   dangerCollider: {fileID: 4147701302076755528}
   guidePoint: {fileID: 3054788612230293265}
+  turnSpeed: 25
+  lungeDistance: 1.2
+  lungeSeconds: 0.15
+  pauseSeconds: 0.3
+  returnSeconds: 0.6
+--- !u!114 &6658494852814996098
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5520069415624848370}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea9606fa84dd10845921a612533c770a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ZoneRing
+  ringMaterial: {fileID: 2100000, guid: a3bab326cd3f46c4284e7974a5258f4c, type: 2}
+  heightOffset: 0.05
+  fadeDistance: 35
+  maxAlpha: 0.8
 --- !u!1 &8660808820381902473
 GameObject:
   m_ObjectHideFlags: 0
