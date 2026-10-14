@@ -48,6 +48,9 @@ public class AnimalScanner : MonoBehaviour
 
     private void OnInteract(InputAction.CallbackContext context)
     {
+        if (scanCamera == null)
+            return;
+
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying)
             return;
 

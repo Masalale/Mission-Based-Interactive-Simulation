@@ -27,8 +27,6 @@ public class Animal : MonoBehaviour
     // Set by the ViewingZone trigger, not by this script.
     public bool InViewing { get; set; }
 
-    public int Breaches { get; private set; }
-
     public Vector3 GuidePosition => guidePoint != null ? guidePoint.position : transform.position;
 
     private void Awake()
@@ -62,15 +60,11 @@ public class Animal : MonoBehaviour
         Scanned = true;
     }
 
-    public void RegisterBreach()
-    {
-        Breaches++;
-    }
-
     // Not named Reset: Unity calls Reset() only in the Editor, never in Play mode.
     public void ResetState()
     {
         Scanned = false;
-        Breaches = 0;
+
+        // InViewing is left alone here: the ViewingZone trigger owns that flag.
     }
 }

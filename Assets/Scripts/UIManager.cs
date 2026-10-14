@@ -285,6 +285,9 @@ public class UIManager : MonoBehaviour
 
     private void RefreshPassport()
     {
+        if (passportOrder == null)
+            return;
+
         for (int i = 0; i < passportOrder.Length; i++)
         {
             AnimalData slot = passportOrder[i];

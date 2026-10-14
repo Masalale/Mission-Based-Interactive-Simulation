@@ -65,7 +65,8 @@ public class PlayerController : MonoBehaviour
         // Replay puts the player back here, so remember the start position, the body rotation and the camera's look.
         spawnPosition = transform.position;
         spawnRotation = transform.rotation;
-        spawnCameraRotation = playerCamera.transform.localRotation;
+        if (playerCamera != null)
+            spawnCameraRotation = playerCamera.transform.localRotation;
 
         moveAction = playerInput.actions.FindAction("Player/Move", throwIfNotFound: false);
         lookAction = playerInput.actions.FindAction("Player/Look", throwIfNotFound: false);
@@ -112,7 +113,8 @@ public class PlayerController : MonoBehaviour
         transform.SetPositionAndRotation(spawnPosition, spawnRotation);
         pitch = 0f;
         velocity = Vector3.zero;
-        playerCamera.transform.localRotation = spawnCameraRotation;
+        if (playerCamera != null)
+            playerCamera.transform.localRotation = spawnCameraRotation;
 
         controller.enabled = wasEnabled;
     }
@@ -129,7 +131,8 @@ public class PlayerController : MonoBehaviour
         // Yaw turns the body. Pitch turns only the camera.
         transform.Rotate(0f, look.x, 0f);
         pitch = Mathf.Clamp(pitch - look.y, minPitch, maxPitch);
-        playerCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        if (playerCamera != null)
+            playerCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
     }
 
     private void Move()

@@ -23,8 +23,6 @@ public class GameManager : MonoBehaviour
     public int TotalAnimals => Animal.All.Count;
 
     public event Action OnStateChanged;
-    public event Action<Animal> OnStampAdded;
-    public event Action<Animal> OnBreach;
     public event Action OnWin;
 
     private void Awake()
@@ -63,7 +61,6 @@ public class GameManager : MonoBehaviour
         Jobs++;
         Save();
 
-        OnStampAdded?.Invoke(animal);
         OnStateChanged?.Invoke();
 
         if (TotalAnimals > 0 && Stamps >= TotalAnimals)
@@ -79,13 +76,10 @@ public class GameManager : MonoBehaviour
             return;
 
         Breaches++;
-        if (animal != null)
-            animal.RegisterBreach();
 
         Score = Mathf.Max(0, Score - breachPenalty);
         Save();
 
-        OnBreach?.Invoke(animal);
         OnStateChanged?.Invoke();
     }
 
@@ -108,7 +102,7 @@ public class GameManager : MonoBehaviour
     }
 
     // Rebuilds the run from the save. The state is set directly, not through AddStamp,
-    // so loading never awards a stamp twice and never raises OnStampAdded.
+    // so loading never awards a stamp twice.
     public bool Restore()
     {
         if (!SaveSystem.TryLoad(out SaveData data))

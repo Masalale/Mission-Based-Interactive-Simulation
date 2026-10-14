@@ -32,7 +32,6 @@ public class SafariGuideLine : MonoBehaviour
     {
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.OnStampAdded += HandleStampAdded;
             GameManager.Instance.OnStateChanged += Retarget;
         }
 
@@ -44,7 +43,6 @@ public class SafariGuideLine : MonoBehaviour
     {
         if (GameManager.Instance != null)
         {
-            GameManager.Instance.OnStampAdded -= HandleStampAdded;
             GameManager.Instance.OnStateChanged -= Retarget;
         }
     }
@@ -58,12 +56,6 @@ public class SafariGuideLine : MonoBehaviour
         Vector3 from = player != null ? player.position : transform.position;
         line.SetPosition(0, from + Vector3.up * heightOffset);
         line.SetPosition(1, target.GuidePosition + Vector3.up * heightOffset);
-    }
-
-    private void HandleStampAdded(Animal animal)
-    {
-        // The animal that was just stamped is no longer the target.
-        Retarget();
     }
 
     // Picks the nearest unscanned animal and shows the line only when there is one.

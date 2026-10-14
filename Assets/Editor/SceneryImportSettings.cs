@@ -94,12 +94,6 @@ namespace Safari.EditorTools
             return sharedMaterials;
         }
 
-        /// <summary>Forces a reimport to see materials generated after the cache was built.</summary>
-        internal static void ClearCache()
-        {
-            sharedMaterials = null;
-        }
-
         /// <summary>FBX embedded material names may arrive as "Material::leafsGreen" or "leafsGreen".</summary>
         internal static string Normalize(string name)
         {
