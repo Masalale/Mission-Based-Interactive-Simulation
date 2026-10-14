@@ -207,4 +207,4 @@ Rhino level: lowered by 2 dB after processing. Before the change the mean was
 -15.6 dB and the peak 0.0 dB; after it, the mean is -17.5 dB and the peak -0.2 dB.
 No file is CC-BY-NC, CC-BY-SA or CC-BY-ND.
 
-LEVEL NOTE (2026-10-14): SFX_Leopard.ogg was raised by 9 dB and peak-limited after processing (ffmpeg volume=9dB,alimiter=limit=0.72) because it was about 10 dB quieter than the other calls.
+LEVEL NOTE (2026-10-14): SFX_Leopard.ogg was raised by 9 dB and peak-limited after processing (ffmpeg volume=9dB,alimiter=limit=0.75:level=disabled) because it was about 10 dB quieter than the other calls.
