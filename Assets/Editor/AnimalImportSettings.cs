@@ -5,7 +5,7 @@ namespace Safari.EditorTools
     /// <summary>
     /// Import settings for every model under Assets/Models/Animals (the Big 5 and the
     /// jaguar used as the leopard). This is the only code that owns those files'
-    /// import settings; SafariProjectSetup does not touch them.
+    /// import settings.
     ///
     /// bakeAxisConversion stays OFF. The Blender exports already carry the axis
     /// conversion in their vertices (bake_space_transform), so Unity baking it again

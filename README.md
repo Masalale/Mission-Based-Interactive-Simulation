@@ -29,7 +29,7 @@ The simulation does not use that rule. Its viewing zone is 15 to 18 m and its da
 
 **How it connects to the GCGO.** The Tourism challenge is about wildlife viewing that protects the animals it depends on. The Job creation opportunity is about the careers that come from that viewing. Each fact card names a job the animal supports, and the Jobs Supported counter goes up as the player collects stamps. The danger zone shows the other half of the idea: keeping your distance keeps the product alive.
 
-Sources for this section are listed in section 9.
+Sources for this section are listed in section 10.
 
 ## 3. Simulation Overview
 
@@ -69,7 +69,7 @@ Each mechanic names its scripts, what it does in this game, and what breaks if i
 
 ### 4.1 UI
 
-**Scripts:** `UIManager.cs`. The Canvas is built by `SafariUIBuilder.cs` in the Editor and saved in `Safari_Main.unity`.
+**Scripts:** `UIManager.cs`. The Canvas and its panels are in `Safari_Main.unity`. They were first laid out by editor tooling that is no longer in the project (see section 6).
 
 **What it does:**
 
@@ -78,7 +78,7 @@ Each mechanic names its scripts, what it does in this game, and what breaks if i
 - A fact card with the animal name, habitat, status, the fact, the job role and the job description, and a close button.
 - An end screen with a summary and a Replay button. It opens when the player closes the last fact card of a won run.
 
-`UIManager` does not poll. It subscribes to `GameManager.OnStateChanged` and `GameManager.OnWin` in `OnEnable`, and it unsubscribes in `OnDisable`. Every runtime change to the screen text and panels goes through `UIManager`.
+`UIManager` does not poll for game state. It subscribes to `GameManager.OnStateChanged` and `GameManager.OnWin` in `OnEnable`, and it unsubscribes in `OnDisable`. Every runtime change to the screen text and panels goes through `UIManager`.
 
 **Delete it:** no objective, no feedback after a scan, no start or end screen, no win.
 
@@ -101,7 +101,7 @@ Each mechanic names its scripts, what it does in this game, and what breaks if i
 | Interact | `<Keyboard>/e`, `<Gamepad>/buttonSouth` |
 
 - The `Player` object has a `PlayerInput` component. Its Actions field is the asset above and its Default Action Map is `Player`. Notifications are sent as C# events. `AnimalScanner` subscribes to `Interact.performed` in code.
-- The `EventSystem` uses `InputSystemUIInputModule`. No `StandaloneInputModule` is in the scene, and the Validate step checks for one.
+- The `EventSystem` uses `InputSystemUIInputModule`. No `StandaloneInputModule` is in the scene.
 - Project setting: Active Input Handling is set to the Input System Package only (`activeInputHandler: 1`).
 - On-screen controls: an `OnScreenStick` bound to `<Gamepad>/leftStick` (Move), an `OnScreenStick` bound to `<Gamepad>/rightStick` (Look), and an `OnScreenButton` bound to `<Gamepad>/buttonSouth` (Interact). The two sticks sit in their own `MobileControls` panel. `UIManager` shows that panel only when `Application.isMobilePlatform` is true, so a desktop browser does not show the sticks. The Scan button stays on the HUD on desktop and mobile.
 
@@ -116,7 +116,7 @@ Each mechanic names its scripts, what it does in this game, and what breaks if i
 **Scripts:** `PlayerController.cs`, `Animal.cs`, `ViewingZone.cs`, `DangerZone.cs`.
 
 - **Player body.** The player has a `CharacterController` (height 1.8 m, radius 0.4 m, centre at 0.9 m). It has no Rigidbody.
-- **Solid animal bodies.** Each animal's body has a `BoxCollider` on the Animal layer (layer 6). The builder sizes it to 85% of the model bounds. A solid collider blocks the `CharacterController`.
+- **Solid animal bodies.** Each animal's body has a `BoxCollider` on the Animal layer (layer 6). The collider is sized to 85% of the model bounds. A solid collider blocks the `CharacterController`.
 - **Bump feedback.** `PlayerController.OnControllerColliderHit` ignores hits on the ground (`hit.normal.y > 0.5f`). For any other solid hit it plays the bump sound and raises `Bumped`. `UIManager` then shows a toast: "Blocked by the <species>" for an animal, or "Blocked by a rock or tree" for anything else. It allows one bump per second.
 - **Trigger zones.** Each `PF_Animal` has two `SphereCollider` triggers, one for `ViewingZone` and one for `DangerZone`. `Animal.Awake` copies their radii from `AnimalData`.
   - `ViewingZone` sets `Animal.InViewing` on enter and exit, for objects tagged `Player`. It shows the hint "Aim at the <species> and press Scan".
@@ -131,10 +131,10 @@ A trigger does not block movement. It only fires events. The solid body blocks t
 **Script:** `AnimalScanner.cs`.
 
 - On Interact, `OnInteract` builds a ray from the centre of the screen with `scanCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0f))`.
-- It calls `Physics.Raycast(ray, out hit, maxDistance, animalMask, QueryTriggerInteraction.Ignore)`. `maxDistance` is 20 m. `animalMask` is set to layer 6 (value 64) by the scene builder. `QueryTriggerInteraction.Ignore` means the zone triggers never block the ray.
+- It calls `Physics.Raycast(ray, out hit, maxDistance, animalMask, QueryTriggerInteraction.Ignore)`. `maxDistance` is 20 m. `animalMask` is set to the Animal layer (layer 6, value 64) in the scene. `QueryTriggerInteraction.Ignore` means the zone triggers never block the ray.
 - A miss shows "Nothing in your sights. Aim at an animal." A hit on an animal that is not in its viewing zone shows "Move into the viewing zone first."
-- A hit on an animal in its viewing zone is the only way to earn a stamp. On the first scan, `AnimalScanner` calls `GameManager.Instance.AddStamp(animal)`. That is the only call site in the project. It then plays the animal's call clip.
-- A repeat scan does not award anything. It only reopens the fact card, which says "Already in your passport".
+- A hit on an animal in its viewing zone is the only way to earn a stamp. On the first scan, `AnimalScanner` calls `GameManager.Instance.AddStamp(animal)`. That is the only call site in the project. Every valid scan then plays the animal's call clip.
+- A repeat scan does not award anything. It plays the call again and reopens the fact card, which says "Already in your passport".
 
 **Delete it:** no scans, no stamps, and the game cannot be won.
 
@@ -155,18 +155,18 @@ Three features beyond the module, all in the scene and the scripts.
 
 ### 5.1 Audio
 
-Five clips are used for animal calls and the bump sound: four calls (lion, elephant, rhino and buffalo) and `SFX_Bump.ogg`. One clip, `AMB_Savanna.ogg`, is the savanna ambience.
+There are seven clips in `Assets/Audio`: a savanna ambience, a bump sound, and five animal calls (lion, leopard, elephant, rhino and buffalo).
 
 - **Savanna ambience.** An `AudioSource` on the `Ambience` object (under `Systems`) plays `AMB_Savanna.ogg`. Loop is on, Play On Awake is on, and the volume is 0.35.
-- **Animal call on first scan.** `AnimalScanner` calls `callSource.PlayOneShot(animal.Data.CallClip)` on a first scan only. The clip comes from the `callClip` field of each `SO_*` asset. The leopard has no call clip, because no leopard recording under an acceptable licence was found, so the leopard plays nothing. The rhino call is an Indian rhinoceros recording used as a stand-in.
+- **Animal call on every scan.** `AnimalScanner` calls `callSource.PlayOneShot(animal.Data.CallClip)` on every valid scan, first or repeat. The clip comes from the `callClip` field of each `SO_*` asset. The leopard plays a jaguar "saw" call, `SFX_Leopard.ogg`, because no leopard call under an accepted licence was found.
 - **Bump sound.** `PlayerController` calls `bumpSource.PlayOneShot(bumpClip)` with `SFX_Bump.ogg`, once per bump cooldown.
-- **Import settings.** `SafariProjectSetup` sets them. The call and bump clips (`SFX_*`) use Decompress On Load and are preloaded. The ambience (`AMB_*`) is compressed in memory and is also preloaded. It is not streamed, because streaming is unreliable on WebGL.
+- **Import settings.** The call and bump clips (`SFX_*`) use Decompress On Load and are preloaded. The ambience (`AMB_*`) is compressed in memory and is also preloaded. It is not streamed, because streaming is unreliable on WebGL.
 
-The six clips are in `Assets/Audio`. Their licences are in section 9. Sound in the WebGL build has not been checked by ear (see `BUGS.md`, entry 19).
+Every clip is credited in section 10. The licence file (`Assets/ThirdParty/AUDIO-LICENCES.txt`) records that the sounds were checked by measurement and spectrogram, not by ear. Sound in the WebGL build has not been checked by ear (see `BUGS.md`, entry 19).
 
 ### 5.2 Particle systems
 
-Two `ParticleSystem` objects, both built by `SafariSceneBuilder` with the `M_Particle` material. No script drives them. Their behaviour comes entirely from the settings stored in the scene.
+Two `ParticleSystem` objects, both using the `M_Particle` material. No script drives them. Their behaviour comes entirely from the settings stored in the scene.
 
 - **Dust.** A child of the Player. A circle-shaped emitter, lifetime 3 to 5 s, maximum 60 particles.
 - **Fireflies.** A child of `Systems`. A box-shaped emitter, lifetime 6 to 9 s, maximum 80 particles.
@@ -189,20 +189,23 @@ The project never uses file IO, because WebGL has no writable filesystem.
 
 ### Folder tree
 
+Two levels under `Assets/`, from the project on 14 October 2026:
+
 ```
 Assets/
-  Audio/              AMB_Savanna.ogg, SFX_Buffalo.ogg, SFX_Bump.ogg, SFX_Elephant.ogg, SFX_Lion.ogg, SFX_Rhino.ogg
-  Editor/             13 editor scripts (table below)
+  Audio/              AMB_Savanna.ogg, SFX_Buffalo.ogg, SFX_Bump.ogg, SFX_Elephant.ogg, SFX_Leopard.ogg, SFX_Lion.ogg, SFX_Rhino.ogg
+  Editor/             AnimalImportSettings.cs, BuildScript.cs, SceneryImportSettings.cs
   Images/             background_removed.png (title logo)
   Input/              InputSystem_Actions.inputactions
-  Materials/          M_Buffalo, M_Elephant, M_Ground, M_GuideLine, M_LeopardJaguar, M_Lion, M_Particle, M_Rhino, M_Track
+  Materials/          26 materials (M_Ground, M_GuideLine, M_Lion, M_Track and others)
     Fonts/            Tribeca.ttf, the UI font, and its TextMesh Pro asset
   Models/
     Animals/          SM_Buffalo.fbx, SM_Elephant.fbx, SM_Leopard_Jaguar.fbx, SM_Lion.fbx, SM_Rhino.fbx
       Textures/       T_Buffalo_Palette.png, T_Elephant_Palette.png, T_Leopard_Jaguar.png, T_Lion_Palette.png, T_Rhino_Palette.png
-    Scenery/          Kenney Nature Kit pieces, in sub-folders Ground, Materials, Rocks, Scatter and Trees
-    Generated/        Merged ground and landform meshes, made by the editor tooling (SafariScenery.cs)
+    Generated/        17 merged ground, landform and mountain meshes, used by the scene
+    Scenery/          Kenney Nature Kit pieces, in sub-folders Ground, Materials (14 shared materials), Rocks, Scatter and Trees
   Prefabs/            PF_Animal, PF_Animal_Lion, PF_Animal_Leopard, PF_Animal_Elephant, PF_Animal_Rhino, PF_Animal_Buffalo
+  Resources/          PerformanceTestRunInfo.json, PerformanceTestRunSettings.json (Unity Test Framework files)
   Scenes/             Safari_Main.unity
   ScriptableObjects/  SO_Lion, SO_Leopard, SO_Elephant, SO_Rhino, SO_Buffalo
   Scripts/            ten gameplay scripts (table below)
@@ -216,77 +219,86 @@ Assets/
 
 **Scenery.** All scenery pieces come from the Kenney Nature Kit. Only part of the pack is placed in the scene, and the rest stays in the project for further scene work. The pieces are recoloured to a dry savanna palette. The colours are set on the pack's shared materials, so the scenery uses no textures.
 
-**Scene totals:** 2,614 GameObjects, 1,265 renderers and 126,075 triangles.
+**Scene totals** (measured before the animals were enlarged; scale does not change triangle counts): 126,075 triangles and 1,265 renderers.
 
 ### Script table
 
-Line counts are from `wc -l` on 13 Oct 2026.
+Line counts are from `wc -l` on 14 Oct 2026.
 
 | File | Purpose | Lines |
 | --- | --- | --- |
 | `PlayerController.cs` | First-person move and look, gravity, bump feedback, spawn reset | 168 |
-| `AnimalScanner.cs` | Interact: centre-screen raycast, stamps, call sound, fact card | 99 |
-| `Animal.cs` | Per-animal runtime state, zone radii, static list of all animals | 73 |
+| `AnimalScanner.cs` | Interact: centre-screen raycast, stamps, call sound, fact card | 98 |
+| `Animal.cs` | Per-animal runtime state, zone radii, static list of all animals | 76 |
 | `AnimalData.cs` | ScriptableObject: fact, job, radii, call clip | 33 |
-| `ViewingZone.cs` | Trigger that allows scanning and shows the hint | 44 |
-| `DangerZone.cs` | Trigger that shows the warning and books breaches, with a cooldown | 45 |
+| `ViewingZone.cs` | Trigger that allows scanning and shows the hint | 50 |
+| `DangerZone.cs` | Trigger that shows the warning and books breaches, with a cooldown | 48 |
 | `SafariGuideLine.cs` | LineRenderer guide to the nearest unscanned animal | 101 |
 | `GameManager.cs` | Run state (stamps, score, breaches, jobs), events, win, save and restore | 163 |
-| `UIManager.cs` | Every screen, the HUD, the fact card; listens to GameManager | 379 |
+| `UIManager.cs` | Every screen, the HUD, the fact card; listens to GameManager | 385 |
 | `SaveSystem.cs` | PlayerPrefs and JsonUtility save, load and clear | 57 |
 
-Total: 1,162 lines.
+Total: 1,179 lines.
 
 ### Editor scripts
 
-The Editor folder holds the build tools, the verification tools and two import postprocessors. Line counts are from `wc -l` on 13 Oct 2026. The Editor is still changing, so these counts are a snapshot.
+The Editor folder has three scripts. Line counts are from `wc -l` on 14 Oct 2026.
 
 | File | Purpose | Lines |
 | --- | --- | --- |
 | `AnimalImportSettings.cs` | Import settings for the animal models under `Assets/Models/Animals` (an `AssetPostprocessor`) | 44 |
-| `SafariAssetBuilder.cs` | Shared materials, the five `AnimalData` assets, `PF_Animal` and its five variants | 1,055 |
-| `SafariBuild.cs` | WebGL and Android player builds, run by hand | 127 |
-| `SafariBuilder.cs` | `BuildAll` and the read-only `Validate` audit | 1,322 |
-| `SafariLog.cs` | Log lines with the `[Safari]` prefix, and a failure count for the exit code | 202 |
-| `SafariModelOrient.cs` | Works out how to turn each animal model to face the approach, by rotating its Model child | 257 |
-| `SafariProjectSetup.cs` | Layers, player settings, import settings and URP assets, and `SafariPaths` | 565 |
-| `SafariSceneBuilder.cs` | Rebuilds `Safari_Main` with a fixed random seed | 763 |
-| `SafariScenery.cs` | Scenery layout: zones, habitats, track and ground, hills and the mountain, and the merged meshes in `Assets/Models/Generated` | 1,609 |
-| `SafariShots.cs` | Renders review screenshots | 836 |
-| `SafariSmokeTest.cs` | Play-mode smoke test | 806 |
-| `SafariUIBuilder.cs` | Canvas, HUD, start screen, fact card and end screen | 700 |
-| `SceneryImportSettings.cs` | Import settings for the Kenney scenery (an `AssetPostprocessor`) | 116 |
+| `BuildScript.cs` | WebGL and Android builds, from the Build menu or the command line | 65 |
+| `SceneryImportSettings.cs` | Import settings for the Kenney scenery, and the shared materials (an `AssetPostprocessor`) | 115 |
 
-Total: 8,402 lines.
+Total: 224 lines.
+
+### Editor tooling
+
+The scene, prefabs and data assets were laid out during development with editor scripts: a scene generator, a static validator, a Play-mode smoke test and a screenshot tool. They are not part of the submitted project. The submitted `Assets/Editor` folder has three small scripts, listed above: `AnimalImportSettings.cs` and `SceneryImportSettings.cs` (import settings for the models) and `BuildScript.cs` (WebGL and Android builds). The scene is now edited by hand in the Editor, like any Unity scene. Verification recorded on 14 October 2026: static validation 87 checks passed, Play-mode test 74 checks passed.
 
 ### Prefabs
 
-- **`PF_Animal`** (base). The root has `Animal.cs` and the `AnimalData` slot. Its children are `Body` (the model and a solid body collider on the Animal layer), `ViewingZone` (a `SphereCollider` trigger with `ViewingZone.cs`) and `DangerZone` (a `SphereCollider` trigger with `DangerZone.cs`).
+- **`PF_Animal`** (base). The root has `Animal.cs` and the `AnimalData` slot. Its children are `Body` (the model and a solid body collider on the Animal layer), `ViewingZone` (a `SphereCollider` trigger with `ViewingZone.cs`) and `DangerZone` (a `SphereCollider` trigger with `DangerZone.cs`). Its zone radii are the base values, 15 and 6 m.
 - **Five variants:** `PF_Animal_Lion`, `PF_Animal_Leopard`, `PF_Animal_Elephant`, `PF_Animal_Rhino` and `PF_Animal_Buffalo`. Each one overrides the model, the scale and the `AnimalData`.
-- The leopard variant uses the jaguar model (`SM_Leopard_Jaguar.fbx`) at leopard scale, with the `M_LeopardJaguar` material. See section 9.
+- The leopard variant uses the jaguar model (`SM_Leopard_Jaguar.fbx`) at leopard scale, with the `M_LeopardJaguar` material. See section 10.
 
 ### ScriptableObjects
 
 `SO_Lion`, `SO_Leopard`, `SO_Elephant`, `SO_Rhino` and `SO_Buffalo` are `AnimalData` assets. Each holds the species name, habitat, status, fact, job role, job description, the two zone radii and the call clip. The viewing and danger radii are 15 m and 6 m for lion, leopard and buffalo, and 18 m and 8 m for elephant and rhino.
 
-### Editor tooling
+### Animal models
 
-The scene, prefabs and data assets are generated by editor scripts in `Assets/Editor`, so the scene can be rebuilt the same way each time. They are exposed in the Editor under the `Safari` menu:
+| Animal | Model file | Triangles |
+| --- | --- | --- |
+| Lion | `SM_Lion.fbx` | 2,998 |
+| Leopard | `SM_Leopard_Jaguar.fbx` (a jaguar) | 1,020 |
+| Elephant | `SM_Elephant.fbx` | 3,000 |
+| Rhino | `SM_Rhino.fbx` | 2,998 |
+| Buffalo | `SM_Buffalo.fbx` | 2,999 |
 
-- `Safari > 1 Project Setup` (`SafariProjectSetup`): layers, player settings, import settings and the URP assets.
-- `Safari > 2 Build Assets` (`SafariAssetBuilder`): shared materials, the five `AnimalData` assets, `PF_Animal` and its five variants.
-- `Safari > 3 Build Scene` (`SafariSceneBuilder`): rebuilds `Safari_Main` with a fixed random seed, so two runs give the same scatter.
-- `Safari > 0 Build All` (`SafariBuilder.BuildAll`): runs the three steps above in order and saves.
-- `Safari > 4 Screenshots` (`SafariShots`): renders review screenshots of the built reserve to `Logs/shots`. It needs a graphics device, so it runs without `-nographics`.
-- `Safari > 9 Validate` (`SafariBuilder.Validate`): audits the saved scene and prefabs, and prints one PASS or FAIL line per check.
+Measured before the animals were enlarged. Scale does not change triangle counts.
 
-`BuildAll` and `Validate` both end by calling `EditorApplication.Exit`, so they close the Editor when they finish. Run them from the command line, or save your work first.
+## 7. Deviations from the plan
 
-The scene is now edited by hand in the Editor. Some UI text uses the Tribeca font, which was set by hand. `SafariBuilder.BuildAll` regenerates the scene and would discard these hand edits, so do not run it without care.
+The plan is `misc/BUILD-SPEC.md`. This table lists what differs from it, and why.
 
-`SafariBuilder.Validate` is a read-only check of the generated scene and prefabs, and the last run reported Validate 87 checks passing, Play-mode smoke test 74 checks passing (13 October 2026). `SafariSmokeTest` is an Editor-driven Play-mode run that walks, scans, breaches, wins, saves and replays through the real Input System, and it logs one PASS or FAIL line per check. The smoke test has no menu item. It is started from the command line with `-executeMethod`. Its last run reported Validate 87 checks passing, Play-mode smoke test 74 checks passing (13 October 2026).
+| Area | What differs from the plan | Why |
+| --- | --- | --- |
+| Leopard model and call | A jaguar model (`SM_Leopard_Jaguar.fbx`) and a jaguar "saw" call stand in for the leopard | No leopard model or call under CC0 or CC BY could be downloaded without an account. |
+| Buffalo model | Grab3D's bull model (Low Poly Bull) stands in for the buffalo | The plan allowed a bull used as the buffalo. It is not a Cape buffalo model. |
+| Animal size and angle | Lion, rhino and buffalo 1.3x, leopard 1.35x, elephant 1.12x; animals turned to a three-quarter view | So the animals read at scanning distance. The viewing and danger radii keep the plan's values. |
+| Bake Axis Conversion | Off for the animal FBX files | The Blender exports already carry the axis conversion, and baking it again turns the animals to face -Z. |
+| Lion position | The lion stands 50 m from the spawn; the others are about 60 m | So the guide line leads straight ahead at the start. |
+| On-screen sticks | Sticks show only when `Application.isMobilePlatform` is true; the Scan button is always visible | A touchscreen flag also reports true in desktop browsers (BUGS 16). |
+| Animal call | The call plays on every valid scan, not only the first | The animal answers each scan with its call, so the player gets feedback every time. |
+| Zone radii | The prefab's serialized zone radii are the base values (15 and 6); `Animal.Awake` sets each animal's real radii from its AnimalData (elephant and rhino 18 and 8) | Each animal's radii come from its own data asset. |
+| Reset method | `Animal.ResetState` instead of `Reset` | Unity treats `Reset()` as an Editor message (BUGS 8). |
+| Script size | 1,179 lines, against the plan's estimate of about 550 | Mostly Inspector fields, headers and the null guards the plan asks for. |
+| UI font | Tribeca is used for all UI text, and it is caps-only | One font for the whole UI (commit dbaa191). |
+| Audio clips | Seven clips: four CC0 and three CC BY 4.0 (lion, leopard, buffalo), credited in section 10 | CC BY 4.0 needs only a credit, and section 10 gives it. |
+| Android | Not built yet | No APK has been built, so the phone path is untested. |
 
-## 7. Build Information
+## 8. Build Information
 
 **Links**
 
@@ -300,17 +312,19 @@ The scene is now edited by hand in the Editor. Some UI text uses the Tribeca fon
 
 **Build settings in the project.**
 
-- WebGL: compression format is Disabled and decompression fallback is off. GitHub Pages cannot send the `Content-Encoding` header that compressed builds need. `SafariBuild.BuildWebGL` sets the canvas to 1280 x 720. Output folder: `Builds/WebGL`.
-- Android: IL2CPP scripting backend, ARM64 only, landscape orientation (auto-rotate left and right, portrait off), built as an APK rather than an AAB. The APK goes to the project's Builds folder, at the path set in `SafariBuild.cs`. No APK has been built yet.
+- WebGL: compression format is Disabled and decompression fallback is off. GitHub Pages cannot send the `Content-Encoding` header that compressed builds need. `BuildScript.BuildWebGL` sets the canvas to 1280 x 720 and writes the build to `Builds/WebGL`.
+- Android: IL2CPP scripting backend, ARM64 only, landscape orientation (auto-rotate left and right, portrait off). `BuildScript.BuildAndroid` builds an APK, not an Android App Bundle. The file is named `BigFiveHeritageSafari.apk` and goes in an `Android` sub-folder of the project's `Builds` folder. No APK has been built yet.
+- Quality: WebGL and Android both use the "Mobile" quality level. It has real-time shadows disabled and MSAA off. The animals use blob shadows instead.
 - Build Settings contains one scene: `Assets/Scenes/Safari_Main.unity`.
 
 **Build status.**
 
 - WebGL: built and run locally in a desktop browser, where the start screen, walking, scanning and the fact card were checked. Sound in the browser has not been checked by ear.
-- WebGL size and speed: the build is 62 MB at 1280 x 720. It ran at about 128 frames per second in a desktop browser on the author's PC. This was not a phone test.
+- WebGL build (14 Oct 2026, `BuildScript.BuildWebGL`): result Succeeded, 0 errors, 65,828,444 bytes (65.8 MB, or 62.8 MiB). Canvas 1280 x 720, compression disabled.
+- WebGL speed: the heavier scene measured about 128 frames per second in a desktop browser on the author's PC. This was not a phone test.
 - Android: not built yet. The phone path is untested.
 
-**Mobile note.** The animals use blob shadows, not real-time shadows. Real-time shadows are off on the low quality level used by WebGL and Android.
+**Mobile note.** The animals use blob shadows, not real-time shadows. Real-time shadows are off on the Mobile quality level used by WebGL and Android.
 
 **Run the project in the Editor.**
 
@@ -326,12 +340,12 @@ The scene is now edited by hand in the Editor. Some UI text uses the Tribeca fon
 **Build from the command line.** Close the Editor first, because Unity locks the project while it is open:
 
 ```
-Unity.exe -batchmode -quit -nographics -projectPath <project path> -executeMethod Safari.EditorTools.SafariBuild.BuildWebGL -logFile <log path>
+Unity.exe -batchmode -quit -nographics -projectPath <project path> -executeMethod BuildScript.BuildWebGL -logFile <log path>
 ```
 
-Use `BuildAndroid` in place of `BuildWebGL` for the APK. The same methods are available from the `Safari > 7 Build WebGL` and `Safari > 8 Build Android` menu items.
+Use `BuildScript.BuildAndroid` in place of `BuildWebGL` for the APK. The same methods are in the Editor menu as Build > Build WebGL and Build > Build Android APK. Each build prints one line that starts with `[Build]`, with the result, the size in bytes and the error count.
 
-## 8. Reflection
+## 9. Reflection
 
 **Real bugs.** The full entries, with date, symptom, cause and fix, are in `BUGS.md`. In short:
 
@@ -356,29 +370,32 @@ Use `BuildAndroid` in place of `BuildWebGL` for the APK. The same methods are av
 - Known issue, not fixed: the WebGL console logs a "sound which is not loaded yet" warning. It does not come from project code (entry 19).
 - Track and ground patches were invisible after merging, and the hills and mountain rendered inside-out, because the generated meshes had reversed triangle winding (entry 20).
 - Scenery never matched the savanna palette, because the embedded Kenney materials were not matched by name to the project's shared materials (entry 21).
+- The fact card was hard to read, and its Continue button hung below the card (entry 22).
+- The "walk into the elephant" test failed after the animals were enlarged, because the test started the player a fixed 3 m from the elephant, which left 0.56 m of walking room. The collider itself was working (entry 23).
 
 **Hardest feature (draft for the author to confirm).** For me the hardest part was the editor build pipeline. Many of the bugs in `BUGS.md` came from the scene, asset and import code, not from gameplay (entries 4 to 7, 9 to 11, 14, 15 and 17). The fixes taught me to give each setting one owner, to read values back from an asset after writing it, and to walk the real property paths when validating.
 
-**WebGL and Android challenges.** TODO_REFLECTION_PLATFORM
+**WebGL and Android challenges.** WebGL: compression is disabled so GitHub Pages can serve the files. A particle error was logged every frame and flooded the browser console (BUGS 14). On-screen sticks appeared in a desktop browser (BUGS 16), so they now show only on mobile platforms. The browser console also logs a message about sound length before audio is loaded. It does not come from project code and it is still open (BUGS 19). The heavier scene measured about 128 frames per second in a desktop browser on the author's PC. Android: the settings are in place (IL2CPP, ARM64, landscape, APK), but no APK has been built or run on a phone yet.
 
 **Next steps.**
 
 - Animated, rigged animals with walk cycles. The current models are static meshes with no rigs.
 - A real leopard model, to replace the jaguar stand-in.
-- Check the sound in the WebGL build by ear, and find a leopard call under an acceptable licence.
+- Check the sound in the WebGL build by ear, and find a leopard call under an acceptable licence (the leopard now plays a jaguar call).
+- Build the Android APK and play a full run on a phone.
 - More species, with Swahili names and text.
 - Real distances that follow the Kenya Wildlife Service guidance, in place of the scaled-down radii.
 
-## 9. Credits and Licences
+## 10. Credits and Licences
 
 ### Third-party assets
 
 | Asset | Source | Licence | Notes |
 | --- | --- | --- | --- |
-| Lion, elephant, rhino and buffalo meshes (`SM_Lion`, `SM_Elephant`, `SM_Rhino`, `SM_Buffalo`) | Grab3D (grab3d.com) | CC0 1.0 | The buffalo is Grab3D's Low Poly Bull, standing in for a Cape buffalo. The palette textures (`T_Lion_Palette.png`, `T_Elephant_Palette.png`, `T_Rhino_Palette.png`, `T_Buffalo_Palette.png`) are Grab3D's own, extracted from its GLB downloads, and are used through `M_Lion`, `M_Elephant`, `M_Rhino` and `M_Buffalo`. |
+| Lion, elephant, rhino and buffalo meshes (`SM_Lion`, `SM_Elephant`, `SM_Rhino`, `SM_Buffalo`) | Grab3D (grab3d.com) | CC0 1.0 | The buffalo is Grab3D's Low Poly Bull, standing in for a Cape buffalo. The palette textures (`T_Lion_Palette.png`, `T_Elephant_Palette.png`, `T_Rhino_Palette.png`, `T_Buffalo_Palette.png`) are Grab3D's own, extracted from its GLB downloads, and are used through `M_Lion`, `M_Elephant`, `M_Rhino` and `M_Buffalo`. Licence file: `Assets/ThirdParty/Grab3D-LICENSE.txt`. |
 | Leopard, as a jaguar model (`SM_Leopard_Jaguar.fbx`, `T_Leopard_Jaguar.png`, `M_LeopardJaguar`). Source: "Jaguar" by Poly by Google, https://poly.pizza/m/4fb-oMr2uUF | Poly by Google, via poly.pizza | CC BY 3.0 | This is a jaguar, not a leopard. It stands in for the leopard. Changes: converted from GLB to FBX in Blender 5.2, scaled, placed so the feet rest on the ground at the origin, base colour texture downscaled from 2048 to 1024 pixels, material renamed. Licence file: `Assets/ThirdParty/POLY-JAGUAR-LICENSE.txt`. |
-| Scenery: trees, rocks and ground cover | Kenney Nature Kit 2.1 (kenney.nl) | CC0 1.0 | Credit to Kenney is appreciated but not required. |
-| Font: Tribeca (`Assets/Materials/Fonts/Tribeca.ttf`) | Not recorded in the project | TODO_FONT_CREDIT | Set by hand on several UI texts in the Editor. The TextMesh Pro essentials are in `Assets/TextMesh Pro`. |
+| Scenery: trees, rocks and ground cover | Kenney Nature Kit 2.1 (kenney.nl) | CC0 1.0 | Credit to Kenney is appreciated but not required. Licence file: `Assets/ThirdParty/KENNEY-NATURE-KIT-LICENSE.txt`. |
+| Font: Tribeca (`Assets/Materials/Fonts/Tribeca.ttf`) | Not recorded in the project | TODO_FONT_CREDIT | Used for all UI text. It is caps-only. The TextMesh Pro essentials are in `Assets/TextMesh Pro`. |
 | Title logo (`Assets/Images/background_removed.png`) | TODO_LOGO_CREDIT | Not yet recorded | |
 
 **Required attribution (CC BY 3.0), for the jaguar model:**
@@ -387,24 +404,27 @@ Use `BuildAndroid` in place of `BuildWebGL` for the APK. The same methods are av
 
 ### Audio
 
-The six clips are listed in `Assets/ThirdParty/AUDIO-LICENCES.txt`. The details are below.
+The seven clips and their licences are recorded in `Assets/ThirdParty/AUDIO-LICENCES.txt`. That file is the source for this table. Four clips are CC0 1.0 and need no credit. Three clips are CC BY 4.0 and must be credited.
 
-| File | Sound | Author and source | Licence |
-| --- | --- | --- | --- |
-| `SFX_Lion.ogg` | Lion roar ("the roaring of a lion in captivity") | User Info-farmer (தகவலுழவன்), Wikimedia Commons, 2010 (https://commons.wikimedia.org/wiki/File:Lion_raring-sound1TamilNadu178.ogg) | Public domain, PD-self. No attribution required. |
-| `SFX_Elephant.ogg` | "Elephant sound", a field recording of an elephant in a zoo | ikbenraar, Freesound (https://freesound.org/people/ikbenraar/sounds/819668/) | CC0 1.0. No attribution required. |
-| `SFX_Buffalo.ogg` | "Buffles-Grognement+amb oiseaux" (some buffaloes in Tanzania with birds in the background) | roubignolle (G de Courtivron), Freesound (https://freesound.org/people/roubignolle/sounds/35130/) | CC BY 4.0. Attribution required, see below. |
-| `SFX_Rhino.ogg` | "Indian rhinoceros (Rhinoceros unicornis)", a recording of an Indian rhinoceros | Breviceps, Freesound (https://freesound.org/people/Breviceps/sounds/535810/) | CC0 1.0. No attribution required. |
-| `AMB_Savanna.ogg` | "Birds and wind at Ngutuni Lodge", near Voi, Kenya | dkaufman, Freesound (https://freesound.org/people/dkaufman/sounds/743640/) | CC0 1.0. No attribution required. Edited: trimmed, loudness-normalised and re-encoded. |
-| `SFX_Bump.ogg` | "Light Body thud (on clothing)" | JonasTisell, Freesound (https://freesound.org/people/JonasTisell/sounds/496187/) | CC0 1.0. No attribution required. Edited: trimmed and re-encoded. |
+| File | Sound (title on the source) | Author | Licence | Source | Notes |
+| --- | --- | --- | --- | --- | --- |
+| `SFX_Lion.ogg` | "Lion roars 1.wav" (male lions roaring, recorded at Ukutula Game Reserve, South Africa) | eardeer | CC BY 4.0 | https://freesound.org/people/eardeer/sounds/458903/ | A 4.5 s excerpt, mono and loudness-normalised. A steady tone near 4.8 kHz (recording noise) is in the source; it is low in the excerpt. |
+| `SFX_Leopard.ogg` | "Jaguar saw" (a jaguar, not a leopard) | About Zoos | CC BY 4.0 | https://commons.wikimedia.org/wiki/File:Jaguar_saw.flac | Substitution: no leopard call under an accepted licence was found. A 1.39 s call, raised 9 dB and peak-limited. |
+| `SFX_Elephant.ogg` | "Elephant voice - trumpeting" | தகவலுழவன் (Info-farmer), Wikimedia Commons | CC0 1.0 | https://commons.wikimedia.org/wiki/File:Elephant_voice_-_trumpeting.ogg | The page does not name the species. The uploader's other recording is from Tamil Nadu, India, so this is probably an Asian elephant, not an African elephant. A 1.44 s clip. |
+| `SFX_Rhino.ogg` | "white Rhino   fighting" (a white rhinoceros, Umfolozi game reserve) | geoffvt | CC0 1.0 | https://freesound.org/people/geoffvt/sounds/792852/ | Substitution: this is a white rhinoceros, used for the black rhino model. The page says "fighting", so some sounds may be contact sounds. A 3.5 s excerpt, lowered 2 dB. |
+| `SFX_Buffalo.ogg` | "Buffles-Grognement+amb oiseaux" (African buffalo grunts, Tanzania) | roubignolle (G de Courtivron) | CC BY 4.0 | https://freesound.org/people/roubignolle/sounds/35130/ | Birds are in the source. A 2.5 kHz low-pass reduces them but does not remove them. A 3.5 s excerpt. |
+| `AMB_Savanna.ogg` | "Birds and wind at Ngutuni Lodge" (near Voi, Kenya) | dkaufman | CC0 1.0 | https://freesound.org/people/dkaufman/sounds/743640/ | Loudness-normalised and faded in and out. A 22.2 s clip. |
+| `SFX_Bump.ogg` | "Light Body thud (on clothing)" | JonasTisell | CC0 1.0 | https://freesound.org/people/JonasTisell/sounds/496187/ | Silence trimmed and re-encoded. A 0.25 s clip. |
 
-**Required attribution (CC BY 4.0), for `SFX_Buffalo.ogg`:**
+**Required attribution (CC BY 4.0), for the three clips that need it:**
+
+> "Lion roars 1.wav" by eardeer, https://freesound.org/people/eardeer/sounds/458903/, licensed under CC BY 4.0, https://creativecommons.org/licenses/by/4.0/
+
+> "Jaguar saw" by About Zoos, https://commons.wikimedia.org/wiki/File:Jaguar_saw.flac, licensed under CC BY 4.0, https://creativecommons.org/licenses/by/4.0/
 
 > "Buffles-Grognement+amb oiseaux" by roubignolle (G de Courtivron), https://freesound.org/people/roubignolle/sounds/35130/, licensed under CC BY 4.0, https://creativecommons.org/licenses/by/4.0/
 
-**Substitution note (rhino).** No black rhinoceros recording under CC0 or CC BY was found on Wikimedia Commons, Freesound or OpenGameArt. `SFX_Rhino.ogg` is an Indian rhinoceros recording, used as a stand-in for the black rhino.
+**Substitution note (rhino).** The rhino model is a black rhinoceros. The sound is a white rhinoceros recording, used as a stand-in for the black rhino.
 
-**Substitution note (leopard).** No leopard model under CC0 or CC BY could be downloaded without an account. The jaguar model stands in for the leopard, and it is not a leopard model.
-
-**No call clip for the leopard.** The leopard has no call clip, so it has no audio file.
+**Substitution note (leopard).** No leopard call under CC0 or CC BY was found. The leopard plays a jaguar "saw" call, and its model is a jaguar too.
 

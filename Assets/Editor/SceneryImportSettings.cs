@@ -11,9 +11,8 @@ namespace Safari.EditorTools
     /// materials for shared URP Lit materials, which is what stops Kenney
     /// models rendering pink under URP.
     ///
-    /// Shared materials are looked up by name from
-    /// Assets/Models/Scenery/Materials. Generate them once with
-    /// GenerateSceneryMaterials.
+    /// Shared materials are looked up by name. They live in
+    /// Assets/Models/Scenery/Materials.
     /// </summary>
     public sealed class SceneryImportSettings : AssetPostprocessor
     {
