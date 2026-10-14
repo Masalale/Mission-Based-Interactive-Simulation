@@ -75,12 +75,11 @@ public class AnimalScanner : MonoBehaviour
         bool firstScan = !animal.Scanned;
 
         if (firstScan)
-        {
             GameManager.Instance.AddStamp(animal);
 
-            if (callSource != null && animal.Data.CallClip != null)
-                callSource.PlayOneShot(animal.Data.CallClip);
-        }
+        // The animal answers every scan with its call, not only the first one.
+        if (callSource != null && animal.Data.CallClip != null)
+            callSource.PlayOneShot(animal.Data.CallClip);
 
         // A repeat scan costs nothing and only reopens the card, so the fact can be read again.
         if (UIManager.Instance != null)
