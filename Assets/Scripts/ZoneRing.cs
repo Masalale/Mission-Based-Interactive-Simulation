@@ -7,7 +7,7 @@ using UnityEngine;
 public class ZoneRing : MonoBehaviour
 {
     [Header("References")]
-    [Tooltip("Unlit material for the rings, so the colour gradient can fade them.")]
+    [Tooltip("The built-in URP Particles Unlit material. It multiplies by the colours a LineRenderer puts in its vertices.")]
     [SerializeField] private Material ringMaterial;
     [Tooltip("Lift in metres so the ring clears the ground.")]
     [SerializeField] private float heightOffset = 0.05f;
