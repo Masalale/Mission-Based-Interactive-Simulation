@@ -17,11 +17,20 @@ public class ZoneRing : MonoBehaviour
 
     // A flat circle of 64 points is smooth enough at these radii.
     private const int PointCount = 64;
-    private const float RingWidth = 0.12f;
+
+    // The red circle is wider than the white one, so it reads on the sand instead of sinking into it.
+    private const float WhiteWidth = 0.12f;
+    private const float RedWidth = 0.18f;
+
+    // How far above each point I start looking for the ground.
+    private const float GroundProbeHeight = 5f;
+
+    // The ground is everything except the animals themselves.
+    private const int GroundMask = ~(1 << 6);
 
     private static readonly Color WhiteRing = new Color(1f, 1f, 1f, 1f);
     private static readonly Color GoldRing = new Color(1f, 0.8f, 0.1f, 1f);
-    private static readonly Color RedRing = new Color(0.9f, 0.15f, 0.12f, 1f);
+    private static readonly Color RedRing = new Color(1f, 0.1f, 0.08f, 1f);
 
     private Animal animal;
     private Transform player;
@@ -41,8 +50,8 @@ public class ZoneRing : MonoBehaviour
             return;
 
         // These two circles are the ranger's circle for this animal.
-        viewingRing = BuildRing("ViewingRing", animal.Data.ViewingRadius, WhiteRing);
-        dangerRing = BuildRing("DangerRing", animal.Data.DangerRadius, RedRing);
+        viewingRing = BuildRing("ViewingRing", animal.Data.ViewingRadius, WhiteWidth, WhiteRing);
+        dangerRing = BuildRing("DangerRing", animal.Data.DangerRadius, RedWidth, RedRing);
     }
 
     private void Update()
@@ -59,7 +68,7 @@ public class ZoneRing : MonoBehaviour
     }
 
     // I build one flat circle on the ground and give it its own LineRenderer.
-    private LineRenderer BuildRing(string name, float radius, Color colour)
+    private LineRenderer BuildRing(string name, float radius, float width, Color colour)
     {
         GameObject go = new GameObject(name);
         go.transform.SetParent(transform, false);
@@ -69,23 +78,39 @@ public class ZoneRing : MonoBehaviour
         line.loop = true;
         line.positionCount = PointCount;
         line.useWorldSpace = true;
-        line.startWidth = RingWidth;
-        line.endWidth = RingWidth;
+        line.startWidth = width;
+        line.endWidth = width;
         line.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         line.receiveShadows = false;
         if (ringMaterial != null)
             line.sharedMaterial = ringMaterial;
 
-        // The circle sits flat on the ground at the animal's own position.
-        Vector3 centre = transform.position + Vector3.up * heightOffset;
+        // The circle sits on the ground at the animal's own position.
+        Vector3 centre = transform.position;
+
         for (int i = 0; i < PointCount; i++)
         {
             float angle = i * Mathf.PI * 2f / PointCount;
-            line.SetPosition(i, centre + new Vector3(Mathf.Cos(angle) * radius, 0f, Mathf.Sin(angle) * radius));
+            Vector3 point = centre + new Vector3(Mathf.Cos(angle) * radius, 0f, Mathf.Sin(angle) * radius);
+            line.SetPosition(i, new Vector3(point.x, GroundHeight(point, centre.y + heightOffset), point.z));
         }
 
         SetColour(line, colour, maxAlpha);
         return line;
+    }
+
+    // The savanna is not flat, so a circle drawn at one height disappears under the bumps.
+    // I drop a ray onto the ground under every point and sit the ring just above what it hits.
+    private float GroundHeight(Vector3 point, float fallback)
+    {
+        Vector3 from = new Vector3(point.x, point.y + GroundProbeHeight, point.z);
+
+        // The animals are on layer 6 and the zones are triggers, so neither can answer this ray.
+        if (Physics.Raycast(from, Vector3.down, out RaycastHit hit, 20f, GroundMask, QueryTriggerInteraction.Ignore))
+            return hit.point.y + heightOffset;
+
+        // Nothing under this point, so I keep the height of the animal instead of dropping into nothing.
+        return fallback;
     }
 
     // The alpha of a LineRenderer comes from the colours at both ends of the line.

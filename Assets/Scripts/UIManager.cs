@@ -1,13 +1,19 @@
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
-// This script runs all the screens of the safari.
-// Start screen, HUD, passport, hint line, warning line, toast, fact card and end screen.
+// This script runs every screen of the safari: start, HUD, passport, messages, fact card and end screen.
 // I put it all in one script so the gameplay scripts never need a reference to the UI.
-// The UI only listens to GameManager, and nothing else in the game changes a screen.
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
+
+    // The controls are written down once here and shown on the start panel, the pause panel and the HUD tip.
+    // A phone has no keyboard and no mouse, so it gets the other line of the two.
+    private const string ControlsDesktop = "Move WASD · Look mouse · Photo click or E · Pause Esc";
+    private const string ControlsPhone = "Move left stick · Look right stick · Photo button · Pause II";
+    private static string ControlsLine => Application.isMobilePlatform ? ControlsPhone : ControlsDesktop;
 
     [Header("Panels")]
     [SerializeField] private GameObject startPanel;
@@ -23,7 +29,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button factCardCloseButton;
 
     [Header("Passport")]
-    [Tooltip("Animals in stamp slot order. Index 0 is the first slot.")]
     [SerializeField] private AnimalData[] passportOrder;
     [SerializeField] private Image[] stampIcons;
     [SerializeField] private Text[] stampLabels;
@@ -33,6 +38,11 @@ public class UIManager : MonoBehaviour
     [Header("HUD text")]
     [SerializeField] private Text scoreText;
     [SerializeField] private Text stampsText;
+
+    [Header("Controls text")]
+    [Tooltip("One line of controls on the start panel and on the pause panel.")]
+    [SerializeField] private Text startControlsText;
+    [SerializeField] private Text pauseControlsText;
 
     [Header("Messages")]
     [SerializeField] private GameObject hintRoot;
@@ -45,25 +55,21 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float toastSeconds = 2f;
 
     [Header("Crosshair")]
-    [Tooltip("The ring in the middle of the screen.")]
     [SerializeField] private Image crosshair;
-    [Tooltip("Small label under the crosshair that names the animal I am aiming at.")]
     [SerializeField] private Text crosshairLabel;
 
     [Header("Photo and danger feedback")]
-    [Tooltip("White full screen image that flashes when a photo is taken.")]
+    [Tooltip("The photo flash is a white screen, the danger flash a red vignette at the edges only.")]
     [SerializeField] private Image photoFlash;
-    [Tooltip("Red full screen image that flashes when an animal is disturbed.")]
     [SerializeField] private Image dangerFlash;
-    [Tooltip("How fast the photo flash fades. 0.7 alpha is gone in about a quarter of a second.")]
-    [SerializeField] private float photoFlashSpeed = 2.8f;
-    [Tooltip("How fast the danger flash fades. It is gone in about 0.6 s.")]
-    [SerializeField] private float dangerFlashSpeed = 1.6f;
+    [SerializeField] private float photoFlashAlpha = 0.7f;
+    [SerializeField] private float photoFlashSeconds = 0.25f;
+    [SerializeField] private float dangerFlashAlpha = 0.6f;
+    [SerializeField] private float dangerFlashSeconds = 0.6f;
 
     [Header("Controls tip")]
-    [Tooltip("Shown for the first seconds of a safari. There is one line for desktop and one for phones.")]
-    [SerializeField] private Text controlsTipDesktop;
-    [SerializeField] private Text controlsTipPhone;
+    [Tooltip("Shown for the first seconds of a safari, with the line for this platform only.")]
+    [SerializeField] private Text controlsTip;
     [SerializeField] private float controlsTipSeconds = 8f;
 
     [Header("Fact card")]
@@ -76,6 +82,11 @@ public class UIManager : MonoBehaviour
 
     [Header("End screen")]
     [SerializeField] private Text endSummaryText;
+    [SerializeField] private Text endRatingText;
+    [SerializeField] private Text endRangerText;
+    [SerializeField] private Color responsibleColor = new Color(1f, 0.8f, 0.1f, 1f);
+    [SerializeField] private Color carefulColor = new Color(1f, 0.85f, 0.45f, 1f);
+    [SerializeField] private Color recklessColor = new Color(1f, 0.35f, 0.15f, 1f);
 
     [Header("References")]
     [SerializeField] private PlayerController player;
@@ -83,10 +94,17 @@ public class UIManager : MonoBehaviour
     private float toastHideTime;
     private float tipHideTime;
     private bool tipShowing;
+    private Coroutine photoRoutine;
+    private Coroutine dangerRoutine;
 
     private static readonly Color CrosshairIdleColor = new Color(1f, 1f, 1f, 0.95f);
     private static readonly Color CrosshairGoodColor = new Color(0.35f, 0.95f, 0.35f, 1f);
     private static readonly Color CrosshairNearColor = new Color(1f, 0.72f, 0.18f, 1f);
+
+    // The three states of the crosshair, so AnimalScanner only chooses a state.
+    public static Color CrosshairNormal => CrosshairIdleColor;
+    public static Color CrosshairReady => CrosshairGoodColor;
+    public static Color CrosshairTooFar => CrosshairNearColor;
 
     // True while a fact card is on screen. The player cannot move or look then.
     public bool IsFactCardOpen => factCard != null && factCard.activeSelf;
@@ -127,21 +145,13 @@ public class UIManager : MonoBehaviour
             player.Moved += HideControlsTip;
         }
 
-        if (continueButton != null)
-            continueButton.onClick.AddListener(OnContinue);
-
-        if (newSafariButton != null)
-            newSafariButton.onClick.AddListener(OnNewSafari);
-
-        if (replayButton != null)
-            replayButton.onClick.AddListener(Replay);
-
-        if (factCardCloseButton != null)
-            factCardCloseButton.onClick.AddListener(HideFactCard);
+        Listen(continueButton, OnContinue);
+        Listen(newSafariButton, OnNewSafari);
+        Listen(replayButton, Replay);
+        Listen(factCardCloseButton, HideFactCard);
     }
 
-    // I take every subscription back here.
-    // If I did not, Replay would leave the old listeners behind and Refresh would run twice for every change.
+    // I take every subscription back here, or Replay would run Refresh twice for every change.
     private void OnDisable()
     {
         if (GameManager.Instance != null)
@@ -156,37 +166,31 @@ public class UIManager : MonoBehaviour
             player.Moved -= HideControlsTip;
         }
 
-        if (continueButton != null)
-            continueButton.onClick.RemoveListener(OnContinue);
-
-        if (newSafariButton != null)
-            newSafariButton.onClick.RemoveListener(OnNewSafari);
-
-        if (replayButton != null)
-            replayButton.onClick.RemoveListener(Replay);
-
-        if (factCardCloseButton != null)
-            factCardCloseButton.onClick.RemoveListener(HideFactCard);
+        // The scene buttons have no listeners of their own, so I can clear all of them in one go.
+        ClearListeners(continueButton);
+        ClearListeners(newSafariButton);
+        ClearListeners(replayButton);
+        ClearListeners(factCardCloseButton);
     }
 
     private void Start()
     {
-        Show(startPanel, true);
-        Show(hudPanel, false);
-        Show(endPanel, false);
-        Show(factCard, false);
-        HideMessages();
+        SwitchPanels(true, false, false, false);
         HideControlsTip();
 
         if (continueButton != null)
             continueButton.interactable = SaveSystem.HasSave;
 
-        // The sticks are for phones and tablets only.
-        // I cannot test for a touchscreen, because desktop browsers and touch laptops report one too.
+        // One controls line on the start panel and the pause panel, for this platform only.
+        SetText(startControlsText, ControlsLine);
+        SetText(pauseControlsText, ControlsLine);
+
+        // The sticks are for phones only. I cannot test for a touchscreen, because touch laptops report one too.
         Show(mobileControls, Application.isMobilePlatform);
 
         // On a desktop the player closes the card with E or a click, so the button says so.
-        SetCloseButtonLabel(Application.isMobilePlatform ? "Close" : "Close (E)");
+        if (factCardCloseButton != null)
+            SetText(factCardCloseButton.GetComponentInChildren<Text>(), Application.isMobilePlatform ? "Close" : "Close (E)");
 
         // I switch the player off until a run starts, so I cannot walk around on the start screen.
         if (player != null)
@@ -204,67 +208,93 @@ public class UIManager : MonoBehaviour
         // The controls tip goes away on its own after a few seconds.
         if (tipShowing && Time.time >= tipHideTime)
             HideControlsTip();
-
-        // Both flashes fade out here, which is one line each instead of two coroutines.
-        FadeOut(photoFlash, photoFlashSpeed * Time.unscaledDeltaTime);
-        FadeOut(dangerFlash, dangerFlashSpeed * Time.unscaledDeltaTime);
     }
 
-    public void ShowHint(string message)
-    {
-        SetText(hintText, message);
-        Show(hintRoot, true);
-    }
+    // The three message lines are the same pattern, so they share one helper.
+    public void ShowHint(string message) => ShowMessage(hintRoot, hintText, message);
+    public void HideHint() => Show(hintRoot, false);
+    public void ShowWarning(string message) => ShowMessage(warningRoot, warningText, message);
+    public void HideWarning() => Show(warningRoot, false);
 
-    public void HideHint()
-    {
-        Show(hintRoot, false);
-    }
-
-    public void ShowWarning(string message)
-    {
-        SetText(warningText, message);
-        Show(warningRoot, true);
-    }
-
-    public void HideWarning()
-    {
-        Show(warningRoot, false);
-    }
-
+    // A toast is the same as a hint, except it puts itself away again.
     public void ShowToast(string message)
     {
-        SetText(toastText, message);
-        Show(toastRoot, true);
+        ShowMessage(toastRoot, toastText, message);
         toastHideTime = Time.time + toastSeconds;
     }
 
-    // The crosshair tells the player what aiming at the animal will do right now.
+    // The pause menu calls this too, so an old "too close" banner cannot sit behind the Paused title.
+    public void HideMessages()
+    {
+        Show(hintRoot, false);
+        Show(warningRoot, false);
+        Show(toastRoot, false);
+    }
+
+    // Start, Main Menu and the start of a safari all need the same four panels switched.
+    private void SwitchPanels(bool start, bool hud, bool end, bool card)
+    {
+        Show(startPanel, start);
+        Show(hudPanel, hud);
+        Show(endPanel, end);
+        Show(factCard, card);
+        HideMessages();
+    }
+
+    private static void ShowMessage(GameObject root, Text label, string message)
+    {
+        SetText(label, message);
+        Show(root, true);
+    }
+
     // A green ring means a good photo is possible, an amber ring means step closer.
     public void SetCrosshair(Color ringColour, string label)
     {
-        // The crosshair starts white and is tinted by AnimalScanner when an animal is in the ray.
-        if (crosshair != null)
-            crosshair.color = ringColour;
-
+        SetColour(crosshair, ringColour);
         SetText(crosshairLabel, label);
-    }
 
-    // The three states of the crosshair, so AnimalScanner only chooses a state.
-    public static Color CrosshairNormal => CrosshairIdleColor;
-    public static Color CrosshairReady => CrosshairGoodColor;
-    public static Color CrosshairTooFar => CrosshairNearColor;
+        // The label takes the same colour as the ring, so the two always agree.
+        SetColour(crosshairLabel, ringColour);
+    }
 
     // A white flash over the whole screen, so a photo feels like a camera going off.
     public void FlashPhoto()
     {
-        SetFlash(photoFlash, new Color(1f, 1f, 1f, 0.7f));
+        if (photoRoutine != null)
+            StopCoroutine(photoRoutine);
+
+        photoRoutine = StartCoroutine(Flash(photoFlash, photoFlashAlpha, photoFlashSeconds));
     }
 
-    // A red flash over the whole screen, so a disturbance is felt before it is read.
+    // A red vignette at the edges of the screen, so a disturbance is felt before it is read.
     public void FlashDanger()
     {
-        SetFlash(dangerFlash, new Color(0.85f, 0.12f, 0.1f, 0.9f));
+        if (dangerRoutine != null)
+            StopCoroutine(dangerRoutine);
+
+        dangerRoutine = StartCoroutine(Flash(dangerFlash, dangerFlashAlpha, dangerFlashSeconds));
+    }
+
+    // Both flashes use this one fade, on unscaled time so it still runs while the game is paused.
+    private static IEnumerator Flash(Image image, float startAlpha, float seconds)
+    {
+        if (image == null || seconds <= 0f)
+            yield break;
+
+        // The image keeps its own tint and only loses alpha, so a flash never changes colour.
+        Color tint = image.color;
+        float left = seconds;
+
+        while (left > 0f)
+        {
+            tint.a = startAlpha * left / seconds;
+            SetColour(image, tint);
+            left -= Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        tint.a = 0f;
+        SetColour(image, tint);
     }
 
     // firstPhoto tells the card to say the passport gained a stamp, or that it is already there.
@@ -280,29 +310,22 @@ public class UIManager : MonoBehaviour
         SetText(factTipText, "Ranger's tip: " + data.ViewingTip);
 
         // The stamp line is the only part of the card that changes between a first photo and a repeat photo.
-        string stampLine = "Already in your passport.";
-
-        if (firstPhoto)
+        if (!firstPhoto)
         {
-            int done = 0;
-            int total = 5;
-
-            if (GameManager.Instance != null)
-            {
-                done = GameManager.Instance.Stamps;
-                total = GameManager.Instance.TotalAnimals > 0 ? GameManager.Instance.TotalAnimals : 5;
-            }
-
-            stampLine = "Passport stamped! " + done + " of " + total;
+            SetText(factStampText, "Already in your passport.");
         }
-
-        SetText(factStampText, stampLine);
+        else
+        {
+            GameManager game = GameManager.Instance;
+            int done = game != null ? game.Stamps : 0;
+            int total = game != null && game.TotalAnimals > 0 ? game.TotalAnimals : 5;
+            SetText(factStampText, "Passport stamped! " + done + " of " + total);
+        }
 
         Show(factCard, true);
         HideHint();
 
-        // The last photo wins the safari before this card opens, so I push the end screen back
-        // until the player has read the last fact.
+        // The last photo wins the safari before this card opens, so I push the end screen back.
         if (RunIsWon())
             Show(endPanel, false);
     }
@@ -319,39 +342,35 @@ public class UIManager : MonoBehaviour
     // Main Menu from the pause menu keeps the save and brings this screen back.
     public void ShowStartPanel()
     {
-        Show(startPanel, true);
-        Show(hudPanel, false);
-        Show(endPanel, false);
-        Show(factCard, false);
-        HideMessages();
+        SwitchPanels(true, false, false, false);
 
         if (continueButton != null)
             continueButton.interactable = SaveSystem.HasSave;
     }
 
+    // Continue reads the save back and New Safari throws it away. Then both start playing.
     private void OnContinue()
     {
-        if (GameManager.Instance == null)
-            return;
-
-        GameManager.Instance.Restore();
-        BeginPlay();
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.Restore();
+            BeginPlay();
+        }
     }
 
     private void OnNewSafari()
     {
-        if (GameManager.Instance == null)
-            return;
-
-        GameManager.Instance.ResetRun();
-        BeginPlay();
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ResetRun();
+            BeginPlay();
+        }
     }
 
     // Replay is also the Restart Safari button on the pause menu.
     public void Replay()
     {
-        // I put the player back at the gate before I clear the state, so the guide line
-        // starts from the spawn point again.
+        // I put the player back at the gate before I clear the state, so the guide line starts there again.
         if (player != null)
             player.ResetToSpawn();
 
@@ -363,13 +382,11 @@ public class UIManager : MonoBehaviour
 
     private void BeginPlay()
     {
-        Show(startPanel, false);
-        Show(endPanel, false);
-        Show(factCard, false);
-        Show(hudPanel, true);
+        SwitchPanels(false, true, false, false);
+
         if (player != null)
             player.enabled = true;
-        HideMessages();
+
         ShowControlsTip();
 
         Refresh();
@@ -404,11 +421,9 @@ public class UIManager : MonoBehaviour
             if (slot == null)
                 continue;
 
-            bool stamped = IsStamped(slot);
-
             // I check each array against the slot, because I may wire fewer icons or labels than slots.
             if (stampIcons != null && i < stampIcons.Length && stampIcons[i] != null)
-                stampIcons[i].color = stamped ? stampedColor : emptyColor;
+                stampIcons[i].color = IsStamped(slot) ? stampedColor : emptyColor;
 
             if (stampLabels != null && i < stampLabels.Length)
                 SetText(stampLabels[i], slot.DisplayName);
@@ -419,10 +434,8 @@ public class UIManager : MonoBehaviour
     private static bool IsStamped(AnimalData data)
     {
         foreach (Animal animal in Animal.All)
-        {
             if (animal.Data == data && animal.Scanned)
                 return true;
-        }
 
         return false;
     }
@@ -444,31 +457,33 @@ public class UIManager : MonoBehaviour
         // The reserve holds five animals, and I only use the 5 when they have not spawned yet.
         int total = game != null && game.TotalAnimals > 0 ? game.TotalAnimals : 5;
 
-        // 100 is startingScore, so it is also the best Respect score the safari can end on.
-        string summary = "Photos: " + stamps + " / " + total + "\n";
-        summary += "Respect: " + score + " / 100   (disturbances: " + breaches + ")\n";
-
-        string rating;
-        string ratingLine;
+        // The three numbers are one block, so the eye reads the result before the verdict.
+        string stats = "Photos: " + stamps + " / " + total + "\n";
+        stats += "Respect: " + score + " / 100\n";
+        stats += "Disturbances: " + breaches;
+        SetText(endSummaryText, stats);
 
         // The number of disturbances decides how the reserve would rate this visitor.
-        if (breaches == 0)
+        string rating = "Responsible Visitor";
+        string rangerLine = "You saw all five without disturbing one. That is how tourism keeps the Big Five wild.";
+        Color ratingColour = responsibleColor;
+
+        if (breaches > 0)
         {
-            rating = "Responsible Visitor";
-            ratingLine = "You saw all five without disturbing one. That is how tourism keeps the Big Five wild.";
-        }
-        else if (breaches <= 2)
-        {
-            rating = "Careful Visitor";
-            ratingLine = "A few close calls. Next time give them more space.";
-        }
-        else
-        {
-            rating = "Reckless Visitor";
-            ratingLine = "Too many disturbances. Stressed animals leave the places tourists come to see.";
+            rating = breaches <= 2 ? "Careful Visitor" : "Reckless Visitor";
+            rangerLine = breaches <= 2
+                ? "A few close calls. Next time give them more space."
+                : "Too many disturbances. Stressed animals leave the places tourists come to see.";
+            ratingColour = breaches <= 2 ? carefulColor : recklessColor;
         }
 
-        SetText(endSummaryText, summary + rating + "\n" + ratingLine);
+        SetText(endRatingText, rating);
+
+        // The rating is bigger than the numbers and coloured by how the safari went.
+        SetColour(endRatingText, ratingColour);
+
+        // Ranger Amani is the one who signs the safari off, so his line comes last.
+        SetText(endRangerText, "Ranger Amani: " + rangerLine);
     }
 
     private void HandleBump(Collider hit)
@@ -485,11 +500,7 @@ public class UIManager : MonoBehaviour
     // The controls tip shows at the bottom of the HUD for the first few seconds of a safari.
     private void ShowControlsTip()
     {
-        bool phone = Application.isMobilePlatform;
-
-        SetText(controlsTipDesktop, phone ? string.Empty : "Move WASD · Look mouse · Photo click or E · Pause Esc");
-        SetText(controlsTipPhone, phone ? "Move left stick · Look right stick · Photo button · Pause II" : string.Empty);
-
+        SetText(controlsTip, ControlsLine);
         tipShowing = true;
         tipHideTime = Time.time + controlsTipSeconds;
     }
@@ -498,64 +509,42 @@ public class UIManager : MonoBehaviour
     private void HideControlsTip()
     {
         tipShowing = false;
-        SetText(controlsTipDesktop, string.Empty);
-        SetText(controlsTipPhone, string.Empty);
+        SetText(controlsTip, string.Empty);
     }
 
-    // Hides the hint, warning and toast together. The pause menu calls this too, so an old
-// "too close" banner cannot sit behind the Paused title.
-    public void HideMessages()
+    // Every button is hooked up and taken down the same way, so it is one helper used four times.
+    private static void Listen(Button button, UnityAction action)
     {
-        Show(hintRoot, false);
-        Show(warningRoot, false);
-        Show(toastRoot, false);
+        if (button != null)
+            button.onClick.AddListener(action);
     }
 
-    // A full screen flash image only fades by losing its alpha.
-    private static void FadeOut(Image image, float step)
+    private static void ClearListeners(Button button)
     {
-        if (image == null || image.color.a <= 0f)
-            return;
-
-        Color colour = image.color;
-        colour.a = Mathf.Max(0f, colour.a - step);
-        image.color = colour;
-    }
-
-    private static void SetFlash(Image image, Color colour)
-    {
-        if (image != null)
-            image.color = colour;
+        if (button != null)
+            button.onClick.RemoveAllListeners();
     }
 
     // True once the run is won. This is when the end screen takes over.
-    private static bool RunIsWon()
-    {
-        return GameManager.Instance != null && GameManager.Instance.HasWon;
-    }
+    private static bool RunIsWon() => GameManager.Instance != null && GameManager.Instance.HasWon;
 
-    // A panel I did not wire is skipped, so this never throws.
+    // A panel or a label I did not wire is skipped, so these never throw.
     private static void Show(GameObject panel, bool visible)
     {
         if (panel != null)
             panel.SetActive(visible);
     }
 
-    // A label I did not wire is skipped, so this never throws.
     private static void SetText(Text label, string value)
     {
         if (label != null)
             label.text = value;
     }
 
-    // The close button only mentions E on a desktop, because a phone has no E key.
-    private void SetCloseButtonLabel(string value)
+    // Any graphic I did not wire is skipped, so this never throws.
+    private static void SetColour(Graphic graphic, Color colour)
     {
-        if (factCardCloseButton == null)
-            return;
-
-        Text label = factCardCloseButton.GetComponentInChildren<Text>();
-        if (label != null)
-            label.text = value;
+        if (graphic != null)
+            graphic.color = colour;
     }
 }

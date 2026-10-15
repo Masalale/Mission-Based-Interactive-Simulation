@@ -2,13 +2,13 @@
 
 [WebGL build](TODO_WEBGL_URL) | [Android APK](TODO_APK_URL) | [Demo video](TODO_VIDEO_URL)
 
-I built this for the Introduction to Unity module (Course 3152). It is a first-person walking safari through a Kenyan savanna reserve. Ranger Amani is my guide on the radio. He marks a trail line to each animal, I walk to it, step inside the white circle he has drawn on the ground and take a photo, without ever crossing the red circle. Five photos fill my Safari Passport and the safari is complete. Every disturbance costs me Respect, so the whole game is really about how close I dare to get.
+I built this for the Introduction to Unity module (Course 3152). It is a first-person walking safari through a Kenyan savanna reserve. Ranger Amani is the player's guide on the radio. The ranger marks a trail line to each animal, the player walks to it, steps inside the white circle on the ground and takes a photo, without ever crossing the red circle. Five photos fill the Safari Passport and the safari is complete. Every disturbance costs the player Respect, so the whole game is really about how close the player dares to get.
 
 - Author: Masalale
 - Repository: https://github.com/Masalale/Mission-Based-Interactive-Simulation
 - Unity 6000.3.23f1, Universal Render Pipeline 17.3.0, Input System 1.20.1
 
-I have the WebGL build ready and I checked it in a desktop browser. I also built the Android APK, but I have not run it on a phone yet. Both links above are still placeholders until I publish them.
+I built the WebGL version. I also built the Android APK, but I have not run it on a phone yet. Both links above are still placeholders until I publish them.
 
 ## 1. GCGO Statement
 
@@ -17,7 +17,7 @@ I have the WebGL build ready and I checked it in a desktop browser. I also built
 
 ## 2. Problem Context
 
-**The problem.** Wildlife tourism only works if visitors watch animals from a respectful distance. When visitors crowd, chase or startle animals, the animals get hurt and move away, and the sightings the tourists came for get worse. A reserve that is driven to be too busy about it loses the thing it is selling.
+**The problem.** Wildlife tourism only works if visitors watch animals from a respectful distance. When visitors crowd, chase or startle animals, the animals get hurt and move away, and the sightings the tourists came for get worse. A reserve where animals are constantly disturbed loses the sightings it sells.
 
 **Why it matters.** The World Travel & Tourism Council (WTTC) says tourism contributed 9.3% of Kenya's GDP in 2025. [1]
 
@@ -57,7 +57,7 @@ The two sources for this section are listed in section 9.
 
 The sticks show only on phones and tablets. A gamepad uses the left stick to move, the right stick to look, and the south button to take a photo. The pause button is on the HUD on every platform, so a phone can pause too.
 
-**How to win.** Photograph all five animals. An animal counts when the player takes a photo of it from inside its ranger's circle. There is no lose state. When the player closes the last fact card, the end screen shows the photos, the Respect score, the disturbances and a visitor rating, and offers Replay.
+**How to win.** Photograph all five animals. An animal counts when the player takes a photo of it from inside its ranger's circle. There is no lose state. When the player closes the last fact card, the end screen reads in four blocks: the photos, the Respect score and the number of disturbances; then the visitor rating on its own line, larger than the numbers and coloured gold, light amber or red orange; then Ranger Amani's closing line in italic; then Replay.
 
 **How the score works.** The score is called Respect and it starts at 100. Each disturbance costs 10, and one animal can only book one disturbance every 3 seconds. Photographing the same animal again only reopens the fact card and costs nothing. The top Respect score is 100, so a clean run is a run with zero disturbances. The end screen rates the visitor from the disturbances: none is a Responsible Visitor, one or two is a Careful Visitor, and three or more is a Reckless Visitor.
 
@@ -65,7 +65,7 @@ The sticks show only on phones and tablets. A gamepad uses the left stick to mov
 
 ### UI
 
-`Assets/Scripts/UIManager.cs` runs every screen: the start screen with Continue and New Safari, the HUD with the crosshair, the passport, the Respect score and the message lines, the fact card, and the end screen with Replay. `Assets/Scripts/PauseMenu.cs` runs the pause panel. The Canvas and every panel are laid out in `Assets/Scenes/Safari_Main.unity`. The HUD is built switched off and turned on when a run starts, because the on-screen controls were throwing an error while they were active at load time.
+`Assets/Scripts/UIManager.cs` runs every screen: the start screen with Continue and New Safari, the HUD with the crosshair, the passport, the Respect score and the message lines, the fact card, and the end screen with the numbers, the visitor rating and Replay. The controls are one line, and `Application.isMobilePlatform` picks which of the two lines shows on the start panel, the pause panel and the HUD tip. `Assets/Scripts/PauseMenu.cs` runs the pause panel. The Canvas and every panel are laid out in `Assets/Scenes/Safari_Main.unity`. The HUD is built switched off and turned on when a run starts, because the on-screen controls were throwing an error while they were active at load time.
 
 `UIManager` never polls for game state. It listens to the two events on `GameManager` and refreshes when they fire. Without it there is no objective, no feedback after a photo, no start screen and no win.
 
@@ -97,7 +97,7 @@ Without this there is no movement, no photos and no run state at all.
 
 Each animal has a solid `BoxCollider` on the Animal layer, which blocks the player, and two sphere triggers, one for the viewing zone and one for the danger zone. `Animal` copies the two radii out of its data asset at load, so they are 15 m and 6 m for the lion, leopard and buffalo, and 18 m and 8 m for the elephant and rhino.
 
-A trigger does not block anybody, it only sends events. Entering the viewing zone sets `InViewing`, shows Ranger Amani's hint, and makes the animal turn slowly to look at me. Entering the danger zone shows the animal's own warning line, plays its call, makes it do a short bluff charge, flashes the screen red, shakes the camera, and books a breach at most once every 3 seconds. Walking into a solid body plays the bump sound and shows a toast that names what blocked the player. Hits on the floor are ignored, otherwise the ground would bump the player every frame.
+A trigger does not block anybody, it only sends events. Entering the viewing zone sets `InViewing`, shows Ranger Amani's hint, and makes the animal turn slowly to look at the player. Entering the danger zone shows the animal's own warning line, plays its call, makes it do a short bluff charge, flashes the edges of the screen red, shakes the camera, and books a breach at most once every 3 seconds. Walking into a solid body plays the bump sound and shows a toast that names what blocked the player. Hits on the floor are ignored, otherwise the ground would bump the player every frame.
 
 Without collision the player walks through the animals, there are no zone events, no disturbances and no photo window.
 
@@ -105,7 +105,7 @@ Without collision the player walks through the animals, there are no zone events
 
 `Assets/Scripts/AnimalScanner.cs` does the photography, and it casts two rays every frame from the middle of the screen.
 
-The first ray is the crosshair ray. `AnimalScanner.Update` casts it every frame while the safari runs, on the Animal layer only and with triggers ignored. It scores nothing. It only colours the crosshair: green with the animal's name when the animal is in its own viewing zone, amber with "Get closer" when the animal is outside it, and plain white when the ray hits nothing. The player can see what the photo will do before pressing the button.
+The first ray is the crosshair ray. `AnimalScanner.Update` casts it every frame while the safari runs, on the Animal layer only and with triggers ignored. It scores nothing. It only colours the crosshair and the label under it: green with the animal's name when the animal is in its own viewing zone, amber with "Get closer" when the animal is outside it, and plain white when the ray hits nothing. The label sits about 28 px below the ring, is 320 x 40 with the overflow set so a name is never clipped, is 24 point with a black outline, and turns the colour of the ring. The player can see what the photo will do before pressing the button.
 
 The second ray is the photo ray, on the same line, cast once when Interact is pressed, up to 20 m. A miss shows "Nothing in frame. Aim at an animal." A hit on an animal outside its ranger's circle shows "Too far for a good photo. Step inside the ranger's circle." A hit on an animal inside its circle is the only way to earn a stamp, and only `AnimalScanner` ever calls `GameManager.AddStamp`. A photo of an animal that is already in the passport awards nothing, it plays the shutter and the call again and reopens the card.
 
@@ -117,7 +117,7 @@ Without the raycast there are no photos, no stamps and no way to win.
 
 `Assets/Scripts/SafariGuideLine.cs` draws the trail line on a `LineRenderer` in the scene. It has two points: the player, lifted a little off the ground, and the nearest animal that still needs a photo. It updates in `LateUpdate` so it follows the player, and it picks a new target every time the game state changes. When the passport is full, or on the start screen, it hides itself. The lion stands 50 m from the spawn so the line runs straight ahead at the start of a run.
 
-`Assets/Scripts/ZoneRing.cs` is the second use of the same component. Each animal gets a `ZoneRing`, which builds two flat circles on the ground in `Start`: 64 points each, 0.12 m wide, 0.05 m above the ground, with a white loop at the viewing radius and a red loop at the danger radius, both from the same `AnimalData` radii the triggers use. The circles fade in over the last 35 m as I walk towards them, so a distant animal does not clutter the savanna, and the white circle turns gold once the animal is in the passport. Both use a transparent unlit material, `Assets/Materials/M_ZoneRing.mat`, so the colour gradient can fade.
+`Assets/Scripts/ZoneRing.cs` is the second use of the same component. Each animal gets a `ZoneRing`, which builds two flat circles on the ground in `Start`: 64 points each, with a white loop 0.12 m wide at the viewing radius and a red loop 0.18 m wide at the danger radius, both from the same `AnimalData` radii the triggers use. The ground is not flat, so every point drops a `Physics.Raycast` from 5 m above itself, ignores the Animal layer and the triggers, and sits 0.05 m above the ground it hits, which keeps the circles out of the bumps. The circles fade in over the last 35 m as the player walks towards them, so a distant animal does not clutter the savanna, and the white circle turns gold once the animal is in the passport. Both use `Assets/Materials/M_ZoneRing.mat`, which points at my own unlit shader `Assets/Shaders/LineVertexColour.shader`. I wrote that shader because a `LineRenderer` puts its `startColor` and `endColor` into the vertex colours, and the URP Unlit shader never reads them, so the red circle came out the same grey as the white one and the fade did nothing. Reading them is also what makes the circle turn gold after the photo.
 
 Without the line renderer the player has no idea where to look first, and without the circles the two radii are invisible numbers.
 
@@ -141,11 +141,11 @@ Two `ParticleSystem` objects, one for dust at the player's feet and one for fire
 
 ### Animal reactions
 
-`Assets/Scripts/Animal.cs` does two things the player can see. While I am inside the viewing zone and the animal is not startled, it turns its yaw towards me at about 25 degrees a second, so the animal looks like it has noticed me. `Animal.Startle` is a short bluff charge: a 1.2 m lunge over 0.15 s, a pause of 0.3 s, and a walk back over 0.6 s, with a clamp that stops the lunge two metres short of the player so it can never reach them.
+`Assets/Scripts/Animal.cs` does two things the player can see. While the player is inside the viewing zone and the animal is not startled, it turns its yaw towards them at about 25 degrees a second, so the animal looks like it has noticed them. `Animal.Startle` is a short bluff charge: a 1.2 m lunge over 0.15 s, a pause of 0.3 s, and a walk back over 0.6 s, with a clamp that stops the lunge two metres short of the player so it can never reach them.
 
 ### Photo and danger feedback
 
-A photo fires a white full screen image from alpha 0.7 down to 0 over about 0.25 s, and a disturbance fires a red full screen image over about 0.6 s. Both are `Image` objects in the HUD with `raycastTarget` off, and both fade in `UIManager.Update` instead of a coroutine, so a hidden flash costs nothing. A disturbance also shakes the camera: `PlayerController.Shake(0.3f)` puts a small random offset on the camera local position for a third of a second and then puts it back where it was.
+A photo fires a white full screen image from alpha 0.7 down to 0 over about 0.25 s. A disturbance fires a red vignette, not a red wash: `Assets/Images/T_Vignette.png` is a radial gradient that is clear in the middle and red at the edges, so the player can still see the animal while the flash fades from alpha 0.6 to 0 over about 0.6 s. Both are `Image` objects in the HUD with `raycastTarget` off, and both use the one `UIManager.Flash` coroutine on unscaled time, so a flash still fades while the game is paused. A disturbance also shakes the camera: `PlayerController.Shake(0.3f)` puts a small random offset on the camera local position for a third of a second and then puts it back where it was.
 
 ### Saving
 
@@ -157,7 +157,7 @@ A photo fires a white full screen image from alpha 0.7 down to 0 over about 0.25
 Assets/
   Audio/            eight clips: one ambience, five calls, one bump, one shutter
   Editor/           import settings and the build script
-  Images/           the title image
+  Images/           the title image and the red edge vignette
   Input/            InputSystem_Actions.inputactions
   Materials/        the ground, the animal, the guide line, the zone ring and the scenery materials
   Models/
@@ -166,6 +166,7 @@ Assets/
     Scenery/        the Kenney trees, rocks and ground cover
   Prefabs/          PF_Animal and one variant per species
   Scenes/           Safari_Main.unity
+  Shaders/          LineVertexColour.shader, the unlit shader the ground circles use
   ScriptableObjects/ one asset per animal, holding its fact, its safe viewing tip, its warning line and its radii
   Scripts/          the twelve gameplay scripts below
   ThirdParty/       the licence files for the models, the scenery and the audio
@@ -175,20 +176,20 @@ Assets/
 
 | Script | What it does | Lines |
 | --- | --- | --- |
-| `Assets/Scripts/UIManager.cs` | Every screen, the HUD, the crosshair, the flashes and the fact card | 560 |
+| `Assets/Scripts/UIManager.cs` | Every screen, the HUD, the crosshair, the flashes and the fact card | 549 |
 | `Assets/Scripts/PlayerController.cs` | Walking, always-on mouse look, gravity, bump feedback, shake, spawn reset | 296 |
 | `Assets/Scripts/GameManager.cs` | Stamps, Respect, disturbances, win, pause, save and restore | 189 |
 | `Assets/Scripts/AnimalScanner.cs` | The crosshair ray, the photo ray, the stamp, the shutter and the fact card | 171 |
 | `Assets/Scripts/Animal.cs` | Per-animal state, zone radii, turning towards the player, the bluff charge | 159 |
 | `Assets/Scripts/PauseMenu.cs` | The pause panel, the pause button and the mouse sensitivity | 162 |
-| `Assets/Scripts/ZoneRing.cs` | The white ranger's circle and the red circle on the ground | 97 |
+| `Assets/Scripts/ZoneRing.cs` | The white ranger's circle and the red circle on the ground | 122 |
 | `Assets/Scripts/SafariGuideLine.cs` | The trail line to the nearest animal that still needs a photo | 96 |
 | `Assets/Scripts/DangerZone.cs` | The trigger that warns, startles the animal and books disturbances | 87 |
 | `Assets/Scripts/SaveSystem.cs` | Saving, loading and clearing the run | 61 |
 | `Assets/Scripts/ViewingZone.cs` | The trigger that allows a photo and shows the ranger's hint | 56 |
 | `Assets/Scripts/AnimalData.cs` | The data asset: fact, safe viewing tip, warning line, radii, call clip | 34 |
 
-That is 1,968 lines in total. `Assets/Editor` holds three more: the two import scripts for the models and the scenery, and `Assets/Editor/BuildScript.cs` for the two builds. I used editor scripts to lay out the scene and the prefabs while I built them, and I finished the scene by hand in the Editor afterwards.
+That is 1,982 lines in total. `Assets/Editor` holds three more: the two import scripts for the models and the scenery, and `Assets/Editor/BuildScript.cs` for the two builds. I used editor scripts to lay out the scene and the prefabs while I built them, and I finished the scene by hand in the Editor afterwards.
 
 ## 7. Build Information
 
@@ -215,9 +216,9 @@ Swap `BuildScript.BuildWebGL` for `BuildScript.BuildAndroid` for the APK. Each b
 - The fact card came up empty. My long text fields had `[TextArea]` but no `[SerializeField]`, so Unity never saved them into the assets and the card had nothing to show.
 - The animals all faced away from me. I had looked at them through cameras that were on the far side, so I turned every model to point at the approach instead.
 - Most of the trees and rocks were placed off the map, because my placement helper mixed local and world space.
-- The end screen opened behind the fifth fact card. Now the card shows first and the end screen comes up when I close it.
+- The end screen opened behind the fifth fact card. Now the card shows first and the end screen comes up when the player closes it.
 - The on-screen sticks kept disappearing. PlayerInput was switching control schemes on its own and hiding the other device's bindings.
-- The circles on the ground were invisible at first, because the guide line material is opaque and the fade in the colour gradient did nothing. The rings needed their own transparent unlit material.
+- The circles on the ground were invisible at first, because the guide line material is opaque and the fade in the colour gradient did nothing. The rings needed their own transparent unlit material. Then the red circle still came out grey, because that material was the URP Unlit shader, which ignores the colours a LineRenderer puts into its vertices. I wrote a small shader that reads them.
 
 **WebGL and Android.** GitHub Pages will not serve a compressed build, so I turned compression off. A particle system logged an error every frame and filled the browser console with it, because only the y velocity curve was set. The sticks showed up in desktop browsers as well, because a desktop browser reports a touchscreen, so now they only show on a real mobile platform. On the Android side the build settings are all set, but the APK has still never run on a phone, and that is the first thing I should do next.
 
