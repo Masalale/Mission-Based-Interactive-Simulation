@@ -101,6 +101,3 @@ InitTestScene*.unity*
 
 # Rider
 .idea/
-
-# My own notes and helper tools, kept out of the repo
-/[Mm]isc/
