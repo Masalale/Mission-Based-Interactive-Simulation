@@ -4,17 +4,15 @@ using UnityEngine.UI;
 
 // This is the pause menu. Esc or the II button opens it while a safari is running.
 // Pausing stops the clock and the sound and frees the mouse. Resume puts both back.
+// The buttons and the Pause key are wired up in the Inspector, so this script only does the work.
 public class PauseMenu : MonoBehaviour
 {
     public static PauseMenu Instance { get; private set; }
 
     [Header("Panels")]
     [SerializeField] private GameObject pausePanel;
-    [SerializeField] private Button pauseButton;
-    [Header("Buttons")]
-    [SerializeField] private Button resumeButton;
-    [SerializeField] private Button restartButton;
-    [SerializeField] private Button menuButton;
+    [Tooltip("How to Play opens this over the pause panel, so Resume closes it too.")]
+    [SerializeField] private GameObject instructionsPanel;
     [Header("Mouse")]
     [Tooltip("The whole sensitivity row, so it can be hidden on phones.")]
     [SerializeField] private GameObject sensitivityRow;
@@ -22,8 +20,6 @@ public class PauseMenu : MonoBehaviour
     [Header("References")]
     [SerializeField] private UIManager ui;
     [SerializeField] private PlayerController player;
-
-    private InputAction pauseAction;
 
     private void Awake()
     {
@@ -35,28 +31,11 @@ public class PauseMenu : MonoBehaviour
         }
         Instance = this;
 
-        // The player holds the one PlayerInput, so I take the Pause action from there.
-        PlayerInput playerInput = Object.FindFirstObjectByType<PlayerInput>();
-        if (playerInput != null && playerInput.actions != null)
-            pauseAction = playerInput.actions.FindAction("Player/Pause", throwIfNotFound: false);
-
         // A phone has no mouse to be sensitive about, so the slider only shows on a desktop.
         if (sensitivityRow != null)
             sensitivityRow.SetActive(!Application.isMobilePlatform);
         if (sensitivitySlider != null)
-        {
             sensitivitySlider.value = PlayerPrefs.GetFloat(PlayerController.SensitivityKey, 0.1f);
-            sensitivitySlider.onValueChanged.AddListener(OnSensitivityChanged);
-        }
-
-        if (resumeButton != null)
-            resumeButton.onClick.AddListener(Resume);
-        if (restartButton != null)
-            restartButton.onClick.AddListener(Restart);
-        if (menuButton != null)
-            menuButton.onClick.AddListener(ToMainMenu);
-        if (pauseButton != null)
-            pauseButton.onClick.AddListener(Toggle);
 
         // The panel is built switched off, so the game never starts with the safari stopped.
         if (pausePanel != null)
@@ -69,25 +48,18 @@ public class PauseMenu : MonoBehaviour
             Instance = null;
     }
 
-    private void OnEnable()
-    {
-        if (pauseAction != null)
-            pauseAction.performed += OnPause;
-    }
-
     private void OnDisable()
     {
-        if (pauseAction != null)
-            pauseAction.performed -= OnPause;
-
         // Leaving the panel switched off while paused would freeze the game for good.
         if (GameManager.Instance != null && GameManager.Instance.IsPaused)
             Resume();
     }
 
-    private void OnPause(InputAction.CallbackContext context)
+    // The Pause action on the player calls this. Only the press counts, not the release.
+    public void OnPause(InputAction.CallbackContext context)
     {
-        Toggle();
+        if (context.performed)
+            Toggle();
     }
 
     // The II button in the HUD, and the only way to pause on a phone.
@@ -131,10 +103,14 @@ public class PauseMenu : MonoBehaviour
 
         if (pausePanel != null)
             pausePanel.SetActive(false);
+
+        // Esc can resume while How to Play is open over this menu, so that panel closes too.
+        if (instructionsPanel != null)
+            instructionsPanel.SetActive(false);
     }
 
-    // Restart Safari is the same as the Play Again button on the end screen.
-    private void Restart()
+    // Restart Safari throws the run away and starts a fresh one, the same as Replay in UIManager.
+    public void Restart()
     {
         Resume();
         if (ui != null)
@@ -142,7 +118,7 @@ public class PauseMenu : MonoBehaviour
     }
 
     // Main Menu keeps the save, so Start Safari can carry it on.
-    private void ToMainMenu()
+    public void ToMainMenu()
     {
         Resume();
 
@@ -152,7 +128,7 @@ public class PauseMenu : MonoBehaviour
     }
 
     // The slider writes the value straight away, so it survives a restart of the game.
-    private void OnSensitivityChanged(float value)
+    public void OnSensitivityChanged(float value)
     {
         if (player != null)
             player.SetMouseSensitivity(value);

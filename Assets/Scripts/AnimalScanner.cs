@@ -23,33 +23,15 @@ public class AnimalScanner : MonoBehaviour
     [Tooltip("The short camera click that goes before the animal answers.")]
     [SerializeField] private AudioClip shutterClip;
 
-    private InputAction interactAction;
-
     private void Awake()
     {
         // Use the camera under the player if I did not set one by hand.
         if (scanCamera == null)
             scanCamera = GetComponentInChildren<Camera>();
 
-        PlayerInput playerInput = GetComponent<PlayerInput>();
-        if (playerInput.actions != null)
-            interactAction = playerInput.actions.FindAction("Player/Interact", throwIfNotFound: false);
-
         // Without a layer mask every ray misses, and that looks like a broken scanner rather than a missing reference.
         if (animalMask.value == 0)
             Debug.LogWarning($"{nameof(AnimalScanner)}: LayerMask unassigned: no scan can ever hit.", this);
-    }
-
-    private void OnEnable()
-    {
-        if (interactAction != null)
-            interactAction.performed += OnInteract;
-    }
-
-    private void OnDisable()
-    {
-        if (interactAction != null)
-            interactAction.performed -= OnInteract;
     }
 
     private void Update()
@@ -72,9 +54,10 @@ public class AnimalScanner : MonoBehaviour
             SetCrosshair(UIManager.CrosshairTooFar, "Get closer");
     }
 
-    private void OnInteract(InputAction.CallbackContext context)
+    // The Interact action on the player calls this. Only the press counts, not the release.
+    public void OnInteract(InputAction.CallbackContext context)
     {
-        if (scanCamera == null)
+        if (!context.performed || scanCamera == null)
             return;
 
         if (!Playing())

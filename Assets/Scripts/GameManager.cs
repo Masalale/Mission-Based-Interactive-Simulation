@@ -1,5 +1,5 @@
-using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 // This keeps the score of the safari: the stamps, the Respect score and the disturbances.
 // It holds the numbers only. There is no UI and no input in here.
@@ -25,11 +25,11 @@ public class GameManager : MonoBehaviour
     // The pause menu sets this, so PlayerController and AnimalScanner can stop listening to the player.
     public bool IsPaused { get; private set; }
 
-    // OnStateChanged goes off whenever a number changes, so the UI can refresh.
-    public event Action OnStateChanged;
+    // OnStateChanged goes off whenever a number changes, so the UI can refresh. I wire it up in the Inspector.
+    public UnityEvent OnStateChanged;
 
-    // OnWin goes off once, on the last stamp of the safari.
-    public event Action OnWin;
+    // OnWin goes off once, on the last stamp of the safari. The end screen listens to it.
+    public UnityEvent OnWin;
 
     private void Awake()
     {
@@ -47,7 +47,7 @@ public class GameManager : MonoBehaviour
     {
         // I run before UIManager, so the score is set before the first refresh of the UI.
         Score = startingScore;
-        OnStateChanged?.Invoke();
+        OnStateChanged.Invoke();
     }
 
     private void OnDestroy()
@@ -67,13 +67,13 @@ public class GameManager : MonoBehaviour
         Stamps++;
         Save();
 
-        OnStateChanged?.Invoke();
+        OnStateChanged.Invoke();
 
         // A full passport wins the safari, so I tell the UI once.
         if (TotalAnimals > 0 && Stamps >= TotalAnimals)
         {
             HasWon = true;
-            OnWin?.Invoke();
+            OnWin.Invoke();
         }
     }
 
@@ -89,7 +89,7 @@ public class GameManager : MonoBehaviour
         Score = Mathf.Max(0, Score - breachPenalty);
         Save();
 
-        OnStateChanged?.Invoke();
+        OnStateChanged.Invoke();
     }
 
     // Throw the old safari away and start a fresh one.
@@ -110,7 +110,7 @@ public class GameManager : MonoBehaviour
         // A fresh safari is never paused.
         SetPaused(false);
 
-        OnStateChanged?.Invoke();
+        OnStateChanged.Invoke();
     }
 
     // Put the safari back the way the save says it was.
@@ -146,10 +146,10 @@ public class GameManager : MonoBehaviour
 
         SetPaused(false);
 
-        OnStateChanged?.Invoke();
+        OnStateChanged.Invoke();
 
         if (HasWon)
-            OnWin?.Invoke();
+            OnWin.Invoke();
 
         return true;
     }
@@ -168,7 +168,7 @@ public class GameManager : MonoBehaviour
     {
         IsPlaying = false;
         SetPaused(false);
-        OnStateChanged?.Invoke();
+        OnStateChanged.Invoke();
     }
 
     // Build the save from the animals that are stamped at the moment, then write it to PlayerPrefs.

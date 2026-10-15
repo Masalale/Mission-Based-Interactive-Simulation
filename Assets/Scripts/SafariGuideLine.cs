@@ -29,25 +29,6 @@ public class SafariGuideLine : MonoBehaviour
         Retarget();
     }
 
-    private void OnEnable()
-    {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnStateChanged += Retarget;
-        }
-
-        // The HUD switches the line on and off, so it has to find its target again every time.
-        Retarget();
-    }
-
-    private void OnDisable()
-    {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnStateChanged -= Retarget;
-        }
-    }
-
     private void LateUpdate()
     {
         if (target == null)
@@ -61,7 +42,8 @@ public class SafariGuideLine : MonoBehaviour
     }
 
     // Find the nearest animal that still needs a stamp, and show the line only if there is one.
-    private void Retarget()
+    // GameManager calls this on every change, so the line moves on after each photo.
+    public void Retarget()
     {
         target = FindNearestUnscanned();
         line.enabled = target != null;

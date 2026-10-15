@@ -16,11 +16,10 @@ MonoBehaviour:
   displayName: Buffalo
   habitat: Woodland and grassland near water. See them at Lake Nakuru National Park.
   status: Near Threatened (IUCN Red List)
-  fact: 'Buffalo herds are largely matriarchal: the core of a herd is adult females
-    and their young. In open country, a large herd offers protection from lions.'
-  viewingTip: Give a lone bull a very wide berth. Buffalo are unpredictable and are
-    treated as one of the most dangerous animals in Africa, so never walk towards
-    one.
+  fact: The core of a buffalo herd is adult females and their young. In open country,
+    a large herd offers protection from lions.
+  viewingTip: Give a lone bull a wide berth, and never walk towards a buffalo, one
+    of the most dangerous animals in Africa.
   warningLine: The buffalo is pawing the ground. Back off.
   viewingRadius: 15
   dangerRadius: 6

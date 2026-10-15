@@ -1,6 +1,6 @@
-using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 // Moves and turns the player in first person.
@@ -48,17 +48,13 @@ public class PlayerController : MonoBehaviour
     private Quaternion spawnRotation;
     private Quaternion spawnCameraRotation;
     private Vector3 cameraRestPosition;
-    private bool moved;
     private bool cursorWasLocked;
     private int lockedFrames;
     private int unlockedFrames;
     private Coroutine shakeRoutine;
 
-    // I raise this when the player walks into something solid, and UIManager shows the toast.
-    public event Action<Collider> Bumped;
-
-    // I raise this the first time the player takes a step, so the controls tip can go away.
-    public event Action Moved;
+    // I call this when the player walks into something solid. The patch wires it to UIManager.HandleBump.
+    public UnityEvent<Collider> Bumped;
 
     private void Awake()
     {
@@ -138,7 +134,6 @@ public class PlayerController : MonoBehaviour
         transform.SetPositionAndRotation(spawnPosition, spawnRotation);
         pitch = 0f;
         velocity = Vector3.zero;
-        moved = false;
         if (playerCamera != null)
         {
             playerCamera.transform.localRotation = spawnCameraRotation;
@@ -262,13 +257,6 @@ public class PlayerController : MonoBehaviour
         velocity.y += gravity * Time.deltaTime;
 
         controller.Move((direction + Vector3.up * velocity.y) * Time.deltaTime);
-
-        // The controls tip goes as soon as the player takes a step.
-        if (!moved && direction.sqrMagnitude > 0.01f)
-        {
-            moved = true;
-            Moved?.Invoke();
-        }
     }
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
@@ -286,6 +274,6 @@ public class PlayerController : MonoBehaviour
         if (bumpSource != null && bumpClip != null)
             bumpSource.PlayOneShot(bumpClip);
 
-        Bumped?.Invoke(hit.collider);
+        Bumped.Invoke(hit.collider);
     }
 }

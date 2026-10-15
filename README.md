@@ -57,7 +57,7 @@ The two sources for this section are listed in section 9.
 
 The sticks show only on phones and tablets. A gamepad uses the left stick to move, the right stick to look, and the south button to take a photo. The pause button is on the HUD on every platform, so a phone can pause too.
 
-**How to win.** Photograph all five animals. An animal counts when the player takes a photo of it from inside its ranger's circle. There is no lose state. When the player closes the last fact card, the end screen reads in four blocks: the photos, the Respect score and the number of disturbances; then the visitor rating on its own line, larger than the numbers and coloured gold, light amber or red orange; then Ranger Amani's closing line in italic; then Play Again, Main Menu and Quit.
+**How to win.** Photograph all five animals. An animal counts when the player takes a photo of it from inside its ranger's circle. There is no lose state. When the player closes the last fact card, the end screen reads in four blocks: the photos, the Respect score and the number of disturbances; then the visitor rating on its own line, larger than the numbers and coloured gold, light amber or red orange; then Ranger Amani's closing line in italic; then Main Menu and Quit.
 
 **How the score works.** The score is called Respect and it starts at 100. Each disturbance costs 10, and one animal can only book one disturbance every 3 seconds. Photographing the same animal again only reopens the fact card and costs nothing. The top Respect score is 100, so a clean run is a run with zero disturbances. The end screen rates the visitor from the disturbances: none is a Responsible Visitor, one or two is a Careful Visitor, and three or more is a Reckless Visitor.
 
@@ -65,11 +65,11 @@ The sticks show only on phones and tablets. A gamepad uses the left stick to mov
 
 ### UI
 
-`Assets/Scripts/UIManager.cs` runs every screen: the start screen with Start Safari, Instructions and Quit, the HUD with the crosshair, the passport, the Respect score and the message lines, the fact card, and the end screen with the numbers, the visitor rating, Play Again, Main Menu and Quit. The controls are written down in full on the instructions panel, and `Application.isMobilePlatform` picks the desktop or phone version there, and the one line on the pause panel and the HUD tip. `Assets/Scripts/PauseMenu.cs` runs the pause panel. The Canvas and every panel are laid out in `Assets/Scenes/Safari_Main.unity`. The HUD is built switched off and turned on when a run starts, because the on-screen controls were throwing an error while they were active at load time.
+`Assets/Scripts/UIManager.cs` runs every screen: the start screen with Start Safari, Instructions and Quit, the HUD with the crosshair, the passport, the Respect score and the message lines, the fact card, and the end screen with the numbers, the visitor rating, Main Menu and Quit. The controls are written down on the instructions panel, which opens from the start screen and from How to Play on the pause menu. That text lists the keys for a computer and the buttons for a phone, and it is typed into the scene. The other static words, such as the button labels, are in the scene too, so the code only sets the words that change. Every button is wired in the Inspector with On Click, so there are no `AddListener` calls in the code. `Assets/Scripts/PauseMenu.cs` runs the pause panel. The Canvas and every panel are laid out in `Assets/Scenes/Safari_Main.unity`. The HUD is built switched off and turned on when a run starts, because the on-screen controls were throwing an error while they were active at load time.
 
-`UIManager` never polls for game state. It listens to the two events on `GameManager` and refreshes when they fire. Without it there is no objective, no feedback after a photo, no start screen and no win.
+`UIManager` never polls for game state. `GameManager` has two UnityEvents, `OnStateChanged` and `OnWin`, wired in the Inspector. `UIManager` refreshes and shows the end screen when they fire, and `SafariGuideLine` moves its trail after each change. Without it there is no objective, no feedback after a photo, no start screen and no win.
 
-The fact card shows the title, habitat, status, fact and then the ranger's tip, which comes from the same `AnimalData` asset as the warning line. The close button reads "Close (E)" on a desktop and "Close" on a phone.
+The fact card shows the title, habitat, status, fact and then the ranger's tip, which comes from the same `AnimalData` asset as the warning line. The close button reads "Close" on every platform, and Interact closes the card too.
 
 ### Scripting and the New Input System
 
@@ -83,7 +83,7 @@ Input goes only through the New Input System. No script uses the old `Input` cla
 | Interact | Button | E, left mouse button | South button |
 | Pause | Button | Esc, P | Start button |
 
-The Player object has a `PlayerInput` component with that asset and `Player` as the default map. `AnimalScanner` subscribes to `Player/Interact` and `PauseMenu` subscribes to `Player/Pause` in code. The EventSystem uses `InputSystemUIInputModule`, and Active Input Handling in the Player settings is set to the Input System package only.
+The Player object has a `PlayerInput` component with that asset and `Player` as the default map. The `PlayerInput` uses Invoke Unity Events, so in the Inspector `Player/Interact` calls `AnimalScanner.OnInteract` and `Player/Pause` calls `PauseMenu.OnPause`. Both only act on the press, so the release does nothing. The EventSystem uses `InputSystemUIInputModule`, and Active Input Handling in the Player settings is set to the Input System package only.
 
 Sticks and arrow keys give a rate, so `PlayerController` multiplies them by the look speed and by `deltaTime`. The mouse already gives a per-frame delta, so it is multiplied by the saved sensitivity only. `LookHold` is gone: on a desktop the cursor is locked and hidden while the safari runs, so the mouse always looks and there is no button to hold.
 
@@ -123,7 +123,7 @@ Without the line renderer the player has no idea where to look first, and withou
 
 ### Pause menu
 
-`Assets/Scripts/PauseMenu.cs` listens to `Player/Pause` and to the II button on the HUD. It opens only while a safari is running and never over the fact card or the end screen. Pausing sets `GameManager.IsPaused`, `Time.timeScale = 0` and `AudioListener.pause = true`, frees the cursor and shows the panel. Resume reverses all of it. Restart Safari is exactly what Play Again does. Main Menu keeps the save, so the run is still there when the player comes back. The mouse sensitivity slider writes `MouseSensitivity` to PlayerPrefs, and `PlayerController` reads the same key at startup, so the setting survives a restart.
+`Assets/Scripts/PauseMenu.cs` runs the pause menu. It opens from `Player/Pause`, wired in the Inspector, and from the II button on the HUD. It opens only while a safari is running and never over the fact card or the end screen. Pausing sets `GameManager.IsPaused`, `Time.timeScale = 0` and `AudioListener.pause = true`, frees the cursor and shows the panel. Resume reverses all of it. Restart Safari starts a fresh run, the same as the old Play Again button did. The pause panel has Resume, Restart Safari, How to Play, Main Menu and the sensitivity slider. How to Play opens the instructions over the pause panel, and Resume closes both. Main Menu keeps the save, so the run is still there when the player comes back. The mouse sensitivity slider writes `MouseSensitivity` to PlayerPrefs, and `PlayerController` reads the same key at startup, so the setting survives a restart.
 
 On a desktop the browser drops pointer lock when Escape is pressed. `PlayerController` notices a locked cursor that has gone free while the safari is running and opens the pause menu itself, so the player is never left with no control.
 
@@ -175,14 +175,14 @@ Assets/
 
 | Script | What it does | Lines |
 | --- | --- | --- |
-| `Assets/Scripts/UIManager.cs` | Every screen, the HUD, the crosshair, the flashes and the fact card | 549 |
-| `Assets/Scripts/PlayerController.cs` | Walking, always-on mouse look, gravity, bump feedback, shake, spawn reset | 296 |
+| `Assets/Scripts/UIManager.cs` | Every screen, the HUD, the crosshair, the flashes and the fact card | 508 |
+| `Assets/Scripts/PlayerController.cs` | Walking, always-on mouse look, gravity, bump feedback, shake, spawn reset | 278 |
 | `Assets/Scripts/GameManager.cs` | Stamps, Respect, disturbances, win, pause, save and restore | 189 |
-| `Assets/Scripts/AnimalScanner.cs` | The crosshair ray, the photo ray, the stamp, the shutter and the fact card | 171 |
+| `Assets/Scripts/AnimalScanner.cs` | The crosshair ray, the photo ray, the stamp, the shutter and the fact card | 158 |
 | `Assets/Scripts/Animal.cs` | Per-animal state, zone radii, turning towards the player, the bluff charge | 159 |
-| `Assets/Scripts/PauseMenu.cs` | The pause panel, the pause button and the mouse sensitivity | 162 |
+| `Assets/Scripts/PauseMenu.cs` | The pause panel, the pause button and the mouse sensitivity | 139 |
 | `Assets/Scripts/ZoneRing.cs` | The white ranger's circle and the red circle on the ground | 122 |
-| `Assets/Scripts/SafariGuideLine.cs` | The trail line to the nearest animal that still needs a photo | 96 |
+| `Assets/Scripts/SafariGuideLine.cs` | The trail line to the nearest animal that still needs a photo | 78 |
 | `Assets/Scripts/DangerZone.cs` | The trigger that warns, startles the animal and books disturbances | 87 |
 | `Assets/Scripts/SaveSystem.cs` | Saving, loading and clearing the run | 61 |
 | `Assets/Scripts/ViewingZone.cs` | The trigger that allows a photo and shows the ranger's hint | 56 |

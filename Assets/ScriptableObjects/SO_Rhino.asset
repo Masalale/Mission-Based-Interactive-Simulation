@@ -18,10 +18,9 @@ MonoBehaviour:
   status: Critically Endangered (IUCN Red List)
   fact: Kenya's black rhino population has more than doubled, from fewer than 400
     in the 1980s to over 1,000, according to Kenya Wildlife Service figures reported
-    by WWF. Years of conservation work drove the rise.
-  viewingTip: Switch the camera flash off and keep quiet. Rhinos see poorly, so a
-    sudden noise is all it takes for one to charge. Never step between a cow and
-    her calf.
+    by WWF.
+  viewingTip: Switch the flash off and keep quiet, because a sudden noise can make
+    a rhino charge.
   warningLine: The rhino is snorting. Move away quietly.
   viewingRadius: 18
   dangerRadius: 8

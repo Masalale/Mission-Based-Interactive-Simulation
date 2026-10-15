@@ -19,7 +19,7 @@ MonoBehaviour:
   fact: Leopards hunt mainly at night. They cache their kills in trees, bushes or
     caves, out of reach of rivals such as hyenas.
   viewingTip: Keep your voice low and never crowd a leopard, especially one up a
-    tree. If too many vehicles gather, it may leave its kill and the sighting ends.
+    tree.
   warningLine: The leopard is crouching. Give it space.
   viewingRadius: 15
   dangerRadius: 6

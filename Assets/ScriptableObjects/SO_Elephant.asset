@@ -19,8 +19,6 @@ MonoBehaviour:
   fact: African savanna elephant numbers fell by at least 60% over the last 50 years,
     according to the IUCN. Poaching and habitat loss are the main threats.
   viewingTip: Never block an elephant's path or step between a mother and her calf.
-    Ears held out wide, a stiff trunk or dust throwing all mean back away slowly,
-    and never run.
   warningLine: Ears out and trunk up. Back off now.
   viewingRadius: 18
   dangerRadius: 8

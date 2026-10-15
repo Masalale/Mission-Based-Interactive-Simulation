@@ -19,8 +19,8 @@ MonoBehaviour:
   fact: Kenya Wildlife Service figures show Kenya's lions rose from 2,000 in 2010
     to 2,589 in 2021. Community-led conservancies return tourism revenue to local
     people and give lions a safe haven.
-  viewingTip: On a game drive you stay inside the vehicle. A lion often ignores a
-    car, but it treats a person on foot very differently, so never walk up to one.
+  viewingTip: 'On a game drive, stay in the vehicle: a lion often ignores a car but
+    not a person on foot.'
   warningLine: The lion is growling. Back away slowly, never run.
   viewingRadius: 15
   dangerRadius: 6

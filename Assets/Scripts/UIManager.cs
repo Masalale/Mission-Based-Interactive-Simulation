@@ -1,34 +1,13 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
 // This script runs every screen of the safari: start, HUD, passport, messages, fact card and end screen.
 // I put it all in one script so the gameplay scripts never need a reference to the UI.
+// The buttons call the public methods below. They are wired up in the Inspector with On Click.
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
-
-    // The controls are written down once here and shown on the instructions panel, the pause panel and the HUD tip.
-    // A phone has no keyboard and no mouse, so it gets the other line of the two.
-    private const string ControlsDesktop = "Move WASD · Look mouse · Photo click or E · Pause Esc";
-    private const string ControlsPhone = "Move left stick · Look right stick · Photo button · Pause II";
-    private static string ControlsLine => Application.isMobilePlatform ? ControlsPhone : ControlsDesktop;
-
-    // The instructions panel says the same controls in full, so the start panel stays short.
-    private static string InstructionsControls => Application.isMobilePlatform
-        ? "Move: left stick.\nLook: right stick.\nPhoto: the Photo button.\nPause: the II button."
-        : "Move: WASD.\nLook: mouse.\nPhoto: left click or E. Close a card the same way.\nPause: Esc or P.\nA gamepad works too: left stick, right stick, the south button and Start.";
-
-    // The rest of the instructions never changes, so it is written down once here as well.
-    private const string InstructionsSafari =
-        "Ranger Amani talks to you on the radio and shows you the way.\n" +
-        "Follow the guide line to each of the Big Five.\n" +
-        "A white circle is the viewing distance. Step inside it, aim at the animal, and the crosshair turns green.\n" +
-        "Take the photo then. Your passport gets a stamp.\n" +
-        "A red circle is too close. The animal bluff-charges and you lose Respect.\n" +
-        "A gold circle means you have photographed that animal already.\n" +
-        "Photograph all five and the reserve rates you: Responsible, Careful or Reckless.";
 
     [Header("Panels")]
     [SerializeField] private GameObject startPanel;
@@ -38,15 +17,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject factCard;
     [SerializeField] private GameObject mobileControls;
 
-    [Header("Buttons")]
-    [SerializeField] private Button startButton;
-    [SerializeField] private Button instructionsButton;
-    [SerializeField] private Button instructionsBackButton;
+    [Header("Quit")]
+    [Tooltip("A browser tab cannot close itself, so both Quit buttons are hidden on WebGL.")]
     [SerializeField] private Button quitButton;
-    [SerializeField] private Button playAgainButton;
-    [SerializeField] private Button menuButton;
     [SerializeField] private Button endQuitButton;
-    [SerializeField] private Button factCardCloseButton;
 
     [Header("Passport")]
     [SerializeField] private AnimalData[] passportOrder;
@@ -58,12 +32,6 @@ public class UIManager : MonoBehaviour
     [Header("HUD text")]
     [SerializeField] private Text scoreText;
     [SerializeField] private Text stampsText;
-
-    [Header("Controls text")]
-    [Tooltip("The controls and the rules on the instructions panel, written in code for this platform.")]
-    [SerializeField] private Text instructionsControlsText;
-    [SerializeField] private Text instructionsSafariText;
-    [SerializeField] private Text pauseControlsText;
 
     [Header("Messages")]
     [SerializeField] private GameObject hintRoot;
@@ -88,11 +56,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private float dangerFlashAlpha = 0.6f;
     [SerializeField] private float dangerFlashSeconds = 0.6f;
 
-    [Header("Controls tip")]
-    [Tooltip("Shown for the first seconds of a safari, with the line for this platform only.")]
-    [SerializeField] private Text controlsTip;
-    [SerializeField] private float controlsTipSeconds = 8f;
-
     [Header("Fact card")]
     [SerializeField] private Text factTitleText;
     [SerializeField] private Text factHabitatText;
@@ -112,9 +75,6 @@ public class UIManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private PlayerController player;
 
-    private float toastHideTime;
-    private float tipHideTime;
-    private bool tipShowing;
     private Coroutine photoRoutine;
     private Coroutine dangerRoutine;
 
@@ -151,68 +111,9 @@ public class UIManager : MonoBehaviour
             Instance = null;
     }
 
-    private void OnEnable()
-    {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnStateChanged += Refresh;
-            GameManager.Instance.OnWin += ShowEnd;
-        }
-
-        // The player tells me when it hits something, and I turn that into a toast.
-        if (player != null)
-        {
-            player.Bumped += HandleBump;
-            player.Moved += HideControlsTip;
-        }
-
-        Listen(startButton, OnStart);
-        Listen(instructionsButton, ShowInstructions);
-        Listen(instructionsBackButton, ShowStartPanel);
-        Listen(quitButton, Quit);
-        Listen(playAgainButton, Replay);
-        Listen(menuButton, ToMainMenu);
-        Listen(endQuitButton, Quit);
-        Listen(factCardCloseButton, HideFactCard);
-    }
-
-    // I take every subscription back here, or Replay would run Refresh twice for every change.
-    private void OnDisable()
-    {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.OnStateChanged -= Refresh;
-            GameManager.Instance.OnWin -= ShowEnd;
-        }
-
-        if (player != null)
-        {
-            player.Bumped -= HandleBump;
-            player.Moved -= HideControlsTip;
-        }
-
-        // The scene buttons have no listeners of their own, so I can clear all of them in one go.
-        ClearListeners(startButton);
-        ClearListeners(instructionsButton);
-        ClearListeners(instructionsBackButton);
-        ClearListeners(quitButton);
-        ClearListeners(playAgainButton);
-        ClearListeners(menuButton);
-        ClearListeners(endQuitButton);
-        ClearListeners(factCardCloseButton);
-    }
-
     private void Start()
     {
         SwitchPanels(true, false, false, false);
-        HideControlsTip();
-
-        // The instructions panel carries the controls and the rules in full, so the start panel stays short.
-        SetText(instructionsControlsText, InstructionsControls);
-        SetText(instructionsSafariText, InstructionsSafari);
-
-        // The pause panel keeps the one short line, for this platform only.
-        SetText(pauseControlsText, ControlsLine);
 
         // The sticks are for phones only. I cannot test for a touchscreen, because touch laptops report one too.
         Show(mobileControls, Application.isMobilePlatform);
@@ -221,26 +122,11 @@ public class UIManager : MonoBehaviour
         Show(ObjectOf(quitButton), !IsWebGL);
         Show(ObjectOf(endQuitButton), !IsWebGL);
 
-        // On a desktop the player closes the card with E or a click, so the button says so.
-        if (factCardCloseButton != null)
-            SetText(factCardCloseButton.GetComponentInChildren<Text>(), Application.isMobilePlatform ? "Close" : "Close (E)");
-
         // I switch the player off until a run starts, so I cannot walk around on the start screen.
         if (player != null)
             player.enabled = false;
 
         Refresh();
-    }
-
-    private void Update()
-    {
-        // I use a timestamp instead of a coroutine, so nothing keeps running if the toast is hidden early.
-        if (toastRoot != null && toastRoot.activeSelf && Time.time >= toastHideTime)
-            Show(toastRoot, false);
-
-        // The controls tip goes away on its own after a few seconds.
-        if (tipShowing && Time.time >= tipHideTime)
-            HideControlsTip();
     }
 
     // The three message lines are the same pattern, so they share one helper.
@@ -249,12 +135,17 @@ public class UIManager : MonoBehaviour
     public void ShowWarning(string message) => ShowMessage(warningRoot, warningText, message);
     public void HideWarning() => Show(warningRoot, false);
 
-    // A toast is the same as a hint, except it puts itself away again.
+    // A toast is the same as a hint, except it puts itself away again after a few seconds.
     public void ShowToast(string message)
     {
         ShowMessage(toastRoot, toastText, message);
-        toastHideTime = Time.time + toastSeconds;
+
+        // A new toast starts the timer again, so the old timer cannot hide it early.
+        CancelInvoke(nameof(HideToast));
+        Invoke(nameof(HideToast), toastSeconds);
     }
+
+    private void HideToast() => Show(toastRoot, false);
 
     // The pause menu calls this too, so an old "too close" banner cannot sit behind the Paused title.
     public void HideMessages()
@@ -292,22 +183,6 @@ public class UIManager : MonoBehaviour
 
         // A box with no words in it stays hidden, so no empty pill is left on the screen.
         Show(root, !string.IsNullOrEmpty(message));
-        FitBoxHeight(root, label);
-    }
-
-    // The height of a message box follows its text. I set it here, because the rounded image has a
-    // minimum height that a content size fitter would always use instead of a short line.
-    private static void FitBoxHeight(GameObject root, Text label)
-    {
-        if (root == null || label == null || !root.activeSelf)
-            return;
-
-        // The new width has to reach the text first, so the line count is right.
-        Canvas.ForceUpdateCanvases();
-
-        // The 20 is the top and bottom padding of the box, which the text sits inside.
-        RectTransform box = root.GetComponent<RectTransform>();
-        box.sizeDelta = new Vector2(box.sizeDelta.x, label.preferredHeight + 20f);
     }
 
     // The message boxes hug their text, but a long line wraps instead of running off the screen.
@@ -419,14 +294,6 @@ public class UIManager : MonoBehaviour
         FreeCursor();
     }
 
-    // The instructions panel is drawn over the start panel and only holds text and a Back button.
-    private void ShowInstructions()
-    {
-        SwitchPanels(false, false, false, false);
-        Show(instructionsPanel, true);
-        FreeCursor();
-    }
-
     // Main Menu is the same two steps wherever the button sits: leave the run, then show the start panel.
     public void ToMainMenu()
     {
@@ -449,7 +316,7 @@ public class UIManager : MonoBehaviour
     }
 
     // One Start button: it carries on a save that is still running, and otherwise starts a fresh safari.
-    private void OnStart()
+    public void OnStart()
     {
         if (GameManager.Instance == null)
             return;
@@ -472,7 +339,7 @@ public class UIManager : MonoBehaviour
         return total > 0 && data.scannedIds.Count >= total;
     }
 
-    // Replay is the Play Again button on the end screen and Restart Safari on the pause menu.
+    // Replay is Restart Safari on the pause menu. The end screen uses Main Menu, then Start Safari.
     public void Replay()
     {
         // I put the player back at the gate before I clear the state, so the guide line starts there again.
@@ -492,8 +359,6 @@ public class UIManager : MonoBehaviour
         if (player != null)
             player.enabled = true;
 
-        ShowControlsTip();
-
         Refresh();
 
         // A save restored at 5 of 5 is a finished safari, so I go straight to the end screen.
@@ -501,7 +366,8 @@ public class UIManager : MonoBehaviour
             ShowEnd();
     }
 
-    private void Refresh()
+    // GameManager calls this whenever a number changes, so the HUD always shows the latest one.
+    public void Refresh()
     {
         GameManager game = GameManager.Instance;
         int score = game != null ? game.Score : 0;
@@ -545,7 +411,8 @@ public class UIManager : MonoBehaviour
         return false;
     }
 
-    private void ShowEnd()
+    // GameManager calls this on the last stamp of the safari, and the end screen takes over.
+    public void ShowEnd()
     {
         Show(endPanel, true);
         Show(factCard, false);
@@ -559,7 +426,7 @@ public class UIManager : MonoBehaviour
         if (player != null)
             player.enabled = false;
 
-        // The player is off, so the mouse has to come back for the three buttons.
+        // The player is off, so the mouse has to come back for the buttons.
         FreeCursor();
 
         GameManager game = GameManager.Instance;
@@ -599,7 +466,8 @@ public class UIManager : MonoBehaviour
         SetText(endRangerText, "Ranger Amani: " + rangerLine);
     }
 
-    private void HandleBump(Collider hit)
+    // The player calls this when it walks into something solid, and I turn that into a toast.
+    public void HandleBump(Collider hit)
     {
         // The collider is on the Body child, so I look up for the animal on the parent.
         Animal animal = hit.GetComponentInParent<Animal>();
@@ -608,34 +476,6 @@ public class UIManager : MonoBehaviour
             ShowToast("Blocked by the " + animal.Data.DisplayName);
         else
             ShowToast("Blocked by a rock or tree");
-    }
-
-    // The controls tip shows at the bottom of the HUD for the first few seconds of a safari.
-    private void ShowControlsTip()
-    {
-        SetText(controlsTip, ControlsLine);
-        tipShowing = true;
-        tipHideTime = Time.time + controlsTipSeconds;
-    }
-
-    // Hides the controls tip, either because the timer ran out or because the player moved.
-    private void HideControlsTip()
-    {
-        tipShowing = false;
-        SetText(controlsTip, string.Empty);
-    }
-
-    // Every button is hooked up and taken down the same way, so it is one helper used four times.
-    private static void Listen(Button button, UnityAction action)
-    {
-        if (button != null)
-            button.onClick.AddListener(action);
-    }
-
-    private static void ClearListeners(Button button)
-    {
-        if (button != null)
-            button.onClick.RemoveAllListeners();
     }
 
     // True once the run is won. This is when the end screen takes over.
