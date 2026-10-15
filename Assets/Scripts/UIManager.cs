@@ -222,10 +222,10 @@ public class UIManager : MonoBehaviour
             return;
 
         SetText(factTitleText, data.DisplayName);
-        SetText(factHabitatText, "Habitat: " + data.Habitat);
-        SetText(factStatusText, "Status: " + data.Status);
-        SetText(factBodyText, data.Fact);
-        SetText(factTipText, "Ranger's tip: " + data.ViewingTip);
+        SetText(factHabitatText, "• Habitat: " + data.Habitat);
+        SetText(factStatusText, "• Status: " + data.Status);
+        SetText(factBodyText, "• Fact: " + data.Fact);
+        SetText(factTipText, "• Ranger's tip: " + data.ViewingTip);
 
         if (!firstPhoto)
         {

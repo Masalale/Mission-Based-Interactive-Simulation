@@ -26541,7 +26541,7 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 760
+  m_PreferredWidth: 900
   m_PreferredHeight: -1
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
@@ -76953,6 +76953,7 @@ GameObject:
   - component: {fileID: 925714880}
   - component: {fileID: 925714879}
   - component: {fileID: 925714878}
+  - component: {fileID: 925714881}
   m_Layer: 0
   m_Name: BodyText
   m_TagString: Untagged
@@ -77021,7 +77022,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 24
     m_MaxSize: 24
-    m_Alignment: 1
+    m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 0
     m_HorizontalOverflow: 0
@@ -77036,6 +77037,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 925714876}
   m_CullTransparentMesh: 1
+--- !u!114 &925714881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 925714876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: 900
+  m_PreferredHeight: -1
+  m_FlexibleWidth: 1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1001 &926055372
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -94976,7 +94997,7 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 760
+  m_PreferredWidth: 900
   m_PreferredHeight: -1
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
@@ -108545,6 +108566,7 @@ GameObject:
   - component: {fileID: 1282997246}
   - component: {fileID: 1282997245}
   - component: {fileID: 1282997244}
+  - component: {fileID: 1282997247}
   m_Layer: 0
   m_Name: TipText
   m_TagString: Untagged
@@ -108613,7 +108635,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 24
     m_MaxSize: 24
-    m_Alignment: 1
+    m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 0
     m_HorizontalOverflow: 0
@@ -108628,6 +108650,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1282997242}
   m_CullTransparentMesh: 1
+--- !u!114 &1282997247
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282997242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: 900
+  m_PreferredHeight: -1
+  m_FlexibleWidth: 1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1001 &1283375000
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -136619,6 +136661,7 @@ GameObject:
   - component: {fileID: 1645467386}
   - component: {fileID: 1645467385}
   - component: {fileID: 1645467384}
+  - component: {fileID: 1645467387}
   m_Layer: 0
   m_Name: StatusText
   m_TagString: Untagged
@@ -136683,11 +136726,11 @@ MonoBehaviour:
   m_FontData:
     m_Font: {fileID: 12800000, guid: 59ca0126225ca4d47b9e45ecb64cde3d, type: 3}
     m_FontSize: 22
-    m_FontStyle: 2
+    m_FontStyle: 0
     m_BestFit: 0
     m_MinSize: 22
     m_MaxSize: 22
-    m_Alignment: 4
+    m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 0
     m_HorizontalOverflow: 0
@@ -136702,6 +136745,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1645467382}
   m_CullTransparentMesh: 1
+--- !u!114 &1645467387
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1645467382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: 900
+  m_PreferredHeight: -1
+  m_FlexibleWidth: 1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1001 &1647028080
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -153454,7 +153517,9 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1.15
-  m_Text: "• Computer: WASD move, mouse look, click or E photo, Esc pause\n• Phone: left stick move, right stick look, Photo button, II pause\n• A gamepad works too"
+  m_Text: "\u2022 Computer: WASD move, mouse look, click or E photo, Esc pause\n\u2022
+    Phone: left stick move, right stick look, Photo button, II pause\n\u2022 A gamepad
+    works too"
 --- !u!222 &1862927444
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -153478,7 +153543,7 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 760
+  m_PreferredWidth: 900
   m_PreferredHeight: -1
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
@@ -164304,6 +164369,7 @@ GameObject:
   - component: {fileID: 2025861846}
   - component: {fileID: 2025861845}
   - component: {fileID: 2025861844}
+  - component: {fileID: 2025861847}
   m_Layer: 0
   m_Name: HabitatText
   m_TagString: Untagged
@@ -164372,7 +164438,7 @@ MonoBehaviour:
     m_BestFit: 0
     m_MinSize: 22
     m_MaxSize: 22
-    m_Alignment: 4
+    m_Alignment: 0
     m_AlignByGeometry: 0
     m_RichText: 0
     m_HorizontalOverflow: 0
@@ -164387,6 +164453,26 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2025861842}
   m_CullTransparentMesh: 1
+--- !u!114 &2025861847
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2025861842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.LayoutElement
+  m_IgnoreLayout: 0
+  m_MinWidth: -1
+  m_MinHeight: -1
+  m_PreferredWidth: 900
+  m_PreferredHeight: -1
+  m_FlexibleWidth: 1
+  m_FlexibleHeight: -1
+  m_LayoutPriority: 1
 --- !u!1001 &2026338124
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -171746,7 +171832,9 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1.15
-  m_Text: "• Follow the yellow line to each animal\n• White circle: safe distance, take your photo\n• Red circle: too close, you lose Respect\n• Gold circle: already in your passport\n• Photograph all five to finish"
+  m_Text: "\u2022 Follow the yellow line to each animal\n\u2022 White circle: safe
+    distance, take your photo\n\u2022 Red circle: too close, you lose Respect\n\u2022
+    Gold circle: already in your passport\n\u2022 Photograph all five to finish"
 --- !u!222 &2105756688
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -171770,7 +171858,7 @@ MonoBehaviour:
   m_IgnoreLayout: 0
   m_MinWidth: -1
   m_MinHeight: -1
-  m_PreferredWidth: 760
+  m_PreferredWidth: 900
   m_PreferredHeight: -1
   m_FlexibleWidth: -1
   m_FlexibleHeight: -1
