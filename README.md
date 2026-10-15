@@ -104,6 +104,6 @@ Add the folder in Unity Hub, open `Assets/Scenes/Safari_Main.unity` and press Pl
 | Savanna ambience | "dkaufman", https://freesound.org/people/dkaufman/sounds/743640/ | CC0 |
 | Bump sound | "JonasTisell", https://freesound.org/people/JonasTisell/sounds/496187/ | CC0 |
 | Camera shutter | Made by me with ffmpeg | n/a |
-| Tribeca font (titles) and title image (`Assets/Images/background_removed.png`) | Downloaded by me | Not stated |
+| Tribeca font (titles) | [1001fonts.com](https://www.1001fonts.com/tribeca-font.html) | Free for commercial use |
 | Ubuntu font (body text) | Canonical, fonts.google.com/specimen/Ubuntu | Ubuntu Font Licence 1.0 (licence file next to the font in `Assets/Materials/Fonts`) |
 
