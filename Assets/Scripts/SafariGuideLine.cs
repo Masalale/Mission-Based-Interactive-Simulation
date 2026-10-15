@@ -1,8 +1,5 @@
 using UnityEngine;
 
-// This draws the guide line from the player to the nearest animal that still needs a stamp.
-// I wanted a new player to know which way to walk first, so the line points at that animal.
-// The line hides itself when the passport is full, so it is never pointing at nothing.
 [RequireComponent(typeof(LineRenderer))]
 public class SafariGuideLine : MonoBehaviour
 {
@@ -19,7 +16,6 @@ public class SafariGuideLine : MonoBehaviour
     {
         line = GetComponent<LineRenderer>();
 
-        // The line only needs two points: the player and the target.
         line.positionCount = 2;
         line.useWorldSpace = true;
     }
@@ -34,15 +30,13 @@ public class SafariGuideLine : MonoBehaviour
         if (target == null)
             return;
 
-        // I do this in LateUpdate, after the player has moved, so the line starts at the player
-        // and not at where the player was earlier in the frame.
+        // LateUpdate, so the line starts where the player is after moving.
         Vector3 from = player != null ? player.position : transform.position;
         line.SetPosition(0, from + Vector3.up * heightOffset);
         line.SetPosition(1, target.GuidePosition + Vector3.up * heightOffset);
     }
 
-    // Find the nearest animal that still needs a stamp, and show the line only if there is one.
-    // GameManager calls this on every change, so the line moves on after each photo.
+    // GameManager calls this after each change, so the line moves on after a photo.
     public void Retarget()
     {
         target = FindNearestUnscanned();
@@ -51,7 +45,6 @@ public class SafariGuideLine : MonoBehaviour
 
     private Animal FindNearestUnscanned()
     {
-        // The line only points anywhere while a safari is actually going.
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying)
             return null;
 
@@ -64,7 +57,6 @@ public class SafariGuideLine : MonoBehaviour
             if (candidate.Scanned)
                 continue;
 
-            // I compare squared distances, because that is enough to find the closest one.
             float sqr = (candidate.GuidePosition - from).sqrMagnitude;
             if (sqr < nearestSqr)
             {

@@ -2,7 +2,7 @@
 
 [WebGL build](TODO_WEBGL_URL) | [Android APK](TODO_APK_URL) | [Demo video](TODO_VIDEO_URL)
 
-I built this for the Introduction to Unity module (Course 3152). It is a first-person walking safari through a Kenyan savanna reserve. Ranger Amani is the player's guide on the radio. The ranger marks a trail line to each animal, the player walks to it, steps inside the white circle on the ground and takes a photo, without ever crossing the red circle. Five photos fill the Safari Passport and the safari is complete. Every disturbance costs the player Respect, so the whole game is really about how close the player dares to get.
+I built this for the Introduction to Unity module (Course 3152). It is a first-person walking safari through a Kenyan savanna reserve. Ranger Amani is the player's guide on the radio. The ranger marks a trail line to each animal, the player walks to it, steps inside the white circle on the ground and takes a photo, without ever crossing the red circle. Five photos fill the Safari Passport and the safari is complete. Every disturbance costs the player Respect, so the game is about how close the player dares to get.
 
 - Author: Masalale
 - Repository: https://github.com/Masalale/Mission-Based-Interactive-Simulation
@@ -89,7 +89,7 @@ Sticks and arrow keys give a rate, so `PlayerController` multiplies them by the 
 
 The on-screen controls are two sticks and the Photo button. The sticks add a virtual gamepad while the mouse is still in use, and `PlayerInput` was switching control schemes on its own and hiding the other bindings, so the sticks dropped out. `PlayerController.Awake` turns that switching off before any stick is active, and clears the binding mask. Keyboard, mouse and the on-screen gamepad then drive the same action map together.
 
-Without this there is no movement, no photos and no run state at all.
+Without this the player cannot move, take photos or keep a run going.
 
 ### Collision
 
@@ -99,7 +99,7 @@ Each animal has a solid `BoxCollider` on the Animal layer, which blocks the play
 
 A trigger does not block anybody, it only sends events. Entering the viewing zone sets `InViewing`, shows Ranger Amani's hint, and makes the animal turn slowly to look at the player. Entering the danger zone shows the animal's own warning line, plays its call, makes it do a short bluff charge, flashes the edges of the screen red, shakes the camera, and books a breach at most once every 3 seconds. Walking into a solid body plays the bump sound and shows a toast that names what blocked the player. Hits on the floor are ignored, otherwise the ground would bump the player every frame.
 
-Without collision the player walks through the animals, there are no zone events, no disturbances and no photo window.
+Without collision the player would walk through the animals and no zone event could ever fire.
 
 ### Raycasting
 
@@ -111,13 +111,15 @@ The second ray is the photo ray, on the same line, cast once when Interact is pr
 
 `Interact` also closes an open fact card, so on a desktop the cursor never has to leave the game. A mouse press is ignored when the cursor is not locked, because that press was a click on the UI.
 
-Without the raycast there are no photos, no stamps and no way to win.
+Without the raycast there are no photos, stamps or win.
 
 ### Line Renderer
 
 `Assets/Scripts/SafariGuideLine.cs` draws the trail line on a `LineRenderer` in the scene. It has two points: the player, lifted a little off the ground, and the nearest animal that still needs a photo. It updates in `LateUpdate` so it follows the player, and it picks a new target every time the game state changes. When the passport is full, or on the start screen, it hides itself. The lion stands 50 m from the spawn so the line runs straight ahead at the start of a run.
 
-`Assets/Scripts/ZoneRing.cs` is the second use of the same component. Each animal gets a `ZoneRing`, which builds two flat circles on the ground in `Start`: 64 points each, with a white loop 0.12 m wide at the viewing radius and a red loop 0.18 m wide at the danger radius, both from the same `AnimalData` radii the triggers use. The ground is not flat, so every point drops a `Physics.Raycast` from 5 m above itself, ignores the Animal layer and the triggers, and sits 0.05 m above the ground it hits, which keeps the circles out of the bumps. The circles fade in over the last 35 m as the player walks towards them, so a distant animal does not clutter the savanna, and the white circle turns gold once the animal is in the passport. Both use `Assets/Materials/M_ZoneRing.mat`, which points at Unity's own built-in `Universal Render Pipeline/Particles/Unlit` shader, set to Surface Type Transparent with Alpha blending. I did not write a shader for this. A `LineRenderer` puts its `startColor` and `endColor` into the vertex colours, and the plain URP Unlit shader never reads them, so the red circle came out the same grey as the white one and the fade did nothing. The particles version of Unlit does read them, so a transparent material with that shader is all the circles need, and reading the colours is also what makes the white circle turn gold after the photo.
+`Assets/Scripts/ZoneRing.cs` is the second use of the same component. Each animal gets a `ZoneRing`, which builds two flat circles on the ground in `Start`: 64 points each, with a white loop 0.12 m wide at the viewing radius and a red loop 0.18 m wide at the danger radius, both from the same `AnimalData` radii the triggers use. The ground is not flat, so every point drops a `Physics.Raycast` from 5 m above itself, ignores the Animal layer and the triggers, and sits 0.05 m above the ground it hits, which keeps the circles out of the bumps. 
+
+The circles fade in over the last 35 m as the player walks towards them, so a distant animal does not clutter the savanna, and the white circle turns gold once the animal is in the passport. Both use `Assets/Materials/M_ZoneRing.mat`, which points at Unity's own built-in `Universal Render Pipeline/Particles/Unlit` shader, set to Surface Type Transparent with Alpha blending. I did not write a shader for this. A `LineRenderer` puts its `startColor` and `endColor` into the vertex colours, and the plain URP Unlit shader never reads them, so the red circle came out the same grey as the white one and the fade did nothing. The particles version of Unlit does read them, so a transparent material with that shader is all the circles need, and reading the colours is also what makes the white circle turn gold after the photo.
 
 Without the line renderer the player has no idea where to look first, and without the circles the two radii are invisible numbers.
 
@@ -156,10 +158,9 @@ A photo fires a white full screen image from alpha 0.7 down to 0 over about 0.25
 ```
 Assets/
   Audio/            eight clips: one ambience, five calls, one bump, one shutter
-  Editor/           import settings and the build script
   Images/           the title image and the red edge vignette
   Input/            InputSystem_Actions.inputactions
-  Materials/        the ground, the animal, the guide line, the zone ring and the scenery materials
+  Materials/        the ground, the animal, the guide line and the zone ring materials, and the fonts
   Models/
     Animals/        the five animal models and their textures
     Generated/      the merged ground, hills and track meshes
@@ -168,27 +169,27 @@ Assets/
   Scenes/           Safari_Main.unity
   ScriptableObjects/ one asset per animal, holding its fact, its safe viewing tip, its warning line and its radii
   Scripts/          the twelve gameplay scripts below
-  ThirdParty/       the licence files for the models, the scenery and the audio
+  ThirdParty/       the licence files for the models, the scenery, the audio and the Ubuntu font
 ```
 
 `PF_Animal` is the base prefab. Its children are Body, which holds the model and the solid collider, the two zone triggers and the guide point. `ZoneRing` is on the root, and the five species variants inherit it. Each variant overrides the model, the scale and the data asset.
 
 | Script | What it does | Lines |
 | --- | --- | --- |
-| `Assets/Scripts/UIManager.cs` | Every screen, the HUD, the crosshair, the flashes and the fact card | 508 |
-| `Assets/Scripts/PlayerController.cs` | Walking, always-on mouse look, gravity, bump feedback, shake, spawn reset | 278 |
-| `Assets/Scripts/GameManager.cs` | Stamps, Respect, disturbances, win, pause, save and restore | 189 |
-| `Assets/Scripts/AnimalScanner.cs` | The crosshair ray, the photo ray, the stamp, the shutter and the fact card | 158 |
-| `Assets/Scripts/Animal.cs` | Per-animal state, zone radii, turning towards the player, the bluff charge | 159 |
-| `Assets/Scripts/PauseMenu.cs` | The pause panel, the pause button and the mouse sensitivity | 139 |
-| `Assets/Scripts/ZoneRing.cs` | The white ranger's circle and the red circle on the ground | 122 |
-| `Assets/Scripts/SafariGuideLine.cs` | The trail line to the nearest animal that still needs a photo | 78 |
-| `Assets/Scripts/DangerZone.cs` | The trigger that warns, startles the animal and books disturbances | 87 |
-| `Assets/Scripts/SaveSystem.cs` | Saving, loading and clearing the run | 61 |
-| `Assets/Scripts/ViewingZone.cs` | The trigger that allows a photo and shows the ranger's hint | 56 |
-| `Assets/Scripts/AnimalData.cs` | The data asset: fact, safe viewing tip, warning line, radii, call clip | 34 |
+| `Assets/Scripts/UIManager.cs` | Every screen, the HUD, the crosshair, the flashes and the fact card | 464 |
+| `Assets/Scripts/PlayerController.cs` | Walking, always-on mouse look, gravity, bump feedback, shake, spawn reset | 257 |
+| `Assets/Scripts/GameManager.cs` | Stamps, Respect, disturbances, win, pause, save and restore | 169 |
+| `Assets/Scripts/AnimalScanner.cs` | The crosshair ray, the photo ray, the stamp, the shutter and the fact card | 143 |
+| `Assets/Scripts/Animal.cs` | Per-animal state, zone radii, turning towards the player, the bluff charge | 145 |
+| `Assets/Scripts/PauseMenu.cs` | The pause panel, the pause button and the mouse sensitivity | 127 |
+| `Assets/Scripts/ZoneRing.cs` | The white ranger's circle and the red circle on the ground | 109 |
+| `Assets/Scripts/SafariGuideLine.cs` | The trail line to the nearest animal that still needs a photo | 70 |
+| `Assets/Scripts/DangerZone.cs` | The trigger that warns, startles the animal and books disturbances | 81 |
+| `Assets/Scripts/SaveSystem.cs` | Saving, loading and clearing the run | 55 |
+| `Assets/Scripts/ViewingZone.cs` | The trigger that allows a photo and shows the ranger's hint | 48 |
+| `Assets/Scripts/AnimalData.cs` | The data asset: fact, safe viewing tip, warning line, radii, call clip | 33 |
 
-That is 1,982 lines in total. `Assets/Editor` holds three more: the two import scripts for the models and the scenery, and `Assets/Editor/BuildScript.cs` for the two builds. I used editor scripts to lay out the scene and the prefabs while I built them, and I finished the scene by hand in the Editor afterwards.
+That is 1,701 lines in total. The import settings for the animal and scenery models are saved in each model's own import settings, so the project needs no editor scripts. I finished the scene by hand in the Editor.
 
 ## 7. Build Information
 
@@ -200,21 +201,15 @@ Both builds use the Mobile quality level, which turns off real-time shadows. The
 
 **Run it in the Editor.** Install Unity 6000.3.23f1 from Unity Hub, add this folder, open `Assets/Scenes/Safari_Main.unity` and press Play. For an APK you also need Android Build Support with the SDK, NDK and OpenJDK.
 
-**Build it again.** Close the Editor first, because Unity locks the project while it is open. From the Editor menu use Build > Build WebGL or Build > Build Android APK. From a command prompt:
-
-```
-Unity.exe -batchmode -quit -nographics -projectPath <project path> -executeMethod BuildScript.BuildWebGL -logFile <log path>
-```
-
-Swap `BuildScript.BuildWebGL` for `BuildScript.BuildAndroid` for the APK. Each build prints one line that starts with `[Build]` with the result, the size and the error count.
+**Build it again.** Open the project in Unity, go to File > Build Profiles, choose WebGL or Android and press Build. For the APK, leave Build App Bundle (Google Play) unticked so that Unity makes an APK. The WebGL compression is set to Disabled in Player Settings, so GitHub Pages can serve the build.
 
 ## 8. Reflection
 
-**Problems I hit and fixed.** The full list is in my bug notes, `misc/BUGS.md`. The ones I remember best:
+**Problems I hit and fixed.** The ones I remember best:
 
 - The fact card came up empty. My long text fields had `[TextArea]` but no `[SerializeField]`, so Unity never saved them into the assets and the card had nothing to show.
 - The animals all faced away from me. I had looked at them through cameras that were on the far side, so I turned every model to point at the approach instead.
-- Most of the trees and rocks were placed off the map, because my placement helper mixed local and world space.
+- Most of the trees and rocks were placed off the map, because my placement code mixed local and world space.
 - The end screen opened behind the fifth fact card. Now the card shows first and the end screen comes up when the player closes it.
 - The on-screen sticks kept disappearing. PlayerInput was switching control schemes on its own and hiding the other device's bindings.
 - The circles on the ground were invisible at first, because the guide line material is opaque and the fade in the colour gradient did nothing. The rings needed their own transparent material. Then the red circle still came out grey, because that material used the plain URP Unlit shader, which ignores the colours a LineRenderer puts into its vertices. Pointing the material at Unity's built-in URP Particles Unlit shader fixed it, so I did not need a shader of my own at all.
@@ -242,7 +237,7 @@ Attribution for the jaguar model:
 I converted the jaguar from GLB to FBX, scaled it and renamed its material. It is not a leopard model. No leopard model under CC0 or CC BY was free to download without an account, so the jaguar stands in, and its rosettes are close enough to read as a leopard in the game.
 
 Tribeca font (used for titles only now) and title image (`Assets/Images/background_removed.png`). The font has no separate lower-case letters, so all the text in the game shows in capitals.
-Ubuntu font (Canonical, Ubuntu Font Licence 1.0, fonts.google.com/specimen/Ubuntu) used for body text and HUD, so the game screens stay readable.
+Ubuntu font (Canonical, Ubuntu Font Licence 1.0, fonts.google.com/specimen/Ubuntu) used for body text and HUD, so the game screens stay readable. Licence: `Assets/ThirdParty/UBUNTU-FONT-LICENCE.txt`.
 
 **Audio.** All eight clips are listed with their sources and processing in `Assets/ThirdParty/AUDIO-LICENCES.txt`.
 

@@ -1,7 +1,5 @@
 using UnityEngine;
 
-// This holds everything about one animal of the Big Five.
-// The game only reads from it, so it is safe to share one asset between scenes.
 [CreateAssetMenu(fileName = "SO_Animal", menuName = "Safari/Animal Data")]
 public class AnimalData : ScriptableObject
 {
@@ -21,7 +19,7 @@ public class AnimalData : ScriptableObject
     [SerializeField] private float dangerRadius = 6f;
     [SerializeField] private AudioClip callClip;
 
-    // The id is what the save file uses, so I never change it after the asset is made.
+    // The save file keys on this id, so never change it after the asset is made.
     public string Id => id;
     public string DisplayName => displayName;
     public string Habitat => habitat;

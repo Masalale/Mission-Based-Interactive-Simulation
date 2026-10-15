@@ -1,15 +1,12 @@
 using UnityEngine;
 
-// This is the trigger on the DangerZone child of an animal prefab.
-// Walking into it means the player is too close.
-// The animal always reacts, but I only count one disturbance per animal every few seconds,
-// so leaning against the zone does not drain the Respect score.
+// Respect is taken once per cooldown, so leaning on the zone does not drain it.
 public class DangerZone : MonoBehaviour
 {
     [Tooltip("The animal this zone belongs to. Found on the parent when left empty.")]
     [SerializeField] private Animal animal;
 
-    [Tooltip("Seconds before this same animal can book another disturbance.")]
+    [Tooltip("Seconds before the same animal costs Respect again.")]
     [SerializeField] private float breachCooldown = 3f;
 
     [Tooltip("Seconds the camera shakes for when the player is too close.")]
@@ -36,11 +33,9 @@ public class DangerZone : MonoBehaviour
         if (GameManager.Instance == null || !GameManager.Instance.IsPlaying)
             return;
 
-        // The warning shows every time I walk in, even during the cooldown,
-        // because the player still has to be told they are too close.
+        // The warning shows on every entry, even during the cooldown.
         Warn();
 
-        // The animal calls, lunges at me and settles back, so the disturbance can be felt.
         if (animal != null)
         {
             if (animal.Data != null && animal.Data.CallClip != null)
@@ -55,7 +50,6 @@ public class DangerZone : MonoBehaviour
         if (player != null)
             player.Shake(shakeSeconds);
 
-        // Only the first disturbance in the cooldown costs Respect.
         if (Time.time < nextBreachTime)
             return;
 
@@ -72,7 +66,6 @@ public class DangerZone : MonoBehaviour
             UIManager.Instance.HideWarning();
     }
 
-    // Ranger Amani reads the animal's own warning line, with a plain one as a fallback.
     private void Warn()
     {
         if (UIManager.Instance == null)

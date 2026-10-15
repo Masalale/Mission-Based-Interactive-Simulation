@@ -1,7 +1,5 @@
 using UnityEngine;
 
-// This is the trigger on the ViewingZone child of an animal prefab.
-// It is the sphere where the player is allowed to scan from.
 public class ViewingZone : MonoBehaviour
 {
     [Tooltip("The animal this zone belongs to. Found on the parent when left empty.")]
@@ -9,14 +7,12 @@ public class ViewingZone : MonoBehaviour
 
     private void Awake()
     {
-        // The animal sits on the prefab root and this trigger is a child of it.
         if (animal == null)
             animal = GetComponentInParent<Animal>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        // Only the player counts. Scenery moving through the zone does not.
         if (!other.CompareTag("Player"))
             return;
 
@@ -25,17 +21,14 @@ public class ViewingZone : MonoBehaviour
 
         animal.InViewing = true;
 
-        // I stay quiet for an animal that is already in the passport, because the hint is not needed again.
         if (animal.Scanned || animal.Data == null || UIManager.Instance == null)
             return;
 
-        // I use the species name from the data asset and not the object name,
-        // so the hint reads the same in the prefab and in the scene.
+        // I use the species name, not the object name, so the hint reads the same everywhere.
         string displayName = animal.Data.DisplayName;
         if (string.IsNullOrEmpty(displayName))
             displayName = gameObject.name;
 
-        // Ranger Amani tells the visitor when the distance is good for a photo.
         UIManager.Instance.ShowHint("Ranger Amani: Good distance. Aim at the " + displayName + " and take your photo.");
     }
 
@@ -47,7 +40,6 @@ public class ViewingZone : MonoBehaviour
         if (animal == null)
             return;
 
-        // Stepping out clears the flag, so scanning from outside the zone is not allowed.
         animal.InViewing = false;
 
         if (UIManager.Instance != null)

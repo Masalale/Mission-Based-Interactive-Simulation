@@ -2,8 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// This is the saved run.
-// JsonUtility only reads plain fields and a List, so I keep it simple and use no dictionary.
+// JsonUtility cannot read dictionaries, so the save uses a plain List.
 [Serializable]
 public class SaveData
 {
@@ -12,11 +11,9 @@ public class SaveData
     public int breaches;
 }
 
-// I save the run as JSON in PlayerPrefs.
-// I use PlayerPrefs because WebGL has no writable folder, and this works on every platform.
+// PlayerPrefs, because WebGL has no writable folder.
 public static class SaveSystem
 {
-    // One key holds the whole run. If I add a second key I have to keep the two in step.
     private const string Key = "SafariSave";
 
     public static bool HasSave => PlayerPrefs.HasKey(Key);
@@ -25,22 +22,19 @@ public static class SaveSystem
     {
         PlayerPrefs.SetString(Key, JsonUtility.ToJson(data));
 
-        // WebGL only keeps the save in memory until I call Save, so without this a closed tab loses the run.
+        // WebGL keeps the save in memory until Save, so a closed tab would lose the run.
         PlayerPrefs.Save();
     }
 
-    // I return false when there is no save or when I cannot read it, so the caller can start a new safari.
     public static bool TryLoad(out SaveData data)
     {
         data = null;
 
-        // A missing key gives back an empty string, so one check covers both cases.
         string json = PlayerPrefs.GetString(Key, string.Empty);
         if (string.IsNullOrEmpty(json))
             return false;
 
-        // A save from an older version may not read, and a throw here would kill the game,
-        // so I catch it and let the caller start a new safari.
+        // An old save that does not parse must not crash the game.
         try
         {
             data = JsonUtility.FromJson<SaveData>(json);

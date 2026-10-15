@@ -1,13 +1,9 @@
 using UnityEngine;
 
-// This draws the ranger's circle on the ground around one animal.
-// The white ring is the viewing distance and the red ring is the danger distance,
-// and both radii come from the animal's own AnimalData asset.
-// The rings fade in as the player walks closer, so the savanna is not full of circles.
 public class ZoneRing : MonoBehaviour
 {
     [Header("References")]
-    [Tooltip("The built-in URP Particles Unlit material. It multiplies by the colours a LineRenderer puts in its vertices.")]
+    [Tooltip("URP Particles Unlit. It multiplies the line colours.")]
     [SerializeField] private Material ringMaterial;
     [Tooltip("Lift in metres so the ring clears the ground.")]
     [SerializeField] private float heightOffset = 0.05f;
@@ -15,17 +11,15 @@ public class ZoneRing : MonoBehaviour
     [SerializeField] private float fadeDistance = 35f;
     [SerializeField] private float maxAlpha = 0.8f;
 
-    // A flat circle of 64 points is smooth enough at these radii.
     private const int PointCount = 64;
 
-    // The red circle is wider than the white one, so it reads on the sand instead of sinking into it.
+    // Red is wider, so it does not sink into the sand.
     private const float WhiteWidth = 0.12f;
     private const float RedWidth = 0.18f;
 
-    // How far above each point I start looking for the ground.
     private const float GroundProbeHeight = 5f;
 
-    // The ground is everything except the animals themselves.
+    // Everything except layer 6, which is the animals.
     private const int GroundMask = ~(1 << 6);
 
     private static readonly Color WhiteRing = new Color(1f, 1f, 1f, 1f);
@@ -41,7 +35,6 @@ public class ZoneRing : MonoBehaviour
     {
         animal = GetComponent<Animal>();
 
-        // I look the player up once by tag, so I do not search the scene every frame.
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
         if (playerObject != null)
             player = playerObject.transform;
@@ -49,7 +42,6 @@ public class ZoneRing : MonoBehaviour
         if (animal == null || animal.Data == null)
             return;
 
-        // These two circles are the ranger's circle for this animal.
         viewingRing = BuildRing("ViewingRing", animal.Data.ViewingRadius, WhiteWidth, WhiteRing);
         dangerRing = BuildRing("DangerRing", animal.Data.DangerRadius, RedWidth, RedRing);
     }
@@ -59,15 +51,12 @@ public class ZoneRing : MonoBehaviour
         if (viewingRing == null || dangerRing == null || player == null)
             return;
 
-        // I fade the rings in as I get closer, so the far animals do not clutter the savanna.
         float alpha = Mathf.Clamp01(1f - Vector3.Distance(transform.position, player.position) / fadeDistance) * maxAlpha;
 
-        // The white ring turns gold once the animal is in the passport.
         SetColour(viewingRing, animal.Scanned ? GoldRing : WhiteRing, alpha);
         SetColour(dangerRing, RedRing, alpha);
     }
 
-    // I build one flat circle on the ground and give it its own LineRenderer.
     private LineRenderer BuildRing(string name, float radius, float width, Color colour)
     {
         GameObject go = new GameObject(name);
@@ -85,7 +74,6 @@ public class ZoneRing : MonoBehaviour
         if (ringMaterial != null)
             line.sharedMaterial = ringMaterial;
 
-        // The circle sits on the ground at the animal's own position.
         Vector3 centre = transform.position;
 
         for (int i = 0; i < PointCount; i++)
@@ -99,21 +87,19 @@ public class ZoneRing : MonoBehaviour
         return line;
     }
 
-    // The savanna is not flat, so a circle drawn at one height disappears under the bumps.
-    // I drop a ray onto the ground under every point and sit the ring just above what it hits.
+    // The ground is uneven, so each point is raised to the ground under it.
     private float GroundHeight(Vector3 point, float fallback)
     {
         Vector3 from = new Vector3(point.x, point.y + GroundProbeHeight, point.z);
 
-        // The animals are on layer 6 and the zones are triggers, so neither can answer this ray.
         if (Physics.Raycast(from, Vector3.down, out RaycastHit hit, 20f, GroundMask, QueryTriggerInteraction.Ignore))
             return hit.point.y + heightOffset;
 
-        // Nothing under this point, so I keep the height of the animal instead of dropping into nothing.
+        // No ground under this point, so keep the animal's height.
         return fallback;
     }
 
-    // The alpha of a LineRenderer comes from the colours at both ends of the line.
+    // A LineRenderer takes its alpha from the colours at its ends.
     private static void SetColour(LineRenderer line, Color colour, float alpha)
     {
         Color faded = new Color(colour.r, colour.g, colour.b, alpha);
