@@ -123,7 +123,7 @@ Without the line renderer the player has no idea where to look first, and withou
 
 ### Pause menu
 
-`Assets/Scripts/PauseMenu.cs` runs the pause menu. It opens from `Player/Pause`, wired in the Inspector, and from the II button on the HUD. It opens only while a safari is running and never over the fact card or the end screen. Pausing sets `GameManager.IsPaused`, `Time.timeScale = 0` and `AudioListener.pause = true`, frees the cursor and shows the panel. Resume reverses all of it. Restart Safari starts a fresh run, the same as the old Play Again button did. The pause panel has Resume, Restart Safari, How to Play, Main Menu and the sensitivity slider. How to Play opens the instructions over the pause panel, and Resume closes both. Main Menu keeps the save, so the run is still there when the player comes back. The mouse sensitivity slider writes `MouseSensitivity` to PlayerPrefs, and `PlayerController` reads the same key at startup, so the setting survives a restart.
+`Assets/Scripts/PauseMenu.cs` runs the pause menu. It opens from `Player/Pause`, wired in the Inspector, and from the II button on the HUD. It opens only while a safari is running and never over the fact card or the end screen. Pausing sets `GameManager.IsPaused`, `Time.timeScale = 0` and `AudioListener.pause = true`, frees the cursor and shows the panel. Resume reverses all of it. Restart Safari starts a fresh run. The pause panel has Resume, Restart Safari, How to Play, Main Menu and the sensitivity slider. How to Play opens the instructions over the pause panel, and Resume closes both. Main Menu keeps the save, so the run is still there when the player comes back. The mouse sensitivity slider writes `MouseSensitivity` to PlayerPrefs, and `PlayerController` reads the same key at startup, so the setting survives a restart.
 
 On a desktop the browser drops pointer lock when Escape is pressed. `PlayerController` notices a locked cursor that has gone free while the safari is running and opens the pause menu itself, so the player is never left with no control.
 
@@ -149,7 +149,7 @@ A photo fires a white full screen image from alpha 0.7 down to 0 over about 0.25
 
 ### Saving
 
-`Assets/Scripts/SaveSystem.cs` writes the run as JSON in `PlayerPrefs` using `JsonUtility`. WebGL has no file system, and `PlayerPrefs` works there. `GameManager` saves after every stamp and every disturbance. Start Safari reads the save back and carries on with it, unless the save is a finished safari, which it throws away. Play Again and Restart Safari clear it too. I use `PlayerPrefs` and `JsonUtility` because they are the simplest saving that works on both of my platforms.
+`Assets/Scripts/SaveSystem.cs` writes the run as JSON in `PlayerPrefs` using `JsonUtility`. WebGL has no file system, and `PlayerPrefs` works there. `GameManager` saves after every stamp and every disturbance. Start Safari reads the save back and carries on with it, unless the save is a finished safari, which it throws away. Restart Safari clears it too. I use `PlayerPrefs` and `JsonUtility` because they are the simplest saving that works on both of my platforms.
 
 ## 6. Project Structure
 
