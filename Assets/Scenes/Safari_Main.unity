@@ -153454,13 +153454,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1.15
-  m_Text: 'On a computer: WASD to move, mouse to look, click or E to take a photo,
-    Esc to pause.
-
-    On a phone: left stick to move, right stick to look, Photo
-    button, II to pause.
-
-    A gamepad works too.'
+  m_Text: "• Computer: WASD move, mouse look, click or E photo, Esc pause\n• Phone: left stick move, right stick look, Photo button, II pause\n• A gamepad works too"
 --- !u!222 &1862927444
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -171752,18 +171746,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1.15
-  m_Text: 'Follow the yellow guide line to each animal.
-
-    White circle: a safe
-    distance. Step inside and take a photo.
-
-    Red circle: too close. The animal
-    charges and you lose Respect.
-
-    Gold circle: already in your passport.
-
-    Photograph
-    all five to finish your safari.'
+  m_Text: "• Follow the yellow line to each animal\n• White circle: safe distance, take your photo\n• Red circle: too close, you lose Respect\n• Gold circle: already in your passport\n• Photograph all five to finish"
 --- !u!222 &2105756688
 CanvasRenderer:
   m_ObjectHideFlags: 0
