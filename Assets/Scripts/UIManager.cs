@@ -167,18 +167,8 @@ public class UIManager : MonoBehaviour
     private static void ShowMessage(GameObject root, Text label, string message)
     {
         SetText(label, message);
-        FitBoxToText(label);
 
         Show(root, !string.IsNullOrEmpty(message));
-    }
-
-    // Message text needs a LayoutElement, so I only set its width here.
-    private static void FitBoxToText(Text label)
-    {
-        LayoutElement box = label != null ? label.GetComponent<LayoutElement>() : null;
-
-        if (box != null)
-            box.preferredWidth = Mathf.Min(label.preferredWidth + 1f, 760f);
     }
 
     public void SetCrosshair(Color ringColour, string label)
@@ -292,24 +282,8 @@ public class UIManager : MonoBehaviour
 
     public void OnStart()
     {
-        if (GameManager.Instance == null)
-            return;
-
-        if (SaveSystem.HasSave && !SaveIsFinished())
-            GameManager.Instance.Restore();
-        else
-            GameManager.Instance.ResetRun();
-
-        BeginPlay();
-    }
-
-    private static bool SaveIsFinished()
-    {
-        if (!SaveSystem.TryLoad(out SaveData data))
-            return false;
-
-        int total = GameManager.Instance != null ? GameManager.Instance.TotalAnimals : Animal.All.Count;
-        return total > 0 && data.scannedIds.Count >= total;
+        if (GameManager.Instance != null)
+            Replay();
     }
 
     public void Replay()

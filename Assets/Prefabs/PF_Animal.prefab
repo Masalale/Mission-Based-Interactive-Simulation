@@ -239,8 +239,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ZoneRing
   ringMaterial: {fileID: 2100000, guid: a3bab326cd3f46c4284e7974a5258f4c, type: 2}
   heightOffset: 0.05
-  fadeDistance: 35
-  maxAlpha: 0.8
 --- !u!1 &8660808820381902473
 GameObject:
   m_ObjectHideFlags: 0

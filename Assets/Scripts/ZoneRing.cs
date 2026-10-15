@@ -7,9 +7,6 @@ public class ZoneRing : MonoBehaviour
     [SerializeField] private Material ringMaterial;
     [Tooltip("Lift in metres so the ring clears the ground.")]
     [SerializeField] private float heightOffset = 0.05f;
-    [Tooltip("Metres at which the rings are fully visible.")]
-    [SerializeField] private float fadeDistance = 35f;
-    [SerializeField] private float maxAlpha = 0.8f;
 
     private const int PointCount = 64;
 
@@ -22,22 +19,17 @@ public class ZoneRing : MonoBehaviour
     // Everything except layer 6, which is the animals.
     private const int GroundMask = ~(1 << 6);
 
-    private static readonly Color WhiteRing = new Color(1f, 1f, 1f, 1f);
-    private static readonly Color GoldRing = new Color(1f, 0.8f, 0.1f, 1f);
-    private static readonly Color RedRing = new Color(1f, 0.1f, 0.08f, 1f);
+    private static readonly Color WhiteRing = new Color(1f, 1f, 1f, 0.8f);
+    private static readonly Color GoldRing = new Color(1f, 0.8f, 0.1f, 0.8f);
+    private static readonly Color RedRing = new Color(1f, 0.1f, 0.08f, 0.8f);
 
     private Animal animal;
-    private Transform player;
     private LineRenderer viewingRing;
     private LineRenderer dangerRing;
 
     private void Start()
     {
         animal = GetComponent<Animal>();
-
-        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
-        if (playerObject != null)
-            player = playerObject.transform;
 
         if (animal == null || animal.Data == null)
             return;
@@ -48,13 +40,10 @@ public class ZoneRing : MonoBehaviour
 
     private void Update()
     {
-        if (viewingRing == null || dangerRing == null || player == null)
+        if (viewingRing == null)
             return;
 
-        float alpha = Mathf.Clamp01(1f - Vector3.Distance(transform.position, player.position) / fadeDistance) * maxAlpha;
-
-        SetColour(viewingRing, animal.Scanned ? GoldRing : WhiteRing, alpha);
-        SetColour(dangerRing, RedRing, alpha);
+        SetColour(viewingRing, animal.Scanned ? GoldRing : WhiteRing);
     }
 
     private LineRenderer BuildRing(string name, float radius, float width, Color colour)
@@ -83,7 +72,7 @@ public class ZoneRing : MonoBehaviour
             line.SetPosition(i, new Vector3(point.x, GroundHeight(point, centre.y + heightOffset), point.z));
         }
 
-        SetColour(line, colour, maxAlpha);
+        SetColour(line, colour);
         return line;
     }
 
@@ -99,11 +88,10 @@ public class ZoneRing : MonoBehaviour
         return fallback;
     }
 
-    // A LineRenderer takes its alpha from the colours at its ends.
-    private static void SetColour(LineRenderer line, Color colour, float alpha)
+    // A LineRenderer takes its colour, alpha included, from the colours at its ends.
+    private static void SetColour(LineRenderer line, Color colour)
     {
-        Color faded = new Color(colour.r, colour.g, colour.b, alpha);
-        line.startColor = faded;
-        line.endColor = faded;
+        line.startColor = colour;
+        line.endColor = colour;
     }
 }

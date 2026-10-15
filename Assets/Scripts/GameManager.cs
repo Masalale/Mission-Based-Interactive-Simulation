@@ -57,7 +57,6 @@ public class GameManager : MonoBehaviour
 
         animal.MarkScanned();
         Stamps++;
-        Save();
 
         OnStateChanged.Invoke();
 
@@ -76,15 +75,12 @@ public class GameManager : MonoBehaviour
         Breaches++;
 
         Score = Mathf.Max(0, Score - breachPenalty);
-        Save();
 
         OnStateChanged.Invoke();
     }
 
     public void ResetRun()
     {
-        SaveSystem.Clear();
-
         foreach (Animal animal in Animal.All)
             animal.ResetState();
 
@@ -99,45 +95,6 @@ public class GameManager : MonoBehaviour
         OnStateChanged.Invoke();
     }
 
-    // Set the fields directly, because AddStamp would hand out the stamp again.
-    public bool Restore()
-    {
-        if (!SaveSystem.TryLoad(out SaveData data))
-        {
-            ResetRun();
-            return false;
-        }
-
-        int restored = 0;
-
-        foreach (Animal animal in Animal.All)
-        {
-            // Clear first, so an animal missing from the save is not left stamped.
-            animal.ResetState();
-
-            if (animal.Data != null && data.scannedIds.Contains(animal.Data.Id))
-            {
-                animal.MarkScanned();
-                restored++;
-            }
-        }
-
-        Stamps = restored;
-        Score = data.score;
-        Breaches = data.breaches;
-        IsPlaying = true;
-        HasWon = TotalAnimals > 0 && Stamps >= TotalAnimals;
-
-        SetPaused(false);
-
-        OnStateChanged.Invoke();
-
-        if (HasWon)
-            OnWin.Invoke();
-
-        return true;
-    }
-
     public void SetPaused(bool paused)
     {
         IsPaused = paused;
@@ -150,20 +107,5 @@ public class GameManager : MonoBehaviour
         IsPlaying = false;
         SetPaused(false);
         OnStateChanged.Invoke();
-    }
-
-    private void Save()
-    {
-        SaveData data = new SaveData();
-
-        foreach (Animal animal in Animal.All)
-        {
-            if (animal.Scanned && animal.Data != null)
-                data.scannedIds.Add(animal.Data.Id);
-        }
-
-        data.score = Score;
-        data.breaches = Breaches;
-        SaveSystem.Save(data);
     }
 }

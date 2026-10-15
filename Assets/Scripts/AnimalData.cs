@@ -4,7 +4,6 @@ using UnityEngine;
 public class AnimalData : ScriptableObject
 {
     [Header("Passport")]
-    [SerializeField] private string id;
     [SerializeField] private string displayName;
     [SerializeField] private string habitat;
     [SerializeField] private string status;
@@ -19,8 +18,6 @@ public class AnimalData : ScriptableObject
     [SerializeField] private float dangerRadius = 6f;
     [SerializeField] private AudioClip callClip;
 
-    // The save file keys on this id, so never change it after the asset is made.
-    public string Id => id;
     public string DisplayName => displayName;
     public string Habitat => habitat;
     public string Status => status;

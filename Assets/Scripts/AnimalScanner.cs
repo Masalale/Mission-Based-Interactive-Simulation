@@ -130,14 +130,4 @@ public class AnimalScanner : MonoBehaviour
     {
         return context.control != null && context.control.device is Mouse;
     }
-
-    private void OnDrawGizmosSelected()
-    {
-        if (scanCamera == null)
-            return;
-
-        Gizmos.color = Color.yellow;
-        Vector3 from = scanCamera.transform.position;
-        Gizmos.DrawLine(from, from + scanCamera.transform.forward * maxDistance);
-    }
 }

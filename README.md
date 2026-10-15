@@ -1,279 +1,109 @@
 # Big Five Heritage Safari
 
-[WebGL build](TODO_WEBGL_URL) | [Android APK](TODO_APK_URL) | [Demo video](TODO_VIDEO_URL)
+> Photograph the Big Five without disturbing them, and keep your Respect at 100.
 
-I built this for the Introduction to Unity module (Course 3152). It is a first-person walking safari through a Kenyan savanna reserve. Ranger Amani is the player's guide on the radio. The ranger marks a trail line to each animal, the player walks to it, steps inside the white circle on the ground and takes a photo, without ever crossing the red circle. Five photos fill the Safari Passport and the safari is complete. Every disturbance costs the player Respect, so the game is about how close the player dares to get.
+I built this for the Introduction to Unity module (Course 3152). You are a visitor on a Kenyan savanna reserve, guided by Ranger Amani on the radio. Walk up to each animal, step inside the white circle, take a photo, and never cross the red one.
 
-- Author: Masalale
-- Repository: https://github.com/Masalale/Mission-Based-Interactive-Simulation
-- Unity 6000.3.23f1, Universal Render Pipeline 17.3.0, Input System 1.20.1
-
-I built the WebGL version. I also built the Android APK, but I have not run it on a phone yet. Both links above are still placeholders until I publish them.
-
-## 1. GCGO Statement
+## GCGO
 
 - Grand Challenge: Tourism
 - Mission statement: Wildlife tourism only lasts if visitors watch animals without disturbing them. This simulation teaches safe, respectful wildlife viewing through a guided Big Five photo safari.
 
-## 2. Problem Context
+## Problem
 
-**The problem.** Wildlife tourism only works if visitors watch animals from a respectful distance. When visitors crowd, chase or startle animals, the animals get hurt and move away, and the sightings the tourists came for get worse. A reserve where animals are constantly disturbed loses the sightings it sells.
+**What.** Wildlife tourism only works if visitors watch animals from a respectful distance. When visitors crowd, chase or startle animals, the animals get hurt and move away, and the sightings tourists came for get worse.
 
-**Why it matters.** The World Travel & Tourism Council (WTTC) says tourism contributed 9.3% of Kenya's GDP in 2025. [1]
+**Why it matters.** Tourism contributed 9.3% of Kenya's GDP in 2025 ([WTTC](https://wttc.org/news/kenya-boosts-africas-tourism-growth-emerging-as-a-leading-sustainable-tourism-powerhouse)). The Kenya Wildlife Service asks visitors to view wildlife from a minimum distance of 20 metres ([KWS](https://kws.go.ke/park/nairobi-national-park)).
 
-Distance is the part I could put in the game. The Kenya Wildlife Service visitor guidelines tell visitors to remain in their vehicle except at designated areas, to move slowly and quietly because animals can react dangerously if startled, and to view wildlife from a minimum distance of 20 metres. [2]
+**Link to Tourism.** Distance is the part I could put in the game. Stand too close and the animal startles, and the reserve takes Respect off you. My zones are scaled down (15 to 18 m viewing, 6 to 8 m danger) so the reserve fits in one run. They teach the idea of a safe distance, not the real 20 m.
 
-My viewing zone is 15 to 18 m and my danger zone is 6 to 8 m. I scaled them down because the reserve is small enough to walk in one run. They teach the idea of a safe distance and a too-close warning. They are not the real Kenya Wildlife Service distance.
+## How it plays
 
-**How it connects to the GCGO.** The Tourism challenge is about wildlife viewing that protects the animals it depends on. Every fact card ends with a ranger's safe viewing tip taken from a real visitor guideline, and the score is not points but the visitor's Respect. Stand too close and the animal startles, calls, and the reserve takes 10 Respect off you. Leave it alone and you keep all 100.
+The player walks the reserve in first person and photographs the lion, leopard, elephant, rhino and buffalo. Ranger Amani marks a trail line to the nearest animal that still needs a photo. Each photo opens a fact card with one fact and one safe viewing tip. Photograph all five to finish. The end screen shows your photos, your Respect and your visitor rating.
 
-The two sources for this section are listed in section 9.
+**Target users.** First-time safari visitors, school students learning about responsible tourism, and trainee guides.
 
-## 3. Simulation Overview
+| Rule | What it means |
+| :--- | :--- |
+| White circle (15 to 18 m) | The ranger's viewing zone. Take photos from inside it |
+| Gold circle | The white circle turns gold once that animal is in your passport |
+| Red circle (6 to 8 m) | Never enter it. Costs 10 Respect, at most once every 3 seconds per animal |
+| Photo | Aim at the animal and press photo. The first photo of each animal gives a passport stamp |
+| Respect | Starts at 100. Each disturbance costs 10 |
+| Rating | No disturbances: Responsible Visitor. One or two: Careful Visitor. Three or more: Reckless Visitor |
 
-**What it does.** The player walks the reserve in first person and looks for the lion, leopard, elephant, rhino and buffalo. Each animal has a viewing zone and a danger zone, drawn on the ground as a white ranger's circle and a red circle. Stand inside the white circle, aim at the animal and press the photo button. A white flash, a shutter click, and a fact card show one fact and one safe viewing tip. The first photo of each animal gives a passport stamp. Step into the red circle and Ranger Amani reads the animal's warning line, the animal startles, the screen flashes red and the camera shakes, and that is one disturbance.
+## Controls
 
-**Target users.** First-time safari visitors who want to know how to watch wildlife safely, school students learning about responsible tourism, and trainee guides who need the distance rules in one line.
+| Action | Computer | Phone |
+| :--- | :--- | :--- |
+| Move | `WASD` | Left on-screen stick |
+| Look | Mouse (arrow keys also work) | Right on-screen stick |
+| Take photo | Left click or `E` | Photo button |
+| Close fact card | `E` or left click | Close button on the card |
+| Pause | `Esc` or `P` | `II` button on the HUD |
+| Mouse sensitivity | Slider on the pause menu | Not shown |
 
-**Key interactions.**
+A gamepad works too: left stick to move, right stick to look, south button to photograph, Start to pause.
 
-- Walk around and look, with the mouse always looking on a desktop.
-- Follow the trail line Ranger Amani marks to the nearest animal that still needs a photo.
-- Step inside the white ranger's circle, aim at the animal and take your photo.
-- Read the fact and the ranger's tip behind it, and close the card with Interact.
-- Read the crosshair before you press anything: green means a good photo, amber means get closer.
-- Never cross the red circle.
+## Unity mechanics
 
-**Controls.**
+| Mechanic | Where in the game |
+| :--- | :--- |
+| UI | `UIManager` runs the start screen, HUD, fact card and end screen. `PauseMenu` runs the pause menu. Every button is wired in the Inspector with On Click |
+| Scripting and New Input System | All input goes through the New Input System (`Assets/Input/InputSystem_Actions.inputactions`). `PlayerController` moves and looks, and `AnimalScanner` takes the photo |
+| Collision | A `CharacterController` keeps the player on the ground and out of animals, trees and rocks. The viewing and danger zones are triggers, so they never block |
+| Raycasting | `AnimalScanner` casts a ray from the middle of the screen every frame to colour the crosshair, and again on each photo |
+| Line Renderer | `SafariGuideLine` draws the trail to the nearest animal. `ZoneRing` draws the white and red circles on the ground |
 
-| Action | Desktop | Phone |
-| --- | --- | --- |
-| Move | WASD | Left on-screen stick |
-| Look | Mouse, always, no button held. Arrow keys also work | Right on-screen stick |
-| Photo | Left click, or E, or the gamepad south button | Photo button on the HUD |
-| Pause | Esc, or P, or the gamepad start button, or the II button on the HUD | II button on the HUD |
-| Close a fact card | Interact, so the mouse stays locked | Close button on the card |
-| Mouse sensitivity | Slider on the pause menu, saved in PlayerPrefs | not shown, a phone has no mouse |
+## Additional features
 
-The sticks show only on phones and tablets. A gamepad uses the left stick to move, the right stick to look, and the south button to take a photo. The pause button is on the HUD on every platform, so a phone can pause too.
+- Audio: a savanna ambience, an animal call on every photo, a shutter click and a bump sound.
+- Particles: dust at the player's feet and fireflies over the reserve.
+- Animal reactions: an animal turns to face you, and a startled animal makes a short bluff charge.
+- Photo and danger feedback: a white flash on each photo, and a red edge flash and camera shake in the danger zone.
+- Pause menu: Esc opens Resume, Restart Safari, How to Play, Main Menu and a mouse sensitivity slider.
 
-**How to win.** Photograph all five animals. An animal counts when the player takes a photo of it from inside its ranger's circle. There is no lose state. When the player closes the last fact card, the end screen reads in four blocks: the photos, the Respect score and the number of disturbances; then the visitor rating on its own line, larger than the numbers and coloured gold, light amber or red orange; then Ranger Amani's closing line in italic; then Main Menu and Quit.
+## Builds
 
-**How the score works.** The score is called Respect and it starts at 100. Each disturbance costs 10, and one animal can only book one disturbance every 3 seconds. Photographing the same animal again only reopens the fact card and costs nothing. The top Respect score is 100, so a clean run is a run with zero disturbances. The end screen rates the visitor from the disturbances: none is a Responsible Visitor, one or two is a Careful Visitor, and three or more is a Reckless Visitor.
+- [WebGL build](TODO_WEBGL_URL)
+- [Android APK](TODO_APK_URL)
+- [Demo video](TODO_VIDEO_URL)
 
-## 4. Unity Mechanics Implemented
+Builds are made with File > Build Profiles. WebGL compression is Disabled for GitHub Pages, and the APK is made with "Build App Bundle" unticked.
 
-### UI
+## Requirements
 
-`Assets/Scripts/UIManager.cs` runs every screen: the start screen with Start Safari, Instructions and Quit, the HUD with the crosshair, the passport, the Respect score and the message lines, the fact card, and the end screen with the numbers, the visitor rating, Main Menu and Quit. The controls are written down on the instructions panel, which opens from the start screen and from How to Play on the pause menu. That text lists the keys for a computer and the buttons for a phone, and it is typed into the scene. The other static words, such as the button labels, are in the scene too, so the code only sets the words that change. Every button is wired in the Inspector with On Click, so there are no `AddListener` calls in the code. `Assets/Scripts/PauseMenu.cs` runs the pause panel. The Canvas and every panel are laid out in `Assets/Scenes/Safari_Main.unity`. The HUD is built switched off and turned on when a run starts, because the on-screen controls were throwing an error while they were active at load time.
+- Unity `6000.3.23f1` with Unity Hub
+- Universal Render Pipeline 17.3.0 and Input System 1.20.1, both in the project
 
-`UIManager` never polls for game state. `GameManager` has two UnityEvents, `OnStateChanged` and `OnWin`, wired in the Inspector. `UIManager` refreshes and shows the end screen when they fire, and `SafariGuideLine` moves its trail after each change. Without it there is no objective, no feedback after a photo, no start screen and no win.
+## Getting started
 
-The fact card shows the title, habitat, status, fact and then the ranger's tip, which comes from the same `AnimalData` asset as the warning line. The close button reads "Close" on every platform, and Interact closes the card too.
-
-### Scripting and the New Input System
-
-Input goes only through the New Input System. No script uses the old `Input` class. I used one input asset, `Assets/Input/InputSystem_Actions.inputactions`, and one gameplay action map on it.
-
-| Action | Type | Desktop binding | Gamepad binding |
-| --- | --- | --- | --- |
-| Move | Value | WASD, 2D Vector | Left stick |
-| Look | Value | Arrow keys, 2D Vector | Right stick |
-| MouseLook | Value | Mouse delta | none |
-| Interact | Button | E, left mouse button | South button |
-| Pause | Button | Esc, P | Start button |
-
-The Player object has a `PlayerInput` component with that asset and `Player` as the default map. The `PlayerInput` uses Invoke Unity Events, so in the Inspector `Player/Interact` calls `AnimalScanner.OnInteract` and `Player/Pause` calls `PauseMenu.OnPause`. Both only act on the press, so the release does nothing. The EventSystem uses `InputSystemUIInputModule`, and Active Input Handling in the Player settings is set to the Input System package only.
-
-Sticks and arrow keys give a rate, so `PlayerController` multiplies them by the look speed and by `deltaTime`. The mouse already gives a per-frame delta, so it is multiplied by the saved sensitivity only. `LookHold` is gone: on a desktop the cursor is locked and hidden while the safari runs, so the mouse always looks and there is no button to hold.
-
-The on-screen controls are two sticks and the Photo button. The sticks add a virtual gamepad while the mouse is still in use, and `PlayerInput` was switching control schemes on its own and hiding the other bindings, so the sticks dropped out. `PlayerController.Awake` turns that switching off before any stick is active, and clears the binding mask. Keyboard, mouse and the on-screen gamepad then drive the same action map together.
-
-Without this the player cannot move, take photos or keep a run going.
-
-### Collision
-
-`Assets/Scripts/PlayerController.cs` moves the player with a `CharacterController`, so walking is collision based and the player cannot leave the ground. `Assets/Scripts/Animal.cs`, `Assets/Scripts/ViewingZone.cs` and `Assets/Scripts/DangerZone.cs` handle the animals.
-
-Each animal has a solid `BoxCollider` on the Animal layer, which blocks the player, and two sphere triggers, one for the viewing zone and one for the danger zone. `Animal` copies the two radii out of its data asset at load, so they are 15 m and 6 m for the lion, leopard and buffalo, and 18 m and 8 m for the elephant and rhino.
-
-A trigger does not block anybody, it only sends events. Entering the viewing zone sets `InViewing`, shows Ranger Amani's hint, and makes the animal turn slowly to look at the player. Entering the danger zone shows the animal's own warning line, plays its call, makes it do a short bluff charge, flashes the edges of the screen red, shakes the camera, and books a breach at most once every 3 seconds. Walking into a solid body plays the bump sound and shows a toast that names what blocked the player. Hits on the floor are ignored, otherwise the ground would bump the player every frame.
-
-Without collision the player would walk through the animals and no zone event could ever fire.
-
-### Raycasting
-
-`Assets/Scripts/AnimalScanner.cs` does the photography, and it casts two rays every frame from the middle of the screen.
-
-The first ray is the crosshair ray. `AnimalScanner.Update` casts it every frame while the safari runs, on the Animal layer only and with triggers ignored. It scores nothing. It only colours the crosshair and the label under it: green with the animal's name when the animal is in its own viewing zone, amber with "Get closer" when the animal is outside it, and plain white when the ray hits nothing. The label sits about 28 px below the ring, is 320 x 40 with the overflow set so a name is never clipped, is 24 point with a black outline, and turns the colour of the ring. The player can see what the photo will do before pressing the button.
-
-The second ray is the photo ray, on the same line, cast once when Interact is pressed, up to 20 m. A miss shows "Nothing in frame. Aim at an animal." A hit on an animal outside its ranger's circle shows "Too far for a good photo. Step inside the ranger's circle." A hit on an animal inside its circle is the only way to earn a stamp, and only `AnimalScanner` ever calls `GameManager.AddStamp`. A photo of an animal that is already in the passport awards nothing, it plays the shutter and the call again and reopens the card.
-
-`Interact` also closes an open fact card, so on a desktop the cursor never has to leave the game. A mouse press is ignored when the cursor is not locked, because that press was a click on the UI.
-
-Without the raycast there are no photos, stamps or win.
-
-### Line Renderer
-
-`Assets/Scripts/SafariGuideLine.cs` draws the trail line on a `LineRenderer` in the scene. It has two points: the player, lifted a little off the ground, and the nearest animal that still needs a photo. It updates in `LateUpdate` so it follows the player, and it picks a new target every time the game state changes. When the passport is full, or on the start screen, it hides itself. The lion stands 50 m from the spawn so the line runs straight ahead at the start of a run.
-
-`Assets/Scripts/ZoneRing.cs` is the second use of the same component. Each animal gets a `ZoneRing`, which builds two flat circles on the ground in `Start`: 64 points each, with a white loop 0.12 m wide at the viewing radius and a red loop 0.18 m wide at the danger radius, both from the same `AnimalData` radii the triggers use. The ground is not flat, so every point drops a `Physics.Raycast` from 5 m above itself, ignores the Animal layer and the triggers, and sits 0.05 m above the ground it hits, which keeps the circles out of the bumps. 
-
-The circles fade in over the last 35 m as the player walks towards them, so a distant animal does not clutter the savanna, and the white circle turns gold once the animal is in the passport. Both use `Assets/Materials/M_ZoneRing.mat`, which points at Unity's own built-in `Universal Render Pipeline/Particles/Unlit` shader, set to Surface Type Transparent with Alpha blending. I did not write a shader for this. A `LineRenderer` puts its `startColor` and `endColor` into the vertex colours, and the plain URP Unlit shader never reads them, so the red circle came out the same grey as the white one and the fade did nothing. The particles version of Unlit does read them, so a transparent material with that shader is all the circles need, and reading the colours is also what makes the white circle turn gold after the photo.
-
-Without the line renderer the player has no idea where to look first, and without the circles the two radii are invisible numbers.
-
-### Pause menu
-
-`Assets/Scripts/PauseMenu.cs` runs the pause menu. It opens from `Player/Pause`, wired in the Inspector, and from the II button on the HUD. It opens only while a safari is running and never over the fact card or the end screen. Pausing sets `GameManager.IsPaused`, `Time.timeScale = 0` and `AudioListener.pause = true`, frees the cursor and shows the panel. Resume reverses all of it. Restart Safari starts a fresh run. The pause panel has Resume, Restart Safari, How to Play, Main Menu and the sensitivity slider. How to Play opens the instructions over the pause panel, and Resume closes both. Main Menu keeps the save, so the run is still there when the player comes back. The mouse sensitivity slider writes `MouseSensitivity` to PlayerPrefs, and `PlayerController` reads the same key at startup, so the setting survives a restart.
-
-On a desktop the browser drops pointer lock when Escape is pressed. `PlayerController` notices a locked cursor that has gone free while the safari is running and opens the pause menu itself, so the player is never left with no control.
-
-Without the pause menu there is no way to change the mouse sensitivity, restart a run or go back to the start screen once a safari has begun.
-
-## 5. Additional Features
-
-### Audio
-
-There are eight clips in `Assets/Audio`. A savanna ambience loops on the Ambience object. `PlayerController` plays a short bump sound when the player walks into something solid. `AnimalScanner` plays the shutter click and then the animal call on every photo, not only the first one, so the animal answers each time. `DangerZone` plays the animal call from its own position when the player is too close. The shutter click is self-made with ffmpeg from filtered noise, so there is no licence to track.
-
-### Particles
-
-Two `ParticleSystem` objects, one for dust at the player's feet and one for fireflies over the reserve. No script drives them, all the settings are in the scene. Both are kept small, under 100 particles, so a phone can handle them.
-
-### Animal reactions
-
-`Assets/Scripts/Animal.cs` does two things the player can see. While the player is inside the viewing zone and the animal is not startled, it turns its yaw towards them at about 25 degrees a second, so the animal looks like it has noticed them. `Animal.Startle` is a short bluff charge: a 1.2 m lunge over 0.15 s, a pause of 0.3 s, and a walk back over 0.6 s, with a clamp that stops the lunge two metres short of the player so it can never reach them.
-
-### Photo and danger feedback
-
-A photo fires a white full screen image from alpha 0.7 down to 0 over about 0.25 s. A disturbance fires a red vignette, not a red wash: `Assets/Images/T_Vignette.png` is a radial gradient that is clear in the middle and red at the edges, so the player can still see the animal while the flash fades from alpha 0.6 to 0 over about 0.6 s. Both are `Image` objects in the HUD with `raycastTarget` off, and both use the one `UIManager.Flash` coroutine on unscaled time, so a flash still fades while the game is paused. A disturbance also shakes the camera: `PlayerController.Shake(0.3f)` puts a small random offset on the camera local position for a third of a second and then puts it back where it was.
-
-### Saving
-
-`Assets/Scripts/SaveSystem.cs` writes the run as JSON in `PlayerPrefs` using `JsonUtility`. WebGL has no file system, and `PlayerPrefs` works there. `GameManager` saves after every stamp and every disturbance. Start Safari reads the save back and carries on with it, unless the save is a finished safari, which it throws away. Restart Safari clears it too. I use `PlayerPrefs` and `JsonUtility` because they are the simplest saving that works on both of my platforms.
-
-## 6. Project Structure
-
-```
-Assets/
-  Audio/            eight clips: one ambience, five calls, one bump, one shutter
-  Images/           the title image and the red edge vignette
-  Input/            InputSystem_Actions.inputactions
-  Materials/        the ground, the animal, the guide line and the zone ring materials, and the fonts
-  Models/
-    Animals/        the five animal models and their textures
-    Generated/      the merged ground, hills and track meshes
-    Scenery/        the Kenney trees, rocks and ground cover
-  Prefabs/          PF_Animal and one variant per species
-  Scenes/           Safari_Main.unity
-  ScriptableObjects/ one asset per animal, holding its fact, its safe viewing tip, its warning line and its radii
-  Scripts/          the twelve gameplay scripts below
-  ThirdParty/       the licence files for the models, the scenery, the audio and the Ubuntu font
+```bash
+git clone https://github.com/Masalale/Mission-Based-Interactive-Simulation.git
 ```
 
-`PF_Animal` is the base prefab. Its children are Body, which holds the model and the solid collider, the two zone triggers and the guide point. `ZoneRing` is on the root, and the five species variants inherit it. Each variant overrides the model, the scale and the data asset.
+Add the folder in Unity Hub, open `Assets/Scenes/Safari_Main.unity` and press Play.
 
-| Script | What it does | Lines |
-| --- | --- | --- |
-| `Assets/Scripts/UIManager.cs` | Every screen, the HUD, the crosshair, the flashes and the fact card | 464 |
-| `Assets/Scripts/PlayerController.cs` | Walking, always-on mouse look, gravity, bump feedback, shake, spawn reset | 257 |
-| `Assets/Scripts/GameManager.cs` | Stamps, Respect, disturbances, win, pause, save and restore | 169 |
-| `Assets/Scripts/AnimalScanner.cs` | The crosshair ray, the photo ray, the stamp, the shutter and the fact card | 143 |
-| `Assets/Scripts/Animal.cs` | Per-animal state, zone radii, turning towards the player, the bluff charge | 145 |
-| `Assets/Scripts/PauseMenu.cs` | The pause panel, the pause button and the mouse sensitivity | 127 |
-| `Assets/Scripts/ZoneRing.cs` | The white ranger's circle and the red circle on the ground | 109 |
-| `Assets/Scripts/SafariGuideLine.cs` | The trail line to the nearest animal that still needs a photo | 70 |
-| `Assets/Scripts/DangerZone.cs` | The trigger that warns, startles the animal and books disturbances | 81 |
-| `Assets/Scripts/SaveSystem.cs` | Saving, loading and clearing the run | 55 |
-| `Assets/Scripts/ViewingZone.cs` | The trigger that allows a photo and shows the ranger's hint | 48 |
-| `Assets/Scripts/AnimalData.cs` | The data asset: fact, safe viewing tip, warning line, radii, call clip | 33 |
+## Reflection
 
-That is 1,701 lines in total. The import settings for the animal and scenery models are saved in each model's own import settings, so the project needs no editor scripts. I finished the scene by hand in the Editor.
+- **What went well.** The core loop works: walk the reserve, photograph the five animals, and read the rating. The rings and the Respect score show the distance rule in the game instead of only describing it.
+- **A bug and its fix.** The on-screen sticks kept disappearing. PlayerInput was switching control schemes on its own and hiding the other device's bindings. `PlayerController.Awake` now turns that switching off and clears the binding mask.
+- **Next.** Run the APK on a phone, which I have not done yet. Then a real leopard model in place of the jaguar, and walking animals.
 
-## 7. Build Information
+## Credits
 
-**WebGL.** About 61 MB, 1280 x 720, in `Builds/WebGL`. Compression is switched off, because GitHub Pages will not send the header a compressed build needs. To run it, open the link at the top of this file, then press Start Safari.
-
-**Android.** An APK, not an app bundle, built with IL2CPP for ARM64, landscape only, about 36 MB, in `Builds/Android/BigFiveHeritageSafari.apk`. I built it but I have not tested it on a phone yet. To run it, copy the APK to the phone, allow installs from that file, and open it. It uses the two sticks, the Photo button and the II pause button.
-
-Both builds use the Mobile quality level, which turns off real-time shadows. The animals use blob shadows instead. Both builds use the one scene, `Assets/Scenes/Safari_Main.unity`.
-
-**Run it in the Editor.** Install Unity 6000.3.23f1 from Unity Hub, add this folder, open `Assets/Scenes/Safari_Main.unity` and press Play. For an APK you also need Android Build Support with the SDK, NDK and OpenJDK.
-
-**Build it again.** Open the project in Unity, go to File > Build Profiles, choose WebGL or Android and press Build. For the APK, leave Build App Bundle (Google Play) unticked so that Unity makes an APK. The WebGL compression is set to Disabled in Player Settings, so GitHub Pages can serve the build.
-
-## 8. Reflection
-
-**Problems I hit and fixed.** The ones I remember best:
-
-- The fact card came up empty. My long text fields had `[TextArea]` but no `[SerializeField]`, so Unity never saved them into the assets and the card had nothing to show.
-- The animals all faced away from me. I had looked at them through cameras that were on the far side, so I turned every model to point at the approach instead.
-- Most of the trees and rocks were placed off the map, because my placement code mixed local and world space.
-- The end screen opened behind the fifth fact card. Now the card shows first and the end screen comes up when the player closes it.
-- The on-screen sticks kept disappearing. PlayerInput was switching control schemes on its own and hiding the other device's bindings.
-- The circles on the ground were invisible at first, because the guide line material is opaque and the fade in the colour gradient did nothing. The rings needed their own transparent material. Then the red circle still came out grey, because that material used the plain URP Unlit shader, which ignores the colours a LineRenderer puts into its vertices. Pointing the material at Unity's built-in URP Particles Unlit shader fixed it, so I did not need a shader of my own at all.
-
-**WebGL and Android.** GitHub Pages will not serve a compressed build, so I turned compression off. A particle system logged an error every frame and filled the browser console with it, because only the y velocity curve was set. The sticks showed up in desktop browsers as well, because a desktop browser reports a touchscreen, so now they only show on a real mobile platform. On the Android side the build settings are all set, but the APK has still never run on a phone, and that is the first thing I should do next.
-
-**The hardest part.** The input setup. Keyboard, mouse, gamepad and the on-screen sticks all have to drive one action map, and PlayerInput fights that by switching schemes. Working out that I had to stop it switching, and clear the binding mask, was the part that took me longest. Desktop mouse look was the second hard part, because the cursor lock, the UI clicks and the fact card all have to agree about when a click is a photo.
-
-**Next steps.** A real leopard model instead of the jaguar. Walking animals, since the models are static meshes now. The real 20 metre distance from the Kenya Wildlife Service instead of my scaled-down zones. A slow jog, which I left out because it needed more code than it was worth. Swahili names and text. And a full run on a phone.
-
-## 9. Credits and Licences
-
-**Models and scenery.**
-
-| Asset | Licence |
-| --- | --- |
-| Lion, elephant, rhino and buffalo, from Grab3D (grab3d.com) | CC0 1.0. The buffalo is Grab3D's bull model standing in for a Cape buffalo. Licence: `Assets/ThirdParty/Grab3D-LICENSE.txt` |
-| Leopard, which is the jaguar model "Jaguar" by Poly by Google, https://poly.pizza/m/4fb-oMr2uUF | CC BY 3.0. Licence: `Assets/ThirdParty/POLY-JAGUAR-LICENSE.txt` |
-| Trees, rocks and ground cover, from the Kenney Nature Kit (kenney.nl) | CC0 1.0. Licence: `Assets/ThirdParty/KENNEY-NATURE-KIT-LICENSE.txt` |
-
-Attribution for the jaguar model:
-
-> "Jaguar" by Poly by Google, licensed under CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/), via poly.pizza.
-
-I converted the jaguar from GLB to FBX, scaled it and renamed its material. It is not a leopard model. No leopard model under CC0 or CC BY was free to download without an account, so the jaguar stands in, and its rosettes are close enough to read as a leopard in the game.
-
-Tribeca font (used for titles only now) and title image (`Assets/Images/background_removed.png`). The font has no separate lower-case letters, so all the text in the game shows in capitals.
-Ubuntu font (Canonical, Ubuntu Font Licence 1.0, fonts.google.com/specimen/Ubuntu) used for body text and HUD, so the game screens stay readable. Licence: `Assets/ThirdParty/UBUNTU-FONT-LICENCE.txt`.
-
-**Audio.** All eight clips are listed with their sources and processing in `Assets/ThirdParty/AUDIO-LICENCES.txt`.
-
-| File | Sound | Author | Licence |
-| --- | --- | --- | --- |
-| `Assets/Audio/SFX_Lion.ogg` | Lion roars 1.wav | eardeer | CC BY 4.0 |
-| `Assets/Audio/SFX_Leopard.ogg` | Jaguar saw | About Zoos | CC BY 4.0 |
-| `Assets/Audio/SFX_Elephant.ogg` | Elephant voice, trumpeting | தகவலுழவன் (Info-farmer) | CC0 1.0 |
-| `Assets/Audio/SFX_Rhino.ogg` | white Rhino fighting | geoffvt | CC0 1.0 |
-| `Assets/Audio/SFX_Buffalo.ogg` | Buffles-Grognement+amb oiseaux | roubignolle (G de Courtivron) | CC BY 4.0 |
-| `Assets/Audio/AMB_Savanna.ogg` | Birds and wind at Ngutuni Lodge | dkaufman | CC0 1.0 |
-| `Assets/Audio/SFX_Bump.ogg` | Light Body thud (on clothing) | JonasTisell | CC0 1.0 |
-| `Assets/Audio/SFX_Shutter.wav` | self-made two click shutter, made with ffmpeg | me | CC0 1.0 |
-
-Attribution for the three clips that need it:
-
-> "Lion roars 1.wav" by eardeer, https://freesound.org/people/eardeer/sounds/458903/, licensed under CC BY 4.0, https://creativecommons.org/licenses/by/4.0/
-
-> "Jaguar saw" by About Zoos, https://commons.wikimedia.org/wiki/File:Jaguar_saw.flac, licensed under CC BY 4.0, https://creativecommons.org/licenses/by/4.0/
-
-> "Buffles-Grognement+amb oiseaux" by roubignolle (G de Courtivron), https://freesound.org/people/roubignolle/sounds/35130/, licensed under CC BY 4.0, https://creativecommons.org/licenses/by/4.0/
-
-Three of the calls are substitutions. The leopard plays the jaguar call, because no leopard call under CC0 or CC BY was found. The elephant call does not name its species and is probably an Asian elephant. The rhino call is a white rhinoceros, used for my black rhino model. The buffalo call still has some birdsong in it, which the filter only reduces. The shutter click has no source page at all, because I generated it from ffmpeg noise on this machine.
-
-**Fact card sources.** Elephant status and decline, IUCN press release, 25 March 2021. Black rhino figures, Kenya Wildlife Service figures as reported by WWF-UK, 26 February 2024. Lion figures, Kenya Wildlife Service figures as reported by Anadolu Agency, 16 January 2024. Leopard and buffalo facts, the Wikipedia articles "Leopard" and "African buffalo".
-
-**Ranger's tip sources.** One line per species, each written as general safe viewing guidance rather than a claim about one animal.
-
-- Lion: Kenya Wildlife Service safety guidelines, "Remain in your vehicle unless in designated areas" and "Move slowly and quietly", https://kws.go.ke/park/nairobi-national-park
-- Leopard: SafariLingo safari guide, "a good view is never worth crowding a predator", "prevent a leopard from reaching a tree" and "avoid surrounding animals in a tight ring of vehicles", https://safarilingo.com/en/guide/what-to-do-if-you-see-a-predator-kill
-- Elephant: Discover Wildlife (BBC Wildlife Magazine), "holding its ears out for a prolonged period to show its size", "your viewing position should not separate elephant family members" and "if you see any of these signs, back away slowly", https://www.discoverwildlife.com/animal-facts/mammals/stay-safe-around-elephants
-- Black rhino: Etosha National Park, "both species of rhino have very poor eyesight" and "don't make any loud noises or sudden movements", https://www.etoshanationalpark.org/news/how-not-to-get-charged-by-a-rhino
-- Buffalo: National Geographic, "one of the big five ... the most dangerous animals to hunt in Africa" and "grumpy and unpredictable", https://www.nationalgeographic.com/animals/mammals/facts/african-buffalo
-
-**Sources.**
-
-1. World Travel & Tourism Council (WTTC), news release "Kenya Boosts Africa's Tourism Growth, Emerging as a Leading Sustainable Tourism Powerhouse", 15 June 2026, https://wttc.org/news/kenya-boosts-africas-tourism-growth-emerging-as-a-leading-sustainable-tourism-powerhouse
-2. Kenya Wildlife Service, safety guidelines for visitors, https://kws.go.ke/park/nairobi-national-park
+| Asset | Source | Licence |
+| :--- | :--- | :--- |
+| Lion, elephant, rhino, buffalo models | Grab3D (grab3d.com); buffalo is their bull model | CC0 |
+| Leopard model | "Jaguar" by Poly by Google, https://poly.pizza/m/4fb-oMr2uUF (a jaguar standing in for the leopard) | CC BY 3.0 |
+| Trees, rocks, ground cover | Kenney Nature Kit, kenney.nl | CC0 |
+| Ground patches, hills, mountain | Made by me in Unity | n/a |
+| Lion, elephant, buffalo calls | Pixabay | Pixabay Content License |
+| Leopard call | YouTube | Creative Commons |
+| Rhino call | "geoffvt", https://freesound.org/people/geoffvt/sounds/792852/ | CC0 |
+| Savanna ambience | "dkaufman", https://freesound.org/people/dkaufman/sounds/743640/ | CC0 |
+| Bump sound | "JonasTisell", https://freesound.org/people/JonasTisell/sounds/496187/ | CC0 |
+| Camera shutter | Made by me with ffmpeg | n/a |
+| Tribeca font (titles) and title image (`Assets/Images/background_removed.png`) | Downloaded by me | Not stated |
+| Ubuntu font (body text) | Canonical, fonts.google.com/specimen/Ubuntu | Ubuntu Font Licence 1.0 (licence file next to the font in `Assets/Materials/Fonts`) |
 
