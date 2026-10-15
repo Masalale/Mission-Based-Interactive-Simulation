@@ -9,23 +9,43 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
-    // The controls are written down once here and shown on the start panel, the pause panel and the HUD tip.
+    // The controls are written down once here and shown on the instructions panel, the pause panel and the HUD tip.
     // A phone has no keyboard and no mouse, so it gets the other line of the two.
     private const string ControlsDesktop = "Move WASD · Look mouse · Photo click or E · Pause Esc";
     private const string ControlsPhone = "Move left stick · Look right stick · Photo button · Pause II";
     private static string ControlsLine => Application.isMobilePlatform ? ControlsPhone : ControlsDesktop;
 
+    // The instructions panel says the same controls in full, so the start panel stays short.
+    private static string InstructionsControls => Application.isMobilePlatform
+        ? "Move: left stick.\nLook: right stick.\nPhoto: the Photo button.\nPause: the II button."
+        : "Move: WASD.\nLook: mouse.\nPhoto: left click or E. Close a card the same way.\nPause: Esc or P.\nA gamepad works too: left stick, right stick, the south button and Start.";
+
+    // The rest of the instructions never changes, so it is written down once here as well.
+    private const string InstructionsSafari =
+        "Ranger Amani talks to you on the radio and shows you the way.\n" +
+        "Follow the guide line to each of the Big Five.\n" +
+        "A white circle is the viewing distance. Step inside it, aim at the animal, and the crosshair turns green.\n" +
+        "Take the photo then. Your passport gets a stamp.\n" +
+        "A red circle is too close. The animal bluff-charges and you lose Respect.\n" +
+        "A gold circle means you have photographed that animal already.\n" +
+        "Photograph all five and the reserve rates you: Responsible, Careful or Reckless.";
+
     [Header("Panels")]
     [SerializeField] private GameObject startPanel;
+    [SerializeField] private GameObject instructionsPanel;
     [SerializeField] private GameObject hudPanel;
     [SerializeField] private GameObject endPanel;
     [SerializeField] private GameObject factCard;
     [SerializeField] private GameObject mobileControls;
 
     [Header("Buttons")]
-    [SerializeField] private Button continueButton;
-    [SerializeField] private Button newSafariButton;
-    [SerializeField] private Button replayButton;
+    [SerializeField] private Button startButton;
+    [SerializeField] private Button instructionsButton;
+    [SerializeField] private Button instructionsBackButton;
+    [SerializeField] private Button quitButton;
+    [SerializeField] private Button playAgainButton;
+    [SerializeField] private Button menuButton;
+    [SerializeField] private Button endQuitButton;
     [SerializeField] private Button factCardCloseButton;
 
     [Header("Passport")]
@@ -40,8 +60,9 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Text stampsText;
 
     [Header("Controls text")]
-    [Tooltip("One line of controls on the start panel and on the pause panel.")]
-    [SerializeField] private Text startControlsText;
+    [Tooltip("The controls and the rules on the instructions panel, written in code for this platform.")]
+    [SerializeField] private Text instructionsControlsText;
+    [SerializeField] private Text instructionsSafariText;
     [SerializeField] private Text pauseControlsText;
 
     [Header("Messages")]
@@ -145,9 +166,13 @@ public class UIManager : MonoBehaviour
             player.Moved += HideControlsTip;
         }
 
-        Listen(continueButton, OnContinue);
-        Listen(newSafariButton, OnNewSafari);
-        Listen(replayButton, Replay);
+        Listen(startButton, OnStart);
+        Listen(instructionsButton, ShowInstructions);
+        Listen(instructionsBackButton, ShowStartPanel);
+        Listen(quitButton, Quit);
+        Listen(playAgainButton, Replay);
+        Listen(menuButton, ToMainMenu);
+        Listen(endQuitButton, Quit);
         Listen(factCardCloseButton, HideFactCard);
     }
 
@@ -167,9 +192,13 @@ public class UIManager : MonoBehaviour
         }
 
         // The scene buttons have no listeners of their own, so I can clear all of them in one go.
-        ClearListeners(continueButton);
-        ClearListeners(newSafariButton);
-        ClearListeners(replayButton);
+        ClearListeners(startButton);
+        ClearListeners(instructionsButton);
+        ClearListeners(instructionsBackButton);
+        ClearListeners(quitButton);
+        ClearListeners(playAgainButton);
+        ClearListeners(menuButton);
+        ClearListeners(endQuitButton);
         ClearListeners(factCardCloseButton);
     }
 
@@ -178,15 +207,19 @@ public class UIManager : MonoBehaviour
         SwitchPanels(true, false, false, false);
         HideControlsTip();
 
-        if (continueButton != null)
-            continueButton.interactable = SaveSystem.HasSave;
+        // The instructions panel carries the controls and the rules in full, so the start panel stays short.
+        SetText(instructionsControlsText, InstructionsControls);
+        SetText(instructionsSafariText, InstructionsSafari);
 
-        // One controls line on the start panel and the pause panel, for this platform only.
-        SetText(startControlsText, ControlsLine);
+        // The pause panel keeps the one short line, for this platform only.
         SetText(pauseControlsText, ControlsLine);
 
         // The sticks are for phones only. I cannot test for a touchscreen, because touch laptops report one too.
         Show(mobileControls, Application.isMobilePlatform);
+
+        // A browser tab cannot close itself, so Quit only shows where it can do something.
+        Show(ObjectOf(quitButton), !IsWebGL);
+        Show(ObjectOf(endQuitButton), !IsWebGL);
 
         // On a desktop the player closes the card with E or a click, so the button says so.
         if (factCardCloseButton != null)
@@ -231,20 +264,60 @@ public class UIManager : MonoBehaviour
         Show(toastRoot, false);
     }
 
-    // Start, Main Menu and the start of a safari all need the same four panels switched.
+    // Start, Main Menu and the start of a safari all need the same panels switched.
     private void SwitchPanels(bool start, bool hud, bool end, bool card)
     {
         Show(startPanel, start);
         Show(hudPanel, hud);
         Show(endPanel, end);
         Show(factCard, card);
+        Show(instructionsPanel, false);
         HideMessages();
+    }
+
+    // Application.Quit does nothing in a browser, so the Quit button is hidden there.
+    private static bool IsWebGL => Application.platform == RuntimePlatform.WebGLPlayer;
+
+    // Every menu needs the mouse back, because the player is switched off and cannot give it.
+    private static void FreeCursor()
+    {
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
     }
 
     private static void ShowMessage(GameObject root, Text label, string message)
     {
         SetText(label, message);
-        Show(root, true);
+        FitBoxToText(label);
+
+        // A box with no words in it stays hidden, so no empty pill is left on the screen.
+        Show(root, !string.IsNullOrEmpty(message));
+        FitBoxHeight(root, label);
+    }
+
+    // The height of a message box follows its text. I set it here, because the rounded image has a
+    // minimum height that a content size fitter would always use instead of a short line.
+    private static void FitBoxHeight(GameObject root, Text label)
+    {
+        if (root == null || label == null || !root.activeSelf)
+            return;
+
+        // The new width has to reach the text first, so the line count is right.
+        Canvas.ForceUpdateCanvases();
+
+        // The 20 is the top and bottom padding of the box, which the text sits inside.
+        RectTransform box = root.GetComponent<RectTransform>();
+        box.sizeDelta = new Vector2(box.sizeDelta.x, label.preferredHeight + 20f);
+    }
+
+    // The message boxes hug their text, but a long line wraps instead of running off the screen.
+    // The patch gives every message text a LayoutElement, so I only set its width here.
+    private static void FitBoxToText(Text label)
+    {
+        LayoutElement box = label != null ? label.GetComponent<LayoutElement>() : null;
+
+        if (box != null)
+            box.preferredWidth = Mathf.Min(label.preferredWidth + 1f, 760f);
     }
 
     // A green ring means a good photo is possible, an amber ring means step closer.
@@ -339,35 +412,67 @@ public class UIManager : MonoBehaviour
             ShowEnd();
     }
 
-    // Main Menu from the pause menu keeps the save and brings this screen back.
+    // Main Menu from the pause menu or the end screen keeps the save and brings this screen back.
     public void ShowStartPanel()
     {
         SwitchPanels(true, false, false, false);
-
-        if (continueButton != null)
-            continueButton.interactable = SaveSystem.HasSave;
+        FreeCursor();
     }
 
-    // Continue reads the save back and New Safari throws it away. Then both start playing.
-    private void OnContinue()
+    // The instructions panel is drawn over the start panel and only holds text and a Back button.
+    private void ShowInstructions()
     {
+        SwitchPanels(false, false, false, false);
+        Show(instructionsPanel, true);
+        FreeCursor();
+    }
+
+    // Main Menu is the same two steps wherever the button sits: leave the run, then show the start panel.
+    public void ToMainMenu()
+    {
+        PauseMenu.Instance?.Resume();
+
         if (GameManager.Instance != null)
-        {
+            GameManager.Instance.LeaveRun();
+
+        ShowStartPanel();
+    }
+
+    // Quit is not on WebGL, where it would do nothing.
+    public void Quit()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
+
+    // One Start button: it carries on a save that is still running, and otherwise starts a fresh safari.
+    private void OnStart()
+    {
+        if (GameManager.Instance == null)
+            return;
+
+        if (SaveSystem.HasSave && !SaveIsFinished())
             GameManager.Instance.Restore();
-            BeginPlay();
-        }
-    }
-
-    private void OnNewSafari()
-    {
-        if (GameManager.Instance != null)
-        {
+        else
             GameManager.Instance.ResetRun();
-            BeginPlay();
-        }
+
+        BeginPlay();
     }
 
-    // Replay is also the Restart Safari button on the pause menu.
+    // A save of a finished safari is not worth carrying on, so Start Safari throws that one away.
+    private static bool SaveIsFinished()
+    {
+        if (!SaveSystem.TryLoad(out SaveData data))
+            return false;
+
+        int total = GameManager.Instance != null ? GameManager.Instance.TotalAnimals : Animal.All.Count;
+        return total > 0 && data.scannedIds.Count >= total;
+    }
+
+    // Replay is the Play Again button on the end screen and Restart Safari on the pause menu.
     public void Replay()
     {
         // I put the player back at the gate before I clear the state, so the guide line starts there again.
@@ -444,10 +549,18 @@ public class UIManager : MonoBehaviour
     {
         Show(endPanel, true);
         Show(factCard, false);
-        HideHint();
-        HideWarning();
+
+        // The end screen is on its own, so the HUD and its pause button go away behind it.
+        Show(hudPanel, false);
+
+        // Nothing from the safari is left floating over the end screen.
+        HideMessages();
+
         if (player != null)
             player.enabled = false;
+
+        // The player is off, so the mouse has to come back for the three buttons.
+        FreeCursor();
 
         GameManager game = GameManager.Instance;
         int stamps = game != null ? game.Stamps : 0;
@@ -533,6 +646,11 @@ public class UIManager : MonoBehaviour
     {
         if (panel != null)
             panel.SetActive(visible);
+    }
+
+    private static GameObject ObjectOf(Button button)
+    {
+        return button != null ? button.gameObject : null;
     }
 
     private static void SetText(Text label, string value)

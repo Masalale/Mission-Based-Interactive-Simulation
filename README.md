@@ -57,7 +57,7 @@ The two sources for this section are listed in section 9.
 
 The sticks show only on phones and tablets. A gamepad uses the left stick to move, the right stick to look, and the south button to take a photo. The pause button is on the HUD on every platform, so a phone can pause too.
 
-**How to win.** Photograph all five animals. An animal counts when the player takes a photo of it from inside its ranger's circle. There is no lose state. When the player closes the last fact card, the end screen reads in four blocks: the photos, the Respect score and the number of disturbances; then the visitor rating on its own line, larger than the numbers and coloured gold, light amber or red orange; then Ranger Amani's closing line in italic; then Replay.
+**How to win.** Photograph all five animals. An animal counts when the player takes a photo of it from inside its ranger's circle. There is no lose state. When the player closes the last fact card, the end screen reads in four blocks: the photos, the Respect score and the number of disturbances; then the visitor rating on its own line, larger than the numbers and coloured gold, light amber or red orange; then Ranger Amani's closing line in italic; then Play Again, Main Menu and Quit.
 
 **How the score works.** The score is called Respect and it starts at 100. Each disturbance costs 10, and one animal can only book one disturbance every 3 seconds. Photographing the same animal again only reopens the fact card and costs nothing. The top Respect score is 100, so a clean run is a run with zero disturbances. The end screen rates the visitor from the disturbances: none is a Responsible Visitor, one or two is a Careful Visitor, and three or more is a Reckless Visitor.
 
@@ -65,7 +65,7 @@ The sticks show only on phones and tablets. A gamepad uses the left stick to mov
 
 ### UI
 
-`Assets/Scripts/UIManager.cs` runs every screen: the start screen with Continue and New Safari, the HUD with the crosshair, the passport, the Respect score and the message lines, the fact card, and the end screen with the numbers, the visitor rating and Replay. The controls are one line, and `Application.isMobilePlatform` picks which of the two lines shows on the start panel, the pause panel and the HUD tip. `Assets/Scripts/PauseMenu.cs` runs the pause panel. The Canvas and every panel are laid out in `Assets/Scenes/Safari_Main.unity`. The HUD is built switched off and turned on when a run starts, because the on-screen controls were throwing an error while they were active at load time.
+`Assets/Scripts/UIManager.cs` runs every screen: the start screen with Start Safari, Instructions and Quit, the HUD with the crosshair, the passport, the Respect score and the message lines, the fact card, and the end screen with the numbers, the visitor rating, Play Again, Main Menu and Quit. The controls are written down in full on the instructions panel, and `Application.isMobilePlatform` picks the desktop or phone version there, and the one line on the pause panel and the HUD tip. `Assets/Scripts/PauseMenu.cs` runs the pause panel. The Canvas and every panel are laid out in `Assets/Scenes/Safari_Main.unity`. The HUD is built switched off and turned on when a run starts, because the on-screen controls were throwing an error while they were active at load time.
 
 `UIManager` never polls for game state. It listens to the two events on `GameManager` and refreshes when they fire. Without it there is no objective, no feedback after a photo, no start screen and no win.
 
@@ -87,7 +87,7 @@ The Player object has a `PlayerInput` component with that asset and `Player` as 
 
 Sticks and arrow keys give a rate, so `PlayerController` multiplies them by the look speed and by `deltaTime`. The mouse already gives a per-frame delta, so it is multiplied by the saved sensitivity only. `LookHold` is gone: on a desktop the cursor is locked and hidden while the safari runs, so the mouse always looks and there is no button to hold.
 
-The on-screen controls are two sticks and the Photo button. The sticks add a virtual gamepad while the mouse is still in use, and `PlayerInput` was switching control schemes on its own and hiding the other bindings, so the sticks dropped out. `PlayerController.Start` turns that switching off and clears the binding mask. Keyboard, mouse and the on-screen gamepad then drive the same action map together.
+The on-screen controls are two sticks and the Photo button. The sticks add a virtual gamepad while the mouse is still in use, and `PlayerInput` was switching control schemes on its own and hiding the other bindings, so the sticks dropped out. `PlayerController.Awake` turns that switching off before any stick is active, and clears the binding mask. Keyboard, mouse and the on-screen gamepad then drive the same action map together.
 
 Without this there is no movement, no photos and no run state at all.
 
@@ -123,7 +123,7 @@ Without the line renderer the player has no idea where to look first, and withou
 
 ### Pause menu
 
-`Assets/Scripts/PauseMenu.cs` listens to `Player/Pause` and to the II button on the HUD. It opens only while a safari is running and never over the fact card or the end screen. Pausing sets `GameManager.IsPaused`, `Time.timeScale = 0` and `AudioListener.pause = true`, frees the cursor and shows the panel. Resume reverses all of it. Restart Safari is exactly what Replay does. Main Menu keeps the save, so Continue Safari is still there when the player comes back. The mouse sensitivity slider writes `MouseSensitivity` to PlayerPrefs, and `PlayerController` reads the same key at startup, so the setting survives a restart.
+`Assets/Scripts/PauseMenu.cs` listens to `Player/Pause` and to the II button on the HUD. It opens only while a safari is running and never over the fact card or the end screen. Pausing sets `GameManager.IsPaused`, `Time.timeScale = 0` and `AudioListener.pause = true`, frees the cursor and shows the panel. Resume reverses all of it. Restart Safari is exactly what Play Again does. Main Menu keeps the save, so the run is still there when the player comes back. The mouse sensitivity slider writes `MouseSensitivity` to PlayerPrefs, and `PlayerController` reads the same key at startup, so the setting survives a restart.
 
 On a desktop the browser drops pointer lock when Escape is pressed. `PlayerController` notices a locked cursor that has gone free while the safari is running and opens the pause menu itself, so the player is never left with no control.
 
@@ -149,7 +149,7 @@ A photo fires a white full screen image from alpha 0.7 down to 0 over about 0.25
 
 ### Saving
 
-`Assets/Scripts/SaveSystem.cs` writes the run as JSON in `PlayerPrefs` using `JsonUtility`. WebGL has no file system, and `PlayerPrefs` works there. `GameManager` saves after every stamp and every disturbance. Continue reads the save back and puts the run in the same state. New Safari, Replay and Restart Safari clear it. I use `PlayerPrefs` and `JsonUtility` because they are the simplest saving that works on both of my platforms.
+`Assets/Scripts/SaveSystem.cs` writes the run as JSON in `PlayerPrefs` using `JsonUtility`. WebGL has no file system, and `PlayerPrefs` works there. `GameManager` saves after every stamp and every disturbance. Start Safari reads the save back and carries on with it, unless the save is a finished safari, which it throws away. Play Again and Restart Safari clear it too. I use `PlayerPrefs` and `JsonUtility` because they are the simplest saving that works on both of my platforms.
 
 ## 6. Project Structure
 
@@ -192,7 +192,7 @@ That is 1,982 lines in total. `Assets/Editor` holds three more: the two import s
 
 ## 7. Build Information
 
-**WebGL.** About 61 MB, 1280 x 720, in `Builds/WebGL`. Compression is switched off, because GitHub Pages will not send the header a compressed build needs. To run it, open the link at the top of this file, then press New Safari.
+**WebGL.** About 61 MB, 1280 x 720, in `Builds/WebGL`. Compression is switched off, because GitHub Pages will not send the header a compressed build needs. To run it, open the link at the top of this file, then press Start Safari.
 
 **Android.** An APK, not an app bundle, built with IL2CPP for ARM64, landscape only, about 36 MB, in `Builds/Android/BigFiveHeritageSafari.apk`. I built it but I have not tested it on a phone yet. To run it, copy the APK to the phone, allow installs from that file, and open it. It uses the two sticks, the Photo button and the II pause button.
 
@@ -241,7 +241,8 @@ Attribution for the jaguar model:
 
 I converted the jaguar from GLB to FBX, scaled it and renamed its material. It is not a leopard model. No leopard model under CC0 or CC BY was free to download without an account, so the jaguar stands in, and its rosettes are close enough to read as a leopard in the game.
 
-Tribeca font and title image (`Assets/Images/background_removed.png`). The font has no separate lower-case letters, so all the text in the game shows in capitals.
+Tribeca font (used for titles only now) and title image (`Assets/Images/background_removed.png`). The font has no separate lower-case letters, so all the text in the game shows in capitals.
+Ubuntu font (Canonical, Ubuntu Font Licence 1.0, fonts.google.com/specimen/Ubuntu) used for body text and HUD, so the game screens stay readable.
 
 **Audio.** All eight clips are listed with their sources and processing in `Assets/ThirdParty/AUDIO-LICENCES.txt`.
 

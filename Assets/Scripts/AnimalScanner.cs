@@ -80,6 +80,10 @@ public class AnimalScanner : MonoBehaviour
         if (!Playing())
             return;
 
+        // The end screen has its own buttons, so a stray photo must not open a fact card over them.
+        if (UIManager.Instance != null && UIManager.Instance.IsEndScreenOpen)
+            return;
+
         // A mouse press while the cursor is free was a click on the UI, so it is not a photo.
         if (IsMouse(context) && Cursor.lockState != CursorLockMode.Locked)
             return;

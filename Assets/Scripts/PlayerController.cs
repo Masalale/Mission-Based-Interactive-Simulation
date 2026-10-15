@@ -92,30 +92,24 @@ public class PlayerController : MonoBehaviour
         lookAction = playerInput.actions.FindAction("Player/Look", throwIfNotFound: false);
         mouseLookAction = playerInput.actions.FindAction("Player/MouseLook", throwIfNotFound: false);
 
-        if (moveAction == null || lookAction == null)
-        {
-            Debug.LogError($"{nameof(PlayerController)} could not find Player/Move or Player/Look.", this);
-            enabled = false;
-            return;
-        }
-
         // The pause slider saves my sensitivity, so I start with whatever was chosen last time.
         if (PlayerPrefs.HasKey(SensitivityKey))
             mouseSensitivity = PlayerPrefs.GetFloat(SensitivityKey, mouseSensitivity);
-    }
-
-    private void Start()
-    {
-        if (playerInput.actions == null)
-            return;
 
         // The sticks add a fake gamepad while the mouse is still in use, and PlayerInput was switching
         // schemes on its own and hiding the bindings of the other device, so the sticks dropped out.
         // Locking the scheme and clearing the mask and the device list lets keyboard, mouse and the
-        // on-screen gamepad all use the same action map.
+        // on-screen gamepad all use the same action map. This is in Awake, not Start, because a stick
+        // that is active when the scene loads asks PlayerInput to switch scheme before Start runs.
         playerInput.neverAutoSwitchControlSchemes = true;
         playerInput.actions.bindingMask = null;
         playerInput.actions.devices = null;
+
+        if (moveAction == null || lookAction == null)
+        {
+            Debug.LogError($"{nameof(PlayerController)} could not find Player/Move or Player/Look.", this);
+            enabled = false;
+        }
     }
 
     private void Update()

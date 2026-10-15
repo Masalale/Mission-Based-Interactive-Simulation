@@ -133,7 +133,7 @@ public class PauseMenu : MonoBehaviour
             pausePanel.SetActive(false);
     }
 
-    // Restart Safari is the same as the Replay button on the end screen.
+    // Restart Safari is the same as the Play Again button on the end screen.
     private void Restart()
     {
         Resume();
@@ -141,14 +141,14 @@ public class PauseMenu : MonoBehaviour
             ui.Replay();
     }
 
-    // Main Menu keeps the save, so Continue Safari is still on the start panel.
+    // Main Menu keeps the save, so Start Safari can carry it on.
     private void ToMainMenu()
     {
         Resume();
-        if (GameManager.Instance != null)
-            GameManager.Instance.LeaveRun();
+
+        // UIManager does the same two steps for the end screen, so there is only one copy.
         if (ui != null)
-            ui.ShowStartPanel();
+            ui.ToMainMenu();
     }
 
     // The slider writes the value straight away, so it survives a restart of the game.
