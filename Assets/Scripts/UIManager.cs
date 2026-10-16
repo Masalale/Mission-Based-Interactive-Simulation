@@ -107,16 +107,13 @@ public class UIManager : MonoBehaviour
 
     private void Start()
     {
-        SwitchPanels(true, false, false, false);
+        ShowStartPanel();
 
         Show(mobileControls, Application.isMobilePlatform);
 
         // A browser tab cannot quit itself, so both Quit buttons are hidden on WebGL.
         Show(ObjectOf(quitButton), !IsWebGL);
         Show(ObjectOf(endQuitButton), !IsWebGL);
-
-        if (player != null)
-            player.enabled = false;
 
         Refresh();
     }
@@ -136,6 +133,8 @@ public class UIManager : MonoBehaviour
     }
 
     private void HideToast() => Show(toastRoot, false);
+
+    public void ShowHud(bool visible) => Show(hudPanel, visible);
 
     public void HideMessages()
     {
@@ -258,6 +257,12 @@ public class UIManager : MonoBehaviour
     {
         SwitchPanels(true, false, false, false);
         FreeCursor();
+
+        if (player != null)
+            player.enabled = false;
+
+        // The menu is quiet, so the safari sounds only start with Start Safari.
+        AudioListener.pause = true;
     }
 
     public void ToMainMenu()
@@ -300,6 +305,7 @@ public class UIManager : MonoBehaviour
     private void BeginPlay()
     {
         SwitchPanels(false, true, false, false);
+        AudioListener.pause = false;
 
         if (player != null)
             player.enabled = true;

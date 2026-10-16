@@ -79,7 +79,10 @@ public class PauseMenu : MonoBehaviour
             pausePanel.SetActive(true);
 
         if (ui != null)
+        {
             ui.HideMessages();
+            ui.ShowHud(false);
+        }
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
@@ -95,16 +98,12 @@ public class PauseMenu : MonoBehaviour
         if (pausePanel != null)
             pausePanel.SetActive(false);
 
+        if (ui != null)
+            ui.ShowHud(GameManager.Instance.IsPlaying);
+
         // Esc can resume while How to Play is open over this menu, so that panel closes too.
         if (instructionsPanel != null)
             instructionsPanel.SetActive(false);
-    }
-
-    public void Restart()
-    {
-        Resume();
-        if (ui != null)
-            ui.Replay();
     }
 
     public void ToMainMenu()
