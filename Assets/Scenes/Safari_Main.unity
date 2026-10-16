@@ -17610,7 +17610,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: "Lion"
 --- !u!222 &144897249
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -18499,7 +18499,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: "Too far for a good photo. Step inside the ranger's circle."
 --- !u!222 &161124774
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -76818,7 +76818,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: "• Fact: Kenya Wildlife Service figures show Kenya's lions rose from 2,000 in 2010 to 2,589 in 2021. Community-led conservancies return tourism revenue to local people and give lions a safe haven."
 --- !u!222 &925714880
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -77007,12 +77007,6 @@ MonoBehaviour:
   - {fileID: 1244584756}
   - {fileID: 1202026804}
   - {fileID: 75662867}
-  stampLabels:
-  - {fileID: 1585684622}
-  - {fileID: 1336819640}
-  - {fileID: 1125603812}
-  - {fileID: 178287134}
-  - {fileID: 605895362}
   stampedColor: {r: 1, g: 1, b: 1, a: 1}
   emptyColor: {r: 1, g: 1, b: 1, a: 0.25}
   scoreText: {fileID: 633228789}
@@ -93452,7 +93446,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: "Ranger Amani: Good distance. Aim at the Lion and take your photo."
 --- !u!222 &1089160269
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -108347,7 +108341,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: "• Ranger's tip: On a game drive, stay in the vehicle: a lion often ignores a car but not a person on foot."
 --- !u!222 &1282997246
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -132876,7 +132870,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: "Responsible Visitor"
 --- !u!222 &1602558307
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -136379,7 +136373,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: "• Status: Vulnerable (IUCN Red List)"
 --- !u!222 &1645467386
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -136942,7 +136936,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: "Ranger Amani: You saw all five without disturbing one. That is how tourism keeps the Big Five wild."
 --- !u!222 &1652325121
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -157781,7 +157775,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: "Photos: 5 / 5\nRespect: 100 / 100\nDisturbances: 0"
 --- !u!222 &1931733240
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -163997,7 +163991,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 
+  m_Text: "• Habitat: Grassy plains and open savanna. See them in the Maasai Mara."
 --- !u!222 &2025861846
 CanvasRenderer:
   m_ObjectHideFlags: 0

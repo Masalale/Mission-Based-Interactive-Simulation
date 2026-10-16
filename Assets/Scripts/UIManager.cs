@@ -24,7 +24,6 @@ public class UIManager : MonoBehaviour
     [Header("Passport")]
     [SerializeField] private AnimalData[] passportOrder;
     [SerializeField] private Image[] stampIcons;
-    [SerializeField] private Text[] stampLabels;
     [SerializeField] private Color stampedColor = Color.white;
     [SerializeField] private Color emptyColor = new Color(1f, 1f, 1f, 0.25f);
 
@@ -335,12 +334,9 @@ public class UIManager : MonoBehaviour
             if (slot == null)
                 continue;
 
-            // Icons and labels may be wired short, so check each array.
+            // The icons may be wired short, so check the array.
             if (stampIcons != null && i < stampIcons.Length && stampIcons[i] != null)
                 stampIcons[i].color = IsStamped(slot) ? stampedColor : emptyColor;
-
-            if (stampLabels != null && i < stampLabels.Length)
-                SetText(stampLabels[i], slot.DisplayName);
         }
     }
 
