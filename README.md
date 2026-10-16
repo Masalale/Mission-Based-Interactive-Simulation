@@ -58,7 +58,7 @@ You are a visitor on a Kenyan savanna reserve, guided by Ranger Amani on the rad
 ## Builds
 
 - [WebGL build](https://play.unity.com/en/games/b7242a75-a54d-4749-bf2f-983602c8349e/big-five-heritage-safari)
-- [Android APK](TODO_APK_URL)
+- [Android APK](https://github.com/Masalale/Mission-Based-Interactive-Simulation/releases/download/v1.0/BigFiveHeritageSafari.apk)
 - [Demo video](TODO_VIDEO_URL)
 
 ## Requirements
