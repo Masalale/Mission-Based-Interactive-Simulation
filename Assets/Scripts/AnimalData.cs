@@ -5,12 +5,13 @@ public class AnimalData : ScriptableObject
 {
     [Header("Passport")]
     [SerializeField] private string displayName;
-    [SerializeField] private string habitat;
-    [SerializeField] private string status;
-    [SerializeField, TextArea(3, 8)] private string fact;
+    [SerializeField] private string swahiliName;
+    [SerializeField] private string places;
+    [SerializeField] private string warningSigns;
 
     [Header("Safe viewing")]
-    [SerializeField, TextArea(2, 6)] private string viewingTip;
+    [SerializeField] private string doTip;
+    [SerializeField] private string dontTip;
     [SerializeField] private string warningLine;
 
     [Header("Zones and audio")]
@@ -19,10 +20,11 @@ public class AnimalData : ScriptableObject
     [SerializeField] private AudioClip callClip;
 
     public string DisplayName => displayName;
-    public string Habitat => habitat;
-    public string Status => status;
-    public string Fact => fact;
-    public string ViewingTip => viewingTip;
+    public string SwahiliName => swahiliName;
+    public string Places => places;
+    public string WarningSigns => warningSigns;
+    public string DoTip => doTip;
+    public string DontTip => dontTip;
     public string WarningLine => warningLine;
     public float ViewingRadius => viewingRadius;
     public float DangerRadius => dangerRadius;

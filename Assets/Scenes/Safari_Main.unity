@@ -2051,7 +2051,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Safari Passport
+  m_Text: Kenya Safari Passport
 --- !u!222 &26317520
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -3952,10 +3952,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1.05
-  m_Text: 'Ranger Amani guides you on the radio.
-
-    Photograph all the Big Five
-    animals for your Safari Passport and mind distance.'
+  m_Text: Meet Kenya's Big Five, the animals visitors travel the world to see, and
+    learn to watch them without disturbing them.
 --- !u!222 &55106043
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -76745,7 +76743,7 @@ GameObject:
   - component: {fileID: 925714878}
   - component: {fileID: 925714881}
   m_Layer: 0
-  m_Name: BodyText
+  m_Name: SignsText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -76818,9 +76816,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u2022 Fact: Kenya Wildlife Service figures show Kenya's lions rose from
-    2,000 in 2010 to 2,589 in 2021. Community-led conservancies return tourism revenue
-    to local people and give lions a safe haven."
+  m_Text: "\u2022 Warning signs: Growling"
 --- !u!222 &925714880
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -77029,10 +77025,10 @@ MonoBehaviour:
   dangerFlashAlpha: 0.6
   dangerFlashSeconds: 0.6
   factTitleText: {fileID: 1944887582}
-  factHabitatText: {fileID: 2025861845}
-  factStatusText: {fileID: 1645467385}
-  factBodyText: {fileID: 925714879}
-  factTipText: {fileID: 1282997245}
+  factApproachText: {fileID: 2025861845}
+  factPlacesText: {fileID: 1645467385}
+  factSignsText: {fileID: 925714879}
+  factDoText: {fileID: 1282997245}
   factStampText: {fileID: 109283674}
   endSummaryText: {fileID: 1931733239}
   endRatingText: {fileID: 1602558306}
@@ -108143,7 +108139,7 @@ GameObject:
   - component: {fileID: 1282997244}
   - component: {fileID: 1282997247}
   m_Layer: 0
-  m_Name: TipText
+  m_Name: DoText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -108216,8 +108212,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u2022 Ranger's tip: On a game drive, stay in the vehicle: a lion often
-    ignores a car but not a person on foot."
+  m_Text: "\u2022 Do: Stay in the vehicle on a game drive\n\u2022 Don't: Never walk
+    up to a lion on foot"
 --- !u!222 &1282997246
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -136176,7 +136172,7 @@ GameObject:
   - component: {fileID: 1645467384}
   - component: {fileID: 1645467387}
   m_Layer: 0
-  m_Name: StatusText
+  m_Name: PlacesText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -136249,7 +136245,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u2022 Status: Vulnerable (IUCN Red List)"
+  m_Text: "\u2022 Where to see: Maasai Mara, Amboseli"
 --- !u!222 &1645467386
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -136730,8 +136726,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1
-  m_Text: 'Ranger Amani: You saw all five without disturbing one. That is how tourism
-    keeps the Big Five wild.'
+  m_Text: 'Ranger Amani: Asante! You met all of Kenya''s Big Five without disturbing
+    one. That is how tourism keeps them wild.'
 --- !u!222 &1652325121
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -151518,6 +151514,58 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: b0f4c2a7-51d8-4c63-9a17-2e6d0f8c5b41
     m_ActionName: Player/Pause
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 351f2ccd-1f9f-44bf-9bec-d62ac5c5f408
+    m_ActionName: 'Player/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 6b444451-8a00-4d00-a97e-f47457f736a8
+    m_ActionName: 'Player/Look[/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 3ebde2c5-2b51-4c70-9bfe-40fcde38f90e
+    m_ActionName: 'Player/MouseLook[/Mouse/delta]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c95b2375-e6d9-4b88-9c4c-c5e76515df4b
+    m_ActionName: 'UI/Navigate[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 7607c7b6-cd76-4816-beef-bd0341cfe950
+    m_ActionName: 'UI/Submit[/Keyboard/enter]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 15cef263-9014-4fd5-94d9-4e4a6234a6ef
+    m_ActionName: 'UI/Cancel[/Keyboard/escape]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 32b35790-4ed0-4e9a-aa41-69ac6d629449
+    m_ActionName: 'UI/Point[/Mouse/position]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 3c7022bf-7922-4f7c-a998-c437916075ad
+    m_ActionName: 'UI/Click[/Mouse/leftButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 44b200b1-1557-4083-816c-b22cbdf77ddf
+    m_ActionName: 'UI/RightClick[/Mouse/rightButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: dad70c86-b58c-4b17-88ad-f5e53adf419e
+    m_ActionName: 'UI/MiddleClick[/Mouse/middleButton]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 0489e84a-4833-4c40-bfae-cea84b696689
+    m_ActionName: 'UI/ScrollWheel[/Mouse/scroll]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 24908448-c609-4bc3-a128-ea258674378a
+    m_ActionName: UI/TrackedDevicePosition
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be
+    m_ActionName: UI/TrackedDeviceOrientation
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -158516,7 +158564,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Species
+  m_Text: "Lion \xB7 Simba"
 --- !u!222 &1944887583
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -163674,7 +163722,7 @@ GameObject:
   - component: {fileID: 2025861844}
   - component: {fileID: 2025861847}
   m_Layer: 0
-  m_Name: HabitatText
+  m_Name: ApproachText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -163747,8 +163795,8 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\u2022 Habitat: Grassy plains and open savanna. See them in the Maasai
-    Mara."
+  m_Text: "\u2022 Your approach: Calm. You kept your distance and the lion stayed
+    relaxed."
 --- !u!222 &2025861846
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -171135,9 +171183,10 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 1
     m_LineSpacing: 1.15
-  m_Text: "\u2022 Follow the yellow line to each animal\n\u2022 White circle: safe
-    distance, take your photo\n\u2022 Red circle: too close, you lose Respect\n\u2022
-    Gold circle: already in your passport\n\u2022 Photograph all five to finish"
+  m_Text: "\u2022 Find Kenya's Big Five: lion, leopard, elephant, rhino and buffalo\n\u2022
+    Follow the yellow line to each animal\n\u2022 White circle: safe distance, take
+    your photo\n\u2022 Red circle: too close, you lose Respect\n\u2022 Gold circle:
+    already in your passport\n\u2022 Photograph all five to finish"
 --- !u!222 &2105756688
 CanvasRenderer:
   m_ObjectHideFlags: 0

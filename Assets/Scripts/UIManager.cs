@@ -56,10 +56,10 @@ public class UIManager : MonoBehaviour
 
     [Header("Fact card")]
     [SerializeField] private Text factTitleText;
-    [SerializeField] private Text factHabitatText;
-    [SerializeField] private Text factStatusText;
-    [SerializeField] private Text factBodyText;
-    [SerializeField] private Text factTipText;
+    [SerializeField] private Text factApproachText;
+    [SerializeField] private Text factPlacesText;
+    [SerializeField] private Text factSignsText;
+    [SerializeField] private Text factDoText;
     [SerializeField] private Text factStampText;
 
     [Header("End screen")]
@@ -118,7 +118,14 @@ public class UIManager : MonoBehaviour
         Refresh();
     }
 
-    public void ShowHint(string message) => ShowMessage(hintRoot, hintText, message);
+    public void ShowHint(string message)
+    {
+        ShowMessage(hintRoot, hintText, message);
+
+        // A new hint replaces the welcome line, so the old timer must not hide it early.
+        CancelInvoke(nameof(HideHint));
+    }
+
     public void HideHint() => Show(hintRoot, false);
     public void ShowWarning(string message) => ShowMessage(warningRoot, warningText, message);
     public void HideWarning() => Show(warningRoot, false);
@@ -214,16 +221,23 @@ public class UIManager : MonoBehaviour
         SetColour(image, tint);
     }
 
-    public void ShowFactCard(AnimalData data, bool firstPhoto)
+    public void ShowFactCard(AnimalData data, bool firstPhoto, bool disturbed)
     {
         if (data == null)
             return;
 
-        SetText(factTitleText, data.DisplayName);
-        SetText(factHabitatText, "• Habitat: " + data.Habitat);
-        SetText(factStatusText, "• Status: " + data.Status);
-        SetText(factBodyText, "• Fact: " + data.Fact);
-        SetText(factTipText, "• Ranger's tip: " + data.ViewingTip);
+        string animalName = data.DisplayName.ToLower();
+
+        SetText(factTitleText, data.DisplayName + " · " + data.SwahiliName);
+
+        if (disturbed)
+            SetText(factApproachText, "• Your approach: Disturbed. You got too close and the " + animalName + " charged.");
+        else
+            SetText(factApproachText, "• Your approach: Calm. You kept your distance and the " + animalName + " stayed relaxed.");
+
+        SetText(factPlacesText, "• Where to see: " + data.Places);
+        SetText(factSignsText, "• Warning signs: " + data.WarningSigns);
+        SetText(factDoText, "• Do: " + data.DoTip + "\n• Don't: " + data.DontTip);
 
         if (!firstPhoto)
         {
@@ -312,6 +326,9 @@ public class UIManager : MonoBehaviour
 
         Refresh();
 
+        ShowHint("Ranger Amani: Karibu! Kenya's Big Five are out today: lion, leopard, elephant, rhino and buffalo. Find all five.");
+        Invoke(nameof(HideHint), 8f);
+
         if (RunIsWon())
             ShowEnd();
     }
@@ -383,15 +400,15 @@ public class UIManager : MonoBehaviour
         SetText(endSummaryText, stats);
 
         string rating = "Responsible Visitor";
-        string rangerLine = "You saw all five without disturbing one. That is how tourism keeps the Big Five wild.";
+        string rangerLine = "Asante! You met all of Kenya's Big Five without disturbing one. That is how tourism keeps them wild.";
         Color ratingColour = responsibleColor;
 
         if (breaches > 0)
         {
             rating = breaches <= 2 ? "Careful Visitor" : "Reckless Visitor";
             rangerLine = breaches <= 2
-                ? "A few close calls. Next time give them more space."
-                : "Too many disturbances. Stressed animals leave the places tourists come to see.";
+                ? "Asante! You met Kenya's Big Five, with a few close calls. Next time give them more space."
+                : "Hatari! You met Kenya's Big Five and somehow lived to tell the tale. Next time, admire them from further away.";
             ratingColour = breaches <= 2 ? carefulColor : recklessColor;
         }
 

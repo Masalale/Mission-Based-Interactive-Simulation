@@ -13,13 +13,11 @@ MonoBehaviour:
   m_Name: SO_Rhino
   m_EditorClassIdentifier: Assembly-CSharp::AnimalData
   displayName: Black Rhino
-  habitat: Thick scrub and bushland. See them at Ol Pejeta Conservancy.
-  status: Critically Endangered (IUCN Red List)
-  fact: Kenya's black rhino population has more than doubled, from fewer than 400
-    in the 1980s to over 1,000, according to Kenya Wildlife Service figures reported
-    by WWF.
-  viewingTip: Switch the flash off and keep quiet, because a sudden noise can make
-    a rhino charge.
+  swahiliName: Kifaru
+  places: Ol Pejeta, Lake Nakuru
+  warningSigns: Snorting
+  doTip: Switch the camera flash off and keep quiet
+  dontTip: Never make sudden noises near a rhino
   warningLine: The rhino is snorting. Move away quietly.
   viewingRadius: 18
   dangerRadius: 8

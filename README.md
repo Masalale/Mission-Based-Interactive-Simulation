@@ -1,13 +1,13 @@
 # Big Five Heritage Safari
 
-> Photograph the Big Five without disturbing them, and keep your Respect at 100.
+> Photograph Kenya's Big Five without disturbing them, and keep your Respect at 100.
 
 You are a visitor on a Kenyan savanna reserve, guided by Ranger Amani on the radio. Walk up to each animal, step inside the white circle, take a photo, and never cross the red one.
 
 ## GCGO
 
 - **Grand Challenge:** Tourism
-- **Mission:** Wildlife tourism only lasts if visitors watch animals without disturbing them. This simulation teaches safe, respectful wildlife viewing through a guided Big Five photo safari.
+- **Mission:** Wildlife tourism only lasts if visitors watch animals without disturbing them. This simulation teaches safe, respectful wildlife viewing through a guided photo safari of Kenya's Big Five.
 
 ## Problem
 
@@ -17,9 +17,9 @@ You are a visitor on a Kenyan savanna reserve, guided by Ranger Amani on the rad
 
 ## How it plays
 
-- Walk the reserve in first person and photograph the lion, leopard, elephant, rhino and buffalo.
+- Walk the reserve in first person and photograph Kenya's Big Five: lion (Simba), leopard (Chui), elephant (Tembo), rhino (Kifaru) and buffalo (Nyati).
 - A trail line leads to the nearest animal still missing from your passport.
-- Each photo opens a fact card with one fact and one safe viewing tip.
+- Each photo opens a fact card: your approach (calm or disturbed), where in Kenya to see the animal, its warning signs, and a do and a don't.
 - Photograph all five to see your Respect and visitor rating.
 - **Target users:** first-time safari visitors, school students and trainee guides.
 
@@ -60,8 +60,6 @@ You are a visitor on a Kenyan savanna reserve, guided by Ranger Amani on the rad
 - [WebGL build](TODO_WEBGL_URL)
 - [Android APK](TODO_APK_URL)
 - [Demo video](TODO_VIDEO_URL)
-
-Built with File > Build Profiles. WebGL compression is Disabled for GitHub Pages, and the APK is built with "Build App Bundle" unticked.
 
 ## Requirements
 

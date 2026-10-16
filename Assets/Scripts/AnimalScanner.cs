@@ -100,7 +100,7 @@ public class AnimalScanner : MonoBehaviour
         if (UIManager.Instance != null)
         {
             UIManager.Instance.FlashPhoto();
-            UIManager.Instance.ShowFactCard(animal.Data, firstPhoto);
+            UIManager.Instance.ShowFactCard(animal.Data, firstPhoto, animal.Disturbed);
         }
     }
 

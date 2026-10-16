@@ -13,12 +13,11 @@ MonoBehaviour:
   m_Name: SO_Leopard
   m_EditorClassIdentifier: Assembly-CSharp::AnimalData
   displayName: Leopard
-  habitat: Savanna, woodland and riverine forest. See them in the Maasai Mara.
-  status: Vulnerable (IUCN Red List)
-  fact: Leopards hunt mainly at night. They cache their kills in trees, bushes or
-    caves, out of reach of rivals such as hyenas.
-  viewingTip: Keep your voice low and never crowd a leopard, especially one up a
-    tree.
+  swahiliName: Chui
+  places: Samburu, Maasai Mara
+  warningSigns: Crouching low
+  doTip: Keep your voice low
+  dontTip: Never crowd a leopard, especially one up a tree
   warningLine: The leopard is crouching. Give it space.
   viewingRadius: 15
   dangerRadius: 6

@@ -13,12 +13,11 @@ MonoBehaviour:
   m_Name: SO_Buffalo
   m_EditorClassIdentifier: Assembly-CSharp::AnimalData
   displayName: Buffalo
-  habitat: Woodland and grassland near water. See them at Lake Nakuru National Park.
-  status: Near Threatened (IUCN Red List)
-  fact: The core of a buffalo herd is adult females and their young. In open country,
-    a large herd offers protection from lions.
-  viewingTip: Give a lone bull a wide berth, and never walk towards a buffalo, one
-    of the most dangerous animals in Africa.
+  swahiliName: Nyati
+  places: Lake Nakuru, Maasai Mara
+  warningSigns: Pawing the ground
+  doTip: Give a lone bull a wide berth
+  dontTip: Never walk towards a buffalo
   warningLine: The buffalo is pawing the ground. Back off.
   viewingRadius: 15
   dangerRadius: 6

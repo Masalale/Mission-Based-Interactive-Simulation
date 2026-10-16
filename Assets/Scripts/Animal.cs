@@ -34,6 +34,9 @@ public class Animal : MonoBehaviour
 
     public bool IsStartled { get; private set; }
 
+    // Set when the player breaks this animal's danger zone.
+    public bool Disturbed { get; private set; }
+
     // The ViewingZone trigger sets this, not this script.
     public bool InViewing { get; set; }
 
@@ -95,10 +98,16 @@ public class Animal : MonoBehaviour
         Scanned = true;
     }
 
+    public void MarkDisturbed()
+    {
+        Disturbed = true;
+    }
+
     // Not named Reset: Unity would call a method with that name as an editor message.
     public void ResetState()
     {
         Scanned = false;
+        Disturbed = false;
     }
 
     public void Startle(Vector3 playerPosition)
